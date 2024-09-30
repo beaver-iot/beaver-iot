@@ -32,11 +32,6 @@
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-yaml-dsl</artifactId>
         </dependency>
-        <!--<dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-file</artifactId>
-            <version>3.14.0</version>
-        </dependency>-->
 
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -58,25 +53,9 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.7.3</version>
             <scope>runtime</scope>
         </dependency>
 
     </dependencies>
-
-   <!-- <repositories>
-        <repository>
-            <id>snapshots</id>
-            <name>nexus-snapshots</name>
-            <url>https://nexus.yeastar.com/repository/maven-public/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-            </snapshots>
-        </repository>
-    </repositories>-->
 
 </project>
