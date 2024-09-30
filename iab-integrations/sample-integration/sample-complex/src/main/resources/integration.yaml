@@ -1,0 +1,28 @@
+
+integration:
+   complex-integration:
+     name: integration-complex
+     enabled: true
+       #添加设备
+     addDeviceServiceKey: ${integration.name}.integration.addDevice
+       #删除设备
+     deleteDeviceServiceKey: ${integration.name}.integration.deleteDevice
+     devices:
+       - id: device1
+         name: device1
+         entities:
+           - key: 'device.${deviceId}.switch'
+             name: switch
+             access_mod: rw
+             value_type: bool
+     entities:
+       - key: 'integration.${integration.name}.address'
+         name: mscAddress
+         access_mod: rw
+         value_type: string
+         type: property
+       - key: 'integration.${integration.name}.connect'
+         name: connect
+         service_call_mod: sync
+         value_type: string
+         type: service

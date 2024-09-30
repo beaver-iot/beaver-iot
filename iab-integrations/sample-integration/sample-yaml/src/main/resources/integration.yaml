@@ -1,0 +1,31 @@
+
+integration:
+  yaml-integration:
+    name: yaml-integration-sample
+    enabled: true
+    #配置云生态下行处理规则引擎子流程
+    exchangeDownSubFlow: "direct:mscDemoDeviceExchangeDownFlow"
+    devices:
+      - id: device1
+        name: device1
+        key: ${integration.name}.device.demoSN
+        entities:
+          - key: '${deviceKey}.switch'
+            name: switch
+            access_mod: rw
+            value_type: bool
+    entities:
+      - key: '${integration.name}.device.demoSN.address'
+        name: mscAddress
+        access_mod: rw
+        value_type: string
+        type: property
+      - key: '${integration.name}.integration.connect'
+        name: connect
+        value_type: string
+        type: service
+        children:
+          - key: '${integration.name}.integration.connect.url'
+            name: connectUrl
+            value_type: string
+            type: service

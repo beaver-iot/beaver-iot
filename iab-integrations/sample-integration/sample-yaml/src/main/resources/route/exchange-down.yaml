@@ -1,0 +1,7 @@
+# 编程式  或者 yaml配置式
+# 如果配置了下行路由，
+
+- from:
+    uri: "direct:mscDemoDeviceExchangeDownFlow"
+    bean: "jsonExchangeTransformer"
+    to: "http://localhost:8080/msc-xxx"

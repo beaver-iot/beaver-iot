@@ -1,0 +1,8 @@
+
+integration:
+   anno-integration:
+      name: anno-integration-sample
+      #全局可通过integration.{integrationName}.enabled 来控制是否启停用集成
+      enabled: true
+      #自动根据注解创建实体,默认true
+      autoCreateByAnnotation: true

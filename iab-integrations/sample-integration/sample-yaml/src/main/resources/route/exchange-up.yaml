@@ -1,0 +1,5 @@
+- from:
+    uri: "undertow:{{entity:msc-integration.integration.url}}"
+    steps:
+     - to: "bean:demoEntityExchangeTransformer?method=transform"
+     - to: "direct:genericDeviceExchangeUpFlow"
