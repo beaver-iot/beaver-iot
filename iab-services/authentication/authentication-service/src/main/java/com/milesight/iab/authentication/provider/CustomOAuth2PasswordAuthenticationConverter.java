@@ -29,11 +29,11 @@ public class CustomOAuth2PasswordAuthenticationConverter implements Authenticati
         MultiValueMap<String, String> parameters = OAuth2EndpointUtils.getParameters(request);
         String username = parameters.getFirst(OAuth2ParameterNames.USERNAME);
         if (!StringUtils.hasText(username) || parameters.get(OAuth2ParameterNames.USERNAME).size() != 1) {
-            OAuth2EndpointUtils.throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.USERNAME, null);
+            OAuth2EndpointUtils.throwError(OAuth2ErrorCodes.INVALID_REQUEST, "username is null.", null);
         }
         String password = parameters.getFirst(OAuth2ParameterNames.PASSWORD);
         if (!StringUtils.hasText(password) || parameters.get(OAuth2ParameterNames.PASSWORD).size() != 1) {
-            OAuth2EndpointUtils.throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.PASSWORD, null);
+            OAuth2EndpointUtils.throwError(OAuth2ErrorCodes.INVALID_REQUEST, "password is null.", null);
         }
         Map<String, Object> additionalParameters = new HashMap<>();
         parameters.forEach((key, value) -> {

@@ -29,8 +29,8 @@ public class OAuth2EndpointUtils {
         return parameters;
     }
 
-    public static void throwError(String errorCode, String parameterName, String errorUri) {
-        OAuth2Error error = new OAuth2Error(errorCode, "OAuth 2.0 Parameter: " + parameterName, errorUri);
+    public static void throwError(String errorCode, String description, String errorUri) {
+        OAuth2Error error = new OAuth2Error(errorCode, description, errorUri);
         throw new OAuth2AuthenticationException(error);
     }
 }

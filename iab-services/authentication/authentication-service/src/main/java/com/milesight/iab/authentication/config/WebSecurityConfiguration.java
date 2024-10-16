@@ -1,5 +1,9 @@
 package com.milesight.iab.authentication.config;
 
+import com.milesight.iab.authentication.exception.CustomAuthenticationHandler;
+import com.milesight.iab.authentication.exception.CustomOAuth2AccessDeniedHandler;
+import com.milesight.iab.authentication.exception.CustomOAuth2ExceptionEntryPoint;
+import com.milesight.iab.authentication.handler.CustomOAuth2AccessTokenResponseHandler;
 import com.milesight.iab.authentication.provider.CustomOAuth2PasswordAuthenticationConverter;
 import com.milesight.iab.authentication.provider.CustomOAuth2PasswordAuthenticationProvider;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -71,13 +75,18 @@ public class WebSecurityConfiguration {
                         tokenEndpoint.accessTokenRequestConverter(new DelegatingAuthenticationConverter(Arrays.asList(
                                         new OAuth2RefreshTokenAuthenticationConverter(),
                                         new OAuth2ClientCredentialsAuthenticationConverter(),
-                                        new CustomOAuth2PasswordAuthenticationConverter())))
-                                .authenticationProvider(new CustomOAuth2PasswordAuthenticationProvider(authorizationService(), tokenGenerator(), userDetailsService, passwordEncoder())))
+                                        new CustomOAuth2PasswordAuthenticationConverter()))
+                                )
+                                .authenticationProvider(new CustomOAuth2PasswordAuthenticationProvider(authorizationService(), tokenGenerator(), userDetailsService, passwordEncoder()))
+                                .errorResponseHandler(new CustomAuthenticationHandler())
+                                .accessTokenResponseHandler(new CustomOAuth2AccessTokenResponseHandler())
+                )
+                .clientAuthentication(clientAuthentication -> clientAuthentication.errorResponseHandler(new CustomAuthenticationHandler()))
                 .oidc(Customizer.withDefaults());
         http.oauth2ResourceServer(oauth2ResourceServer ->
-                oauth2ResourceServer.jwt(
-                        Customizer.withDefaults()
-                )
+                oauth2ResourceServer.jwt(Customizer.withDefaults())
+                        .authenticationEntryPoint(new CustomOAuth2ExceptionEntryPoint())
+                        .accessDeniedHandler(new CustomOAuth2AccessDeniedHandler())
         );
         return http.build();
     }
@@ -99,6 +108,10 @@ public class WebSecurityConfiguration {
                 .httpBasic(
                         httpBasic -> {
                         }
+                )
+                .exceptionHandling(
+                        exception -> exception.authenticationEntryPoint(new CustomOAuth2ExceptionEntryPoint())
+                                .accessDeniedHandler(new CustomOAuth2AccessDeniedHandler())
                 )
                 .csrf(
                         AbstractHttpConfigurer::disable
