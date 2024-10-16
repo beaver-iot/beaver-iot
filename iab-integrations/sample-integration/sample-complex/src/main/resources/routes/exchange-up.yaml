@@ -10,7 +10,7 @@
     steps:
       - bean: "demoMscPullExchangeSource"
       - bean: "demoMscExchangeTransformer"
-      - to: "direct:innerExchangeUpFlow-new"
+      - to: "direct:innerExchangeUpFlow"
 
 # 采用yaml编写路由的写法
 #- from:

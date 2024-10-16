@@ -44,7 +44,7 @@ public class RuleEngineRunner implements SmartInitializingSingleton, Application
         for (String beanName : beanNamesForAnnotation) {
             Object bean = applicationContext.getBean(beanName);
             RuleNode ruleNode = AnnotationUtils.getAnnotation(bean.getClass(), RuleNode.class);
-            if(ruleNode == null){
+            if(ruleNode != null){
                 camelContext.getRegistry().bind(ruleNode.name(), bean);
             }
         }
