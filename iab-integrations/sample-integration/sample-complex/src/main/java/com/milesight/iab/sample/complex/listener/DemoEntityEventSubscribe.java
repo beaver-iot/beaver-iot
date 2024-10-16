@@ -27,7 +27,6 @@ public class DemoEntityEventSubscribe {
     // save properties
     @EventSubscribe(payloadKeyExpression ="msc-integration.integration.connect.*")
     public void subscribeSaveSetting(Event<DemoMscSettingEntities> event) {
-        //subscribe setting  ?
     }
 
     // sync event

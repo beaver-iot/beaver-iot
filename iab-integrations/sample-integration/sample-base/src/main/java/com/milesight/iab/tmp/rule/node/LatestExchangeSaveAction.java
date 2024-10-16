@@ -18,8 +18,6 @@ import org.springframework.stereotype.Component;
 public class LatestExchangeSaveAction implements ProcessorNode<ExchangePayload> {
     @Override
     public void processor(ExchangePayload exchange) {
-        Object o = exchange.get("msc-integration.integration.token");
-
         log.info("LatestExchangeSaveAction processor {}",exchange.toString());
 
     }

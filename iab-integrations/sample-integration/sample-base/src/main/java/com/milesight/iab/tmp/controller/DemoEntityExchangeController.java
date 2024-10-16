@@ -24,18 +24,6 @@ public class DemoEntityExchangeController  {
     public String dynamicForm(){
         return null;
     }
-//    @PostMapping("/api/v1/entity/services/call")
-//    public String callServices(List<ExchangePayload> message){
-//        return callExchangeUp(message);
-//    }
-//    @PostMapping("/api/v1/entity/events/call")
-//    public String callEvents(List<ExchangePayload> message){
-//        return callExchangeUp(message);
-//    }
-//    @PostMapping("/api/v1/entity/properties/call")
-//    public String callProperties(List<ExchangePayload> message){
-//        return callExchangeUp(message);
-//    }
 
     @PostMapping("/api/v1/entity/exchange-down")
     public Object exchangeDown(@RequestBody ExchangePayload message){

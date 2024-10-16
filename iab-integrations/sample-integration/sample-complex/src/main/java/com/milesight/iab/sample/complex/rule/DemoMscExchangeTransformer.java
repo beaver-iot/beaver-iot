@@ -18,7 +18,6 @@ public class DemoMscExchangeTransformer implements TransformerNode<Exchange, Exc
     public ExchangePayload transform(Exchange exchange) {
         ExchangePayload body = exchange.getIn().getBody(ExchangePayload.class);
         log.info("demoMscExchangeTransformer transform {},",body);
-        System.out.println(1/0);
         return body;
     }
 }

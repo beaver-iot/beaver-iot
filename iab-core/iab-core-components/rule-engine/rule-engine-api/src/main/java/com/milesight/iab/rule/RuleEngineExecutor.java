@@ -1,7 +1,6 @@
 package com.milesight.iab.rule;
 
 import org.apache.camel.Exchange;
-import org.apache.camel.ProducerTemplate;
 
 import java.util.concurrent.CompletableFuture;
 

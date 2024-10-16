@@ -1,13 +1,10 @@
 package com.milesight.iab.tmp.controller;
 
-import com.milesight.iab.context.integration.model.ExchangePayload;
-import com.milesight.iab.rule.RuleEngineExecutor;
 import org.apache.camel.CamelContext;
-import org.apache.camel.Endpoint;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.ReflectionUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author leon

@@ -25,9 +25,9 @@ public class ComplexIntegrationBootstrap implements IntegrationBootstrap {
         Entity entityConfig = new EntityBuilder()
                 .property("prop1", AccessMod.W)
                 .children()
-                .property("prop11", AccessMod.W).end()
+                    .property("prop11", AccessMod.W).end()
                 .children()
-                .property("prop12", AccessMod.W).end()
+                    .property("prop12", AccessMod.W).end()
                 .build();
         Device device = new DeviceBuilder()
                 .name("complexDevice1")
