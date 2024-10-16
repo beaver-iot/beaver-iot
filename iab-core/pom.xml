@@ -13,10 +13,9 @@
     <artifactId>iab-core</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>specifications</module>
-        <module>script-engine</module>
-        <module>rule-engine</module>
-        <module>eventbus</module>
+        <module>iab-base</module>
+        <module>iab-context</module>
+        <module>iab-core-components</module>
     </modules>
 
     <properties>

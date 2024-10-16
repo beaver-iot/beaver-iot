@@ -1,28 +1,32 @@
 
 integration:
-   complex-integration:
-     name: integration-complex
+   msc-integration:
      enabled: true
-       #添加设备
-     addDeviceServiceKey: ${integration.name}.integration.addDevice
-       #删除设备
-     deleteDeviceServiceKey: ${integration.name}.integration.deleteDevice
+#     flow-exchange-down-handler: direct:mscExchangeDownHandler
+     #添加设备
+     entity-identifier-add-device: addDevice
+     #删除设备
+     entity-identifier-delete-device: deleteDevice
      devices:
-       - id: device1
-         name: device1
+       - name: device1
+         identifier: demoSN
          entities:
-           - key: 'device.${deviceId}.switch'
+           - identifier: '${deviceKey}.switch'
              name: switch
              access_mod: rw
-             value_type: bool
+             value_type: boolean
      entities:
-       - key: 'integration.${integration.name}.address'
+       - identifier: 'address'
          name: mscAddress
          access_mod: rw
          value_type: string
          type: property
-       - key: 'integration.${integration.name}.connect'
+       - identifier: 'connect'
          name: connect
-         service_call_mod: sync
-         value_type: string
+#         value_type: string
          type: service
+         children:
+           - identifier: 'connect.url'
+             name: connectUrl
+             value_type: string
+#             type: service

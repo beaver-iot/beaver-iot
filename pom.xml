@@ -12,7 +12,7 @@
         <module>iab-application</module>
         <module>iab-core</module>
         <module>iab-services</module>
-        <module>iab-components</module>
+        <module>iab-extension-components</module>
         <module>iab-integrations</module>
     </modules>
 
@@ -41,6 +41,19 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <!--<dependency>
+                <groupId>org.apache.camel.springboot</groupId>
+                <artifactId>camel-spring-starter</artifactId>
+                <version>${camel.version}</version>
+            </dependency>-->
+            <dependency>
+                <groupId>org.apache.camel.springboot</groupId>
+                <artifactId>camel-spring-boot-dependencies</artifactId>
+                <version>${camel.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
             <dependency>
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>

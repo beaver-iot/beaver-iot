@@ -17,6 +17,7 @@
         <module>device</module>
         <module>authentication</module>
         <module>integration</module>
+        <module>entity</module>
     </modules>
 
     <properties>

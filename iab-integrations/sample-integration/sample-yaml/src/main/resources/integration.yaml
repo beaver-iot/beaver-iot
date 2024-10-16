@@ -1,31 +1,33 @@
 
 integration:
-  yaml-integration:
-    name: yaml-integration-sample
+  yaml-integration:  #当前集成的名称
     enabled: true
-    #配置云生态下行处理规则引擎子流程
-    exchangeDownSubFlow: "direct:mscDemoDeviceExchangeDownFlow"
+    #配置当前集成（云生态）下行处理规则引擎子流程
+    flow-exchange-down-handler: "direct:myDemoExchangeDownHandler"
+    #添加设备
+    entity-identifier-add-device: addDevice
+    #删除设备
+    entity-identifier-delete-device: deleteDevice
     devices:
-      - id: device1
-        name: device1
-        key: ${integration.name}.device.demoSN
+      - name: device1
+        identifier: demoSN
         entities:
-          - key: '${deviceKey}.switch'
+          - identifier: 'switch'
             name: switch
             access_mod: rw
-            value_type: bool
+            value_type: boolean
     entities:
-      - key: '${integration.name}.device.demoSN.address'
+      - identifier: 'address'
         name: mscAddress
         access_mod: rw
         value_type: string
         type: property
-      - key: '${integration.name}.integration.connect'
+      - identifier: 'connect'
         name: connect
         value_type: string
         type: service
         children:
-          - key: '${integration.name}.integration.connect.url'
+          - identifier: 'connect.url'
             name: connectUrl
             value_type: string
             type: service

@@ -23,19 +23,16 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-yaml-dsl</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-undertow</artifactId>
         </dependency>
 
         <!-- lombok -->
@@ -54,6 +51,42 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
+        </dependency>
+
+        <!-- core jar -->
+        <dependency>
+            <groupId>com.milesight.iab</groupId>
+            <artifactId>iab-context</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.milesight.iab</groupId>
+            <artifactId>rule-engine-component</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.milesight.iab</groupId>
+            <artifactId>eventbus-disruptor</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- sample test -->
+        <dependency>
+            <groupId>com.milesight.iab</groupId>
+            <artifactId>sample-yaml</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.milesight.iab</groupId>
+            <artifactId>sample-annotation</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.milesight.iab</groupId>
+            <artifactId>sample-complex</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
     </dependencies>
