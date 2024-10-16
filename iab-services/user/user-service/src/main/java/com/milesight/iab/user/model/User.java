@@ -1,4 +1,4 @@
-package com.milesight.iab.user.entity;
+package com.milesight.iab.user.model;
 
 import lombok.Data;
 
@@ -7,7 +7,7 @@ import lombok.Data;
  * @date 2024/10/14 8:42
  */
 @Data
-public class UserEntity {
+public class User {
 
     private Long id;
     private String email;
