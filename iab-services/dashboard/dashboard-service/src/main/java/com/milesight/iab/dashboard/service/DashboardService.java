@@ -1,6 +1,7 @@
 package com.milesight.iab.dashboard.service;
 
-import com.milesight.iab.dashboard.request.CreateDashboardRequest;
+import com.milesight.iab.base.response.ResponseBody;
+import com.milesight.iab.dashboard.model.request.CreateDashboardRequest;
 import org.springframework.stereotype.Service;
 
 /**
@@ -10,44 +11,44 @@ import org.springframework.stereotype.Service;
 @Service
 public class DashboardService {
 
-    public String createDashboard(CreateDashboardRequest createDashboardRequest) {
+    public ResponseBody createDashboard(CreateDashboardRequest createDashboardRequest) {
         //TODO
-        return "createDashboard";
+        return null;
     }
 
-    public String updateDashboard(String dashboardId) {
+    public ResponseBody updateDashboard(String dashboardId) {
         //TODO
-        return "updateDashboard";
+        return null;
     }
 
-    public String deleteDashboard(String dashboardId) {
+    public ResponseBody deleteDashboard(String dashboardId) {
         //TODO
-        return "deleteDashboard";
+        return null;
     }
 
-    public String getDashboards() {
+    public ResponseBody getDashboards() {
         //TODO
-        return "getDashboards";
+        return null;
     }
 
-    public String createWidget(String dashboardId) {
+    public ResponseBody createWidget(String dashboardId) {
         //TODO
-        return "createWidget";
+        return null;
     }
 
-    public String updateWidget(String dashboardId, String widgetId) {
+    public ResponseBody updateWidget(String dashboardId, String widgetId) {
         //TODO
-        return "updateWidget";
+        return null;
     }
 
-    public String deleteWidget(String dashboardId, String widgetId) {
+    public ResponseBody deleteWidget(String dashboardId, String widgetId) {
         //TODO
-        return "deleteWidget";
+        return null;
     }
 
-    public String getWidgets(String dashboardId) {
+    public ResponseBody getWidgets(String dashboardId) {
         //TODO
-        return "getWidgets";
+        return null;
     }
 
 }

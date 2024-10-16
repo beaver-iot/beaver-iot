@@ -1,18 +1,15 @@
-package com.milesight.iab.dashboard.model;
+package com.milesight.iab.dashboard.entity;
 
 import lombok.Data;
 
-import java.util.Date;
-
 /**
  * @author loong
- * @date 2024/10/14 15:10
+ * @date 2024/10/14 15:11
  */
 @Data
-public class DashboardWidget {
+public class DashboardWidgetTemplatePO {
 
     private Long id;
-    private Long dashboardId;
     private String name;
     private String data;
     private Long createdAt;

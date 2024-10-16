@@ -1,4 +1,4 @@
-package com.milesight.iab.dashboard.request;
+package com.milesight.iab.dashboard.model.request;
 
 import lombok.Data;
 

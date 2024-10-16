@@ -1,6 +1,7 @@
 package com.milesight.iab.dashboard.controller;
 
-import com.milesight.iab.dashboard.request.CreateDashboardRequest;
+import com.milesight.iab.base.response.ResponseBody;
+import com.milesight.iab.dashboard.model.request.CreateDashboardRequest;
 import com.milesight.iab.dashboard.service.DashboardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,42 +24,42 @@ public class DashboardController {
     DashboardService dashboardService;
 
     @PostMapping("")
-    public String createDashboard(CreateDashboardRequest createDashboardRequest) {
+    public ResponseBody createDashboard(CreateDashboardRequest createDashboardRequest) {
         return dashboardService.createDashboard(createDashboardRequest);
     }
 
     @PutMapping("/{dashboardId}")
-    public String updateDashboard(@PathVariable("dashboardId") String dashboardId) {
+    public ResponseBody updateDashboard(@PathVariable("dashboardId") String dashboardId) {
         return dashboardService.updateDashboard(dashboardId);
     }
 
     @DeleteMapping("/{dashboardId}")
-    public String deleteDashboard(@PathVariable("dashboardId") String dashboardId) {
+    public ResponseBody deleteDashboard(@PathVariable("dashboardId") String dashboardId) {
         return dashboardService.deleteDashboard(dashboardId);
     }
 
     @GetMapping("/dashboards")
-    public String getDashboards() {
+    public ResponseBody getDashboards() {
         return dashboardService.getDashboards();
     }
 
     @PostMapping("/{dashboardId}/widget")
-    public String createWidget(@PathVariable("dashboardId") String dashboardId) {
+    public ResponseBody createWidget(@PathVariable("dashboardId") String dashboardId) {
         return dashboardService.createWidget(dashboardId);
     }
 
     @PutMapping("/{dashboardId}/widget/{widgetId}")
-    public String updateWidget(@PathVariable("dashboardId") String dashboardId, @PathVariable("widgetId") String widgetId) {
+    public ResponseBody updateWidget(@PathVariable("dashboardId") String dashboardId, @PathVariable("widgetId") String widgetId) {
         return dashboardService.updateWidget(dashboardId, widgetId);
     }
 
     @DeleteMapping("/{dashboardId}/widget/{widgetId}")
-    public String deleteWidget(@PathVariable("dashboardId") String dashboardId, @PathVariable("widgetId") String widgetId) {
+    public ResponseBody deleteWidget(@PathVariable("dashboardId") String dashboardId, @PathVariable("widgetId") String widgetId) {
         return dashboardService.deleteWidget(dashboardId, widgetId);
     }
 
     @GetMapping("/{dashboardId}/widgets")
-    public String getWidgets(@PathVariable("dashboardId") String dashboardId) {
+    public ResponseBody getWidgets(@PathVariable("dashboardId") String dashboardId) {
         return dashboardService.getWidgets(dashboardId);
     }
 

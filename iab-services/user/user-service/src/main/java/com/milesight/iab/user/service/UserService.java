@@ -1,6 +1,7 @@
 package com.milesight.iab.user.service;
 
-import com.milesight.iab.user.request.UserRegisterRequest;
+import com.milesight.iab.base.response.ResponseBody;
+import com.milesight.iab.user.model.request.UserRegisterRequest;
 import org.springframework.stereotype.Service;
 
 /**
@@ -10,10 +11,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService {
 
-    public String register(UserRegisterRequest userRegisterRequest) {
+    public ResponseBody register(UserRegisterRequest userRegisterRequest) {
         //TODO
 
-        return "register";
+        return null;
     }
 
 }

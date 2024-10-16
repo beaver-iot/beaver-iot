@@ -1,4 +1,4 @@
-package com.milesight.iab.entity.model;
+package com.milesight.iab.entity.entity;
 
 import lombok.Data;
 
@@ -7,7 +7,7 @@ import lombok.Data;
  * @date 2024/10/16 14:25
  */
 @Data
-public class Entity {
+public class EntityPO {
 
     private Long id;
     private String key;

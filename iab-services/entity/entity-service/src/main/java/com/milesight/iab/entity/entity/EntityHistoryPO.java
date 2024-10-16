@@ -1,4 +1,4 @@
-package com.milesight.iab.entity.model;
+package com.milesight.iab.entity.entity;
 
 import lombok.Data;
 
@@ -9,7 +9,7 @@ import java.sql.Blob;
  * @date 2024/10/16 14:30
  */
 @Data
-public class EntityHistory {
+public class EntityHistoryPO {
 
     private Long id;
     private Long entityId;
