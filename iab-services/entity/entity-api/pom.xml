@@ -5,16 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.milesight.iab</groupId>
-        <artifactId>iab-services</artifactId>
+        <artifactId>entity</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>entity</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>entity-api</module>
-        <module>entity-service</module>
-    </modules>
+    <artifactId>entity-api</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
