@@ -63,7 +63,6 @@ public class Sorts  {
         return Sort.by(collect);
     }
 
-
     @Getter
     public static class Order implements Serializable {
         protected Sort.Direction direction;

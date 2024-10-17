@@ -2,10 +2,7 @@ package com.milesight.iab.base.page;
 
 
 /**
- * 分页请求接口规范
- * todo: 待确认
- * 1）先前sort是否会由前端传递构建？
- * 2）是否前端传递query查询条件，条件规则为fq打头，如?fqXm=abc&
+ * Paging request interface specification
  * @author leon
  */
 public interface PageSpec  {

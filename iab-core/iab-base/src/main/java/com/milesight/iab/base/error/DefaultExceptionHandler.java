@@ -82,7 +82,6 @@ public class DefaultExceptionHandler {
         return ResponseBuilder.fail(ErrorCode.SERVER_ERROR);
     }
 
-
     @ResponseBody
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

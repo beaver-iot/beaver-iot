@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 兼容Spring Page接口
  * @author leon
  */
 @Getter

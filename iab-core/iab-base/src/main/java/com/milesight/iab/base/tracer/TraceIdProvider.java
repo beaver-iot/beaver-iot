@@ -5,6 +5,7 @@ import java.util.UUID;
 import static com.milesight.iab.base.constants.StringConstant.DASHED;
 
 /**
+ * todo
  * @author leon
  */
 public interface TraceIdProvider {

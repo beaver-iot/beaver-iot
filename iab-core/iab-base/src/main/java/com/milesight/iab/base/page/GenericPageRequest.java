@@ -21,7 +21,7 @@ public class GenericPageRequest implements PageSpec {
     @JsonUnwrapped
     protected Sorts sort;
     /**
-     * 总数，当前端提交total则后端不进行count计算
+     * Total number. If the current end submits total, the back end will not perform count calculation.
      */
     protected Long total;
 
