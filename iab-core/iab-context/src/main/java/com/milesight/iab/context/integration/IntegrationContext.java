@@ -16,24 +16,24 @@ public class IntegrationContext {
 
     private Map<String, StandardEnvironment> integrationEnvironmentCache = new ConcurrentHashMap<>();
 
-    private Map<String, Integration> integrationConfigCache = new ConcurrentHashMap<>();
+    private Map<String, Integration> integrationCache = new ConcurrentHashMap<>();
 
     public void cacheIntegration(IntegrationBootstrap integrationBootstrap, Integration integrationConfig, StandardEnvironment integrationEnvironment) {
         integrationBootstrapCache.put(integrationConfig.getName(), integrationBootstrap);
-        integrationConfigCache.put(integrationConfig.getName(), integrationConfig);
+        integrationCache.put(integrationConfig.getName(), integrationConfig);
         integrationEnvironmentCache.put(integrationConfig.getName(), integrationEnvironment);
     }
 
-    public Integration getIntegrationConfig(String name) {
-        return integrationConfigCache.get(name);
+    public Integration getIntegration(String name) {
+        return integrationCache.get(name);
     }
 
     public IntegrationBootstrap getIntegrationBootstrap(String name) {
         return integrationBootstrapCache.get(name);
     }
 
-    public Map<String, Integration> getAllIntegrationConfigs(){
-        return integrationConfigCache;
+    public Map<String, Integration> getAllIntegrations(){
+        return integrationCache;
     }
 
     public Map<String,IntegrationBootstrap> getAllIntegrationBootstraps(){

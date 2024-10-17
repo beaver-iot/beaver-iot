@@ -5,20 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * @param <T>
+ *
+ * @author leon
  */
 @Getter
 @Slf4j
 public class ResponseBody<T>  {
-
-    /**
-     * default ResponseBody successful response status
-     */
-    String DEFAULT_RESPONSE_STATUS_SUCCESS = "Success";
-
-    /**
-     * Default ResponseBody failure response status
-     */
-    String DEFAULT_RESPONSE_STATUS_FAILED = "Failed";
 
     /**
      * Response Data
@@ -43,24 +35,25 @@ public class ResponseBody<T>  {
     /**
      * Error message (returned only when the response status is Failed)
      */
-    private String errorMsg;
+    private String errorMessage;
 
     /**
      * Detailed error description information
      */
-    private String detailMsg;
+    private String detailMessage;
 
-    public static ResponseBody instance(){
-        return new ResponseBody();
+    public ResponseBody data(T data) {
+        this.data = data;
+        return this;
     }
 
     public ResponseBody onSuccess() {
-        this.status = DEFAULT_RESPONSE_STATUS_SUCCESS;
+        this.status = ResponseBuilder.DEFAULT_RESPONSE_STATUS_SUCCESS;
         return this;
     }
 
     public ResponseBody onFailed() {
-        this.status = DEFAULT_RESPONSE_STATUS_FAILED;
+        this.status = ResponseBuilder.DEFAULT_RESPONSE_STATUS_FAILED;
         return this;
     }
 
@@ -74,13 +67,13 @@ public class ResponseBody<T>  {
         return this;
     }
 
-    public ResponseBody errorMsg(String errMsg) {
-        this.errorCode = errMsg;
+    public ResponseBody errorMessage(String errMsg) {
+        this.errorMessage = errMsg;
         return this;
     }
 
-    public ResponseBody detailMsg(String detailMsg) {
-        this.detailMsg = detailMsg;
+    public ResponseBody detailMessage(String detailMsg) {
+        this.detailMessage = detailMsg;
         return this;
     }
 

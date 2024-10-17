@@ -5,13 +5,10 @@ import com.milesight.iab.eventbus.annotations.EventSubscribe;
 import com.milesight.iab.eventbus.api.Event;
 import com.milesight.iab.sample.complex.entity.DemoMscSettingEntities;
 import com.milesight.iab.context.api.DeviceServiceProvider;
-import com.milesight.iab.context.api.EntityServiceProvider;
 import com.milesight.iab.context.api.IntegrationServiceProvider;
-import com.milesight.iab.context.integration.builder.DeviceBuilder;
 import com.milesight.iab.context.integration.builder.EntityBuilder;
 import com.milesight.iab.context.integration.builder.IntegrationBuilder;
 import com.milesight.iab.context.integration.enums.AccessMod;
-import com.milesight.iab.context.integration.model.Device;
 import com.milesight.iab.context.integration.model.Entity;
 import com.milesight.iab.context.integration.model.Integration;
 import com.milesight.iab.context.integration.model.event.ExchangeEvent;
@@ -44,11 +41,11 @@ public class DemoEntityEventSubscribe {
                 .build();
         Integration integrationConfig = new IntegrationBuilder()
                 .integration("name", "description")
-                    .device("name","description")
+                    .initialDevice("name","description")
                         .entity(entityConfig)
                         .entity(entityConfig)
                         .end()
-                    .device()
+                    .initialDevice()
                         .name("a")
                         .identifier("b")
                         .entity(entityConfig)

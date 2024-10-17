@@ -8,42 +8,86 @@ import org.springframework.util.StringUtils;
  */
 public class ServiceException extends BaseException{
 
-    public static int DEFAULT_STATUS_INTERNAL_SERVER_ERROR = HttpStatus.INTERNAL_SERVER_ERROR.value();
-
+    /**
+     * Http response status code, default 500
+     */
     private int status;
+    /**
+     * Exception Code
+     */
+    private String errorCode;
+    /**
+     * Exception information
+     */
+    private String errorMessage;
 
-    protected String code;
-
-    protected String errorMessage;
-
-    protected String detailMessage;
-
-    protected Object args = null;
+    /**
+     * Detailed exception information
+     */
+    private String detailMessage;
+    /**
+     * The parameters corresponding to the error code can be responded to the front end
+     */
+    private transient Object args = null;
 
     public ServiceException(int status, String code, String message, String detailMessage, Object args, Throwable throwable) {
-        super(StringUtils.isEmpty(message) ? code : message, throwable) ;
+        super(StringUtils.hasText(message) ? message : code , throwable) ;
         this.status = status;
-        this.code = code;
+        this.errorCode = code;
         this.errorMessage = message;
         this.detailMessage = detailMessage;
         this.args = args;
     }
 
-    public ServiceException( String code, String message) {
-        this(DEFAULT_STATUS_INTERNAL_SERVER_ERROR, code, message, null,null,null);
+    public ServiceException(){
     }
-    public ServiceException( String code, String message, Object args) {
-        this(DEFAULT_STATUS_INTERNAL_SERVER_ERROR, code, message, null, args,null);
+    public ServiceException(String errorCode, String errorMessage) {
+        this(HttpStatus.INTERNAL_SERVER_ERROR.value(), errorCode, errorMessage, null,null,null);
     }
-    public ServiceException( String code, String message, Throwable throwable) {
-        this(DEFAULT_STATUS_INTERNAL_SERVER_ERROR, code, message, null,null,throwable);
+    public ServiceException( String errorCode, String errorMessage, Object args) {
+        this(HttpStatus.INTERNAL_SERVER_ERROR.value(), errorCode, errorMessage, null, args,null);
     }
-    public ServiceException( String code, String message, Object args, Throwable throwable) {
-        this(DEFAULT_STATUS_INTERNAL_SERVER_ERROR, code, message, null, args,throwable);
+    public ServiceException( String errorCode, String errorMessage, Throwable throwable) {
+        this(HttpStatus.INTERNAL_SERVER_ERROR.value(), errorCode, errorMessage, null,null,throwable);
+    }
+    public ServiceException( String errorCode, String errorMessage, Object args, Throwable throwable) {
+        this(HttpStatus.INTERNAL_SERVER_ERROR.value(), errorCode, errorMessage, null, args,throwable);
     }
 
-    public String getCode() {
-        return code;
+    public ServiceException(ErrorCodeSpec errorCodeSpec){
+        this(errorCodeSpec, null,null,null);
+    }
+
+    public ServiceException(ErrorCodeSpec errorCodeSpec, String detailMessage){
+        this(errorCodeSpec, detailMessage, null, null);
+    }
+
+    public ServiceException(ErrorCodeSpec errorCodeSpec, String detailMessage, Object args){
+        this(errorCodeSpec, detailMessage, args, null);
+    }
+
+    public ServiceException(ErrorCodeSpec errorCodeSpec, Throwable throwable){
+        this(errorCodeSpec, null,null, throwable);
+    }
+
+    public ServiceException(ErrorCodeSpec errorCodeSpec, String detailMessage, Throwable throwable){
+        this(errorCodeSpec, detailMessage,null, throwable);
+    }
+
+    public ServiceException(ErrorCodeSpec errorCodeSpec, Object args, Throwable throwable){
+        this(errorCodeSpec.getStatus(), errorCodeSpec.getErrorCode(), errorCodeSpec.getErrorMessage(), errorCodeSpec.getDetailMessage(), args,throwable);
+    }
+
+    public ServiceException(ErrorCodeSpec errorCodeSpec, String detailMessage,  Object args, Throwable throwable){
+        this(errorCodeSpec.getStatus(), errorCodeSpec.getErrorCode(), errorCodeSpec.getErrorMessage(), detailMessage, args,throwable);
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public String getErrorCode() {
+        return errorCode;
     }
 
     public String getErrorMessage() {
@@ -72,37 +116,25 @@ public class ServiceException extends BaseException{
         return this;
     }
 
-    public static ServiceExceptionBuilder with(String code, String message){
-        return new ServiceExceptionBuilder(code, message);
+    public static ServiceExceptionBuilder with(ErrorCodeSpec errorCodeSpec){
+        return new ServiceExceptionBuilder(errorCodeSpec.getErrorCode(), errorCodeSpec.getErrorMessage()).status(errorCodeSpec.getStatus());
+    }
+
+    public static ServiceExceptionBuilder with(String errorCode, String errorMessage){
+        return new ServiceExceptionBuilder(errorCode, errorMessage);
     }
 
     public static class ServiceExceptionBuilder{
-        /**
-         * Http response status code, default 500
-         */
         private int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
-        /**
-         * exception code
-         */
-        private String code;
-        /**
-         * exception information
-         */
-        private String message;
-        /**
-         * Detailed exception information
-         */
+        private String errorCode;
+        private String errorMessage;
         private String detailMessage;
-        /**
-         * Parameters corresponding to the error code can be used for front-end translation
-         */
         private Object args = null;
-
         private Throwable throwable;
 
-        public ServiceExceptionBuilder(String code, String message){
-            this.code = code;
-            this.message = message;
+        public ServiceExceptionBuilder(String errorCode, String errorMessage){
+            this.errorCode = errorCode;
+            this.errorMessage = errorMessage;
         }
         public ServiceExceptionBuilder status(int status){
             this.status = status;
@@ -121,7 +153,8 @@ public class ServiceException extends BaseException{
             return this;
         }
         public ServiceException build(){
-            return new ServiceException(status, code, message, detailMessage, args, throwable);
+            return new ServiceException(status, errorCode, errorMessage, detailMessage, args, throwable);
         }
     }
+
 }

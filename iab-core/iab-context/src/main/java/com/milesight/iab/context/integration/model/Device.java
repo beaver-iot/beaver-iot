@@ -5,6 +5,8 @@ import com.milesight.iab.context.constants.IntegrationConstants;
 import com.milesight.iab.eventbus.api.IdentityKey;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,5 +38,16 @@ public class Device implements IdentityKey {
     @Override
     public String getKey() {
         return IntegrationConstants.formatIntegrationDeviceKey(integration.getName(), identifier);
+    }
+
+    public void initializeProperties(Integration integration) {
+        Assert.notNull(integration, "Integration must not be null");
+        this.setIntegration(integration);
+        List<Entity> entitiesList = getEntities();
+        if(!CollectionUtils.isEmpty(entitiesList)){
+            for (Entity entity : entitiesList) {
+                entity.initializeProperties(integration, this);
+            }
+        }
     }
 }

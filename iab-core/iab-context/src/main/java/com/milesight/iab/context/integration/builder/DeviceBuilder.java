@@ -2,6 +2,7 @@ package com.milesight.iab.context.integration.builder;
 
 import com.milesight.iab.context.integration.model.Device;
 import com.milesight.iab.context.integration.model.Entity;
+import com.milesight.iab.context.integration.model.Integration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,13 +12,25 @@ import java.util.Map;
  * @author leon
  */
 public class DeviceBuilder {
+
     private List<Entity> entities;
     private String name;
     private String identifier;
     private Map<String,Object> additional;
     private IntegrationBuilder integrationBuilder;
+    private Integration integration;
+
     public DeviceBuilder(IntegrationBuilder integrationBuilder) {
         this.integrationBuilder = integrationBuilder;
+        this.integration = integrationBuilder.integration;
+    }
+
+    public DeviceBuilder(Integration integration){
+        this.integration = integration;
+    }
+
+    public DeviceBuilder(String integrationName){
+        this.integration = Integration.of(integrationName, null);
     }
 
     public DeviceBuilder(){
@@ -40,7 +53,7 @@ public class DeviceBuilder {
     }
 
     public IntegrationBuilder end() {
-        integrationBuilder.integration.addDevice(build());
+        integrationBuilder.integration.addInitialDevice(build());
         return integrationBuilder;
     }
 
@@ -65,6 +78,7 @@ public class DeviceBuilder {
         device.setAdditional(additional);
         device.setIdentifier(identifier);
         device.setEntities(entities);
+        device.setIntegration(integration);
         return device;
     }
 

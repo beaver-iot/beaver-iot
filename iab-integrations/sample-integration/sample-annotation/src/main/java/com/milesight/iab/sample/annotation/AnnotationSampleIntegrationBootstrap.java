@@ -33,7 +33,7 @@ public class AnnotationSampleIntegrationBootstrap implements IntegrationBootstra
                 .identifier("device1")
                 .entity(entityConfig)
                 .build();
-        integrationConfig.addDevice(device);
+        integrationConfig.addInitialDevice(device);
     }
 
     @Override

@@ -23,19 +23,19 @@ public abstract class IntegrationServiceProvider {
     public abstract void batchSave(Collection<Integration> integrationConfig);
 
     public Integration getIntegration(String integrationId) {
-        return integrationBootstrapManager.getIntegrationContext().getIntegrationConfig(integrationId);
+        return integrationBootstrapManager.getIntegrationContext().getIntegration(integrationId);
     }
 
     public Collection<Integration> findAllIntegrations() {
-        return integrationBootstrapManager.getIntegrationContext().getAllIntegrationConfigs().values();
+        return integrationBootstrapManager.getIntegrationContext().getAllIntegrations().values();
     }
 
     public List<Integration> findActiveIntegrations() {
-        return integrationBootstrapManager.getIntegrationContext().getAllIntegrationConfigs().values().stream().filter(Integration::isEnabled).toList();
+        return integrationBootstrapManager.getIntegrationContext().getAllIntegrations().values().stream().filter(Integration::isEnabled).toList();
     }
 
     public List<Integration> findIntegrations(Predicate<Integration> predicate) {
-        return integrationBootstrapManager.getIntegrationContext().getAllIntegrationConfigs().values().stream().filter(predicate::test).toList();
+        return integrationBootstrapManager.getIntegrationContext().getAllIntegrations().values().stream().filter(predicate::test).toList();
     }
 
 }

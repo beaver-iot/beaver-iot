@@ -1,7 +1,6 @@
 package com.milesight.iab.demo.provider;
 
 import com.milesight.iab.context.api.IntegrationServiceProvider;
-import com.milesight.iab.context.integration.model.Entity;
 import com.milesight.iab.context.integration.model.Integration;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -14,6 +13,7 @@ import java.util.Collection;
 @Slf4j
 @Component
 public class JpaIntegrationStorageProvider extends IntegrationServiceProvider {
+
     @Override
     public void save(Integration integrationConfig) {
         log.info("save integration config: {}", integrationConfig);
@@ -24,7 +24,7 @@ public class JpaIntegrationStorageProvider extends IntegrationServiceProvider {
         log.info("batch save integration config: {}", integrationConfig);
         integrationConfig.forEach(integration -> {
             log.info("==========integration: {}===========", integration.getName());
-            integration.getDevices().forEach(device -> {
+            integration.getInitialDevices().forEach(device -> {
                 log.info("device: {}", device.getKey());
                 device.getEntities().forEach(entity -> {
                     log.info("entity: {}", entity.getKey());

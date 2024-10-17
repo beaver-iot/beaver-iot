@@ -45,12 +45,12 @@ public class AnnotationEntityLoader implements EntityLoader {
                         .additional(resolveKeyValue(deviceEntitiesAnno.additional()));
                 List<com.milesight.iab.context.integration.model.Entity> entities = parserEntities(clazz, propertyResolver);
                 deviceBuilder.entities(entities);
-                integration.addDevice(deviceBuilder.build());
+                integration.addInitialDevice(deviceBuilder.build());
 
             } else if (clazz.isAnnotationPresent(IntegrationEntities.class)) {
                 // parse IntegrationEntities annotation
                 List<com.milesight.iab.context.integration.model.Entity> entities = parserEntities(clazz, propertyResolver);
-                integration.addEntities(entities);
+                integration.addInitialEntities(entities);
             }
         });
     }

@@ -8,6 +8,8 @@ import com.milesight.iab.context.integration.enums.EntityValueType;
 import com.milesight.iab.eventbus.api.IdentityKey;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -41,6 +43,29 @@ public class Entity implements IdentityKey {
             return IntegrationConstants.formatIntegrationDeviceEntityKey(integration.getName(), device.getIdentifier(), fullIdentifier);
         }else{
             return IntegrationConstants.formatIntegrationEntityKey(integration.getName(), fullIdentifier);
+        }
+    }
+
+    public void initializeProperties(Integration integration, Device device){
+        Assert.notNull(integration, "Integration must not be null");
+        Assert.notNull(device, "Device must not be null");
+        this.setIntegration(integration);
+        this.setDevice(device);
+        if(!CollectionUtils.isEmpty(children)){
+            children.forEach(entity -> {
+                entity.setDevice(device);
+                entity.setIntegration(integration);
+            });
+        }
+    }
+
+    public void initializeProperties(Integration integration){
+        Assert.notNull(integration, "Integration must not be null");
+        this.setIntegration(integration);
+        if(!CollectionUtils.isEmpty(children)){
+            children.forEach(entity -> {
+                entity.setIntegration(integration);
+            });
         }
     }
 

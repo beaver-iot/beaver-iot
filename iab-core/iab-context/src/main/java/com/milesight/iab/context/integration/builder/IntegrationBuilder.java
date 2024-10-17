@@ -1,6 +1,7 @@
 package com.milesight.iab.context.integration.builder;
 
 import com.milesight.iab.context.integration.bootstrap.IntegrationBootstrap;
+import com.milesight.iab.context.integration.model.Device;
 import com.milesight.iab.context.integration.model.Entity;
 import com.milesight.iab.context.integration.model.Integration;
 import org.springframework.util.Assert;
@@ -14,23 +15,30 @@ public class IntegrationBuilder {
 
     protected Integration integration;
 
-    public DeviceBuilder device(String name, String identifier) {
+    public DeviceBuilder initialDevice(String name, String identifier) {
         DeviceBuilder deviceBuilder = new DeviceBuilder(this);
         return deviceBuilder.name(name).identifier(identifier);
     }
 
-    public DeviceBuilder device() {
+    public DeviceBuilder initialDevice() {
         return new DeviceBuilder(this);
     }
 
-    public DeviceBuilder device(String name, String identifier, Map<String, Object> additional) {
+    public DeviceBuilder initialDevice(String name, String identifier, Map<String, Object> additional) {
         DeviceBuilder deviceBuilder = new DeviceBuilder(this);
         return deviceBuilder.name(name).identifier(identifier).additional(additional);
     }
 
-    public IntegrationBuilder entity(Entity entity) {
+    public IntegrationBuilder initialDevice(Device device) {
         Assert.notNull(integration, "integration can't be null, please set integration first");
-        integration.addEntity(entity);
+        integration.addInitialDevice(device);
+        return this;
+    }
+
+
+    public IntegrationBuilder initialEntity(Entity entity) {
+        Assert.notNull(integration, "integration can't be null, please set integration first");
+        integration.addInitialEntity(entity);
         return this;
     }
 
@@ -52,6 +60,7 @@ public class IntegrationBuilder {
     }
 
     public Integration build() {
+        integration.initializeProperties();
         return integration;
     }
 

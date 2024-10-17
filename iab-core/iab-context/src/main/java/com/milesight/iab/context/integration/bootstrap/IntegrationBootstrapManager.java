@@ -67,12 +67,12 @@ public class IntegrationBootstrapManager {
 
             integrationContext.cacheIntegration(integrationBootstrap, integration, integrationEnvironment);
 
-            int allDeviceEntitySize = integration.getDevices().stream().mapToInt(device -> ObjectUtils.isEmpty(device.getEntities()) ? 0 : device.getEntities().size()).sum();
+            int allDeviceEntitySize = integration.getInitialDevices().stream().mapToInt(device -> ObjectUtils.isEmpty(device.getEntities()) ? 0 : device.getEntities().size()).sum();
 
-            log.debug("Integration {} started, Contains device size {}, device entity size {}, and integrated entity size {}", integration.getName(), integration.getDevices().size(), allDeviceEntitySize, integration.getEntities().size());
+            log.debug("Integration {} started, Contains device size {}, device entity size {}, and integrated entity size {}", integration.getName(), integration.getInitialDevices().size(), allDeviceEntitySize, integration.getInitialEntities().size());
         });
 
-        integrationStorageProvider.batchSave(integrationContext.getAllIntegrationConfigs().values());
+        integrationStorageProvider.batchSave(integrationContext.getAllIntegrations().values());
     }
 
     public IntegrationContext getIntegrationContext() {
@@ -93,7 +93,7 @@ public class IntegrationBootstrapManager {
     }
 
     public void onDestroy() {
-        Map<String, Integration> allIntegrationConfigs = integrationContext.getAllIntegrationConfigs();
+        Map<String, Integration> allIntegrationConfigs = integrationContext.getAllIntegrations();
         integrationContext.getAllIntegrationBootstraps().entrySet().forEach(integrationBootstrapEntry -> {
             Integration integrationConfig = allIntegrationConfigs.get(integrationBootstrapEntry.getKey());
             integrationBootstrapEntry.getValue().onDestroy(integrationConfig);
@@ -101,14 +101,14 @@ public class IntegrationBootstrapManager {
     }
 
     public void onEnabled(String integrationName) {
-        Integration integrationConfig = integrationContext.getIntegrationConfig(integrationName);
+        Integration integrationConfig = integrationContext.getIntegration(integrationName);
         Assert.notNull(integrationConfig, "Integration config not found");
         integrationConfig.setEnabled(false);
         integrationContext.getIntegrationBootstrap(integrationName).onEnabled(integrationConfig);
     }
 
     public void onDisabled(String integrationName) {
-        Integration integrationConfig = integrationContext.getIntegrationConfig(integrationName);
+        Integration integrationConfig = integrationContext.getIntegration(integrationName);
         Assert.notNull(integrationConfig, "Integration config not found");
         integrationConfig.setEnabled(true);
         integrationContext.getIntegrationBootstrap(integrationName).onDisabled(integrationConfig);

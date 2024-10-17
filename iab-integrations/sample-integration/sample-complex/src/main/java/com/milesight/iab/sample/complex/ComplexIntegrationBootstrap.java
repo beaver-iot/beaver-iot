@@ -34,7 +34,7 @@ public class ComplexIntegrationBootstrap implements IntegrationBootstrap {
                 .identifier("complexDevice1")
                 .entity(entityConfig)
                 .build();
-        integrationConfig.addDevice(device);
+        integrationConfig.addInitialDevice(device);
 
     }
 

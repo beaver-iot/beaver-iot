@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * iab-extension-components
  * @author leon
  */
 @Getter
@@ -30,9 +29,9 @@ public class Integration {
 
     private String entityIdentifierDeleteDevice;
 
-    private List<Device> devices = new ArrayList<>();
+    private List<Device> initialDevices = new ArrayList<>();
 
-    private List<Entity> entities = new ArrayList<>();
+    private List<Entity> initialEntities = new ArrayList<>();
 
     public Integration() {
     }
@@ -46,36 +45,15 @@ public class Integration {
     }
 
     public void initializeProperties() {
-        //relation entities and devices
-        if(!CollectionUtils.isEmpty(devices)){
-            devices.forEach(device -> {
-                device.setIntegration(this);
-                List<Entity> entitiesList = device.getEntities();
-                initializeEntityProperties(entitiesList, device);
-                if(!CollectionUtils.isEmpty(entitiesList)){
-                    for (Entity entity : entitiesList) {
-                        initializeEntityProperties(entity.getChildren(), device);
-                    }
-                }
-            });
+        if(!CollectionUtils.isEmpty(initialDevices)){
+            initialDevices.forEach(device -> device.initializeProperties(this));
         }
 
-        if(!CollectionUtils.isEmpty(entities)){
-            initializeEntityProperties(entities, null);
-            for (Entity entity : entities) {
-                initializeEntityProperties(entity.getChildren(), null);
-            }
+        if(!CollectionUtils.isEmpty(initialEntities)){
+            initialEntities.forEach(entity -> entity.initializeProperties(this));
         }
     }
 
-    private void initializeEntityProperties(List<Entity> entitiesList, Device device){
-        if(!CollectionUtils.isEmpty(entitiesList)){
-            entitiesList.forEach(entity -> {
-                entity.setDevice(device);
-                entity.setIntegration(this);
-            });
-        }
-    }
 
     public boolean validate() {
         //todo
@@ -84,24 +62,24 @@ public class Integration {
         return true;
     }
 
-    public void addEntity(Entity entity) {
-        if(entities == null){
-            entities = new ArrayList<>();
+    public void addInitialEntity(Entity entity) {
+        if(initialEntities == null){
+            initialEntities = new ArrayList<>();
         }
-        entities.add(entity);
+        initialEntities.add(entity);
     }
-    public void addEntities(List<Entity> addEntities) {
-        if(entities == null){
-            entities = new ArrayList<>();
+    public void addInitialEntities(List<Entity> addEntities) {
+        if(initialEntities == null){
+            initialEntities = new ArrayList<>();
         }
-        entities.addAll(addEntities);
+        initialEntities.addAll(addEntities);
     }
 
-    public void addDevice(Device device) {
-        if(devices == null){
-            devices = new ArrayList<>();
+    public void addInitialDevice(Device device) {
+        if(initialDevices == null){
+            initialDevices = new ArrayList<>();
         }
-        devices.add(device);
+        initialDevices.add(device);
     }
 
 }
