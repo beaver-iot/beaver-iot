@@ -1,4 +1,4 @@
-package com.milesight.iab.authentication.model;
+package com.milesight.iab.authentication.po;
 
 import lombok.Data;
 
@@ -7,7 +7,7 @@ import lombok.Data;
  * @date 2024/10/14 9:43
  */
 @Data
-public class OAuth2Authorization {
+public class OAuth2AuthorizationPO {
 
     private String id;
     private String registeredClientId;

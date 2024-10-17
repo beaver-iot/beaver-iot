@@ -1,4 +1,4 @@
-package com.milesight.iab.authentication.model;
+package com.milesight.iab.authentication.po;
 
 import lombok.Data;
 
@@ -9,7 +9,7 @@ import java.util.Date;
  * @date 2024/10/14 9:40
  */
 @Data
-public class OAuth2RegisteredClient {
+public class OAuth2RegisteredClientPO {
 
     private String id;
     private String clientId;
