@@ -38,7 +38,7 @@ public abstract class AbstractWebSocketHandler extends SimpleChannelInboundHandl
     /**
      * When establishing a connection, you can implement this method to perform some initialization operations. The method being called does not necessarily mean that the handshake will succeed
      */
-    public abstract void connect(ChannelHandlerContext ctx, FullHttpRequest request, Map<String, List<String>> params) throws Exception;
+    public abstract void connect(ChannelHandlerContext ctx, FullHttpRequest request, Map<String, List<String>> urlParams) throws Exception;
 
     /**
      * You can process the received websocket messages
@@ -63,7 +63,7 @@ public abstract class AbstractWebSocketHandler extends SimpleChannelInboundHandl
         if (msg instanceof FullHttpRequest request) {
             if (!request.decoderResult().isSuccess() ||
                     (!"websocket".equals(request.headers().get("Upgrade")))) {
-                sendHttpResponse(ctx, request, new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_REQUEST));
+                sendHttpResponse(ctx, request, HttpResponseStatus.BAD_REQUEST);
                 return;
             }
             String path = request.uri();
@@ -71,16 +71,16 @@ public abstract class AbstractWebSocketHandler extends SimpleChannelInboundHandl
                 path = path.substring(0, path.indexOf("?"));
             }
             if (!path.equals(websocketPath)) {
-                sendHttpResponse(ctx, request, new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.FORBIDDEN));
+                sendHttpResponse(ctx, request, HttpResponseStatus.FORBIDDEN);
                 return;
             }
             String uri = request.uri();
-            Map<String, List<String>> params = getUrlParams(uri);
+            Map<String, List<String>> urlParams = getUrlParams(uri);
             if (uri.contains("?")) {
                 String newUri = uri.substring(0, uri.indexOf("?"));
                 request.setUri(newUri);
             }
-            connect(ctx, request, params);
+            connect(ctx, request, urlParams);
         } else if (msg instanceof TextWebSocketFrame textWebSocketFrame) {
             handleTextMessage(ctx, textWebSocketFrame);
         }
@@ -119,7 +119,8 @@ public abstract class AbstractWebSocketHandler extends SimpleChannelInboundHandl
         return params;
     }
 
-    private void sendHttpResponse(ChannelHandlerContext ctx, FullHttpRequest req, FullHttpResponse res) {
+    public void sendHttpResponse(ChannelHandlerContext ctx, FullHttpRequest req, HttpResponseStatus responseStatus) {
+        FullHttpResponse res = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, responseStatus);
         if (res.status().code() != HttpResponseStatus.OK.code()) {
             ByteBuf buf = Unpooled.copiedBuffer(res.status().toString(), CharsetUtil.UTF_8);
             res.content().writeBytes(buf);

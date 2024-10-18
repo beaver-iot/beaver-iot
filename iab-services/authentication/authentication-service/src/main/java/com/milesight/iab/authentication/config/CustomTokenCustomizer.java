@@ -1,8 +1,10 @@
 package com.milesight.iab.authentication.config;
 
-import jakarta.annotation.Resource;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import com.milesight.iab.authentication.util.OAuth2EndpointUtils;
+import com.milesight.iab.user.dto.UserDTO;
+import com.milesight.iab.user.facade.IUserFacade;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.stereotype.Component;
@@ -14,23 +16,21 @@ import org.springframework.stereotype.Component;
 @Component
 public class CustomTokenCustomizer implements OAuth2TokenCustomizer<JwtEncodingContext> {
 
-    @Resource
-    private UserDetailsService userDetailService;
+    @Autowired
+    IUserFacade userFacade;
 
     @Override
     public void customize(JwtEncodingContext context) {
         String username = context.getPrincipal().getName();
-        UserDetails user = userDetailService.loadUserByUsername(username);
-        //TODO
-
-        if (user != null) {
-            context.getClaims().claims(claims -> {
-                claims.put("loginName", user.getUsername());
-                claims.put("name", user.getUsername());
-                claims.put("content", "在accessToken中封装自定义信息");
-                claims.put("authorities", "hahahaha");
-            });
+        UserDTO userDTO = userFacade.getUserByEmail(username);
+        if(userDTO == null){
+            OAuth2EndpointUtils.throwError(OAuth2ErrorCodes.INVALID_REQUEST, "user not found.", null);
         }
+        context.getClaims().claims(claims -> {
+            claims.put("userId", userDTO.getUserId());
+            claims.put("nickname", userDTO.getNickname());
+            claims.put("email", userDTO.getEmail());
+        });
     }
 
 }

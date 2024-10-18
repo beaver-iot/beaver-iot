@@ -3,6 +3,7 @@ package com.milesight.iab.authentication.config;
 import com.milesight.iab.authentication.exception.CustomAuthenticationHandler;
 import com.milesight.iab.authentication.exception.CustomOAuth2AccessDeniedHandler;
 import com.milesight.iab.authentication.exception.CustomOAuth2ExceptionEntryPoint;
+import com.milesight.iab.authentication.filter.AuthenticationFilter;
 import com.milesight.iab.authentication.handler.CustomOAuth2AccessTokenResponseHandler;
 import com.milesight.iab.authentication.provider.CustomOAuth2PasswordAuthenticationConverter;
 import com.milesight.iab.authentication.provider.CustomOAuth2PasswordAuthenticationProvider;
@@ -44,6 +45,7 @@ import org.springframework.security.oauth2.server.authorization.web.authenticati
 import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2ClientCredentialsAuthenticationConverter;
 import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2RefreshTokenAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -65,6 +67,8 @@ public class WebSecurityConfiguration {
     OAuth2TokenCustomizer tokenCustomizer;
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    @Autowired
+    AuthenticationFilter authenticationFilter;
 
     @Bean
     @Order(1)
@@ -99,6 +103,7 @@ public class WebSecurityConfiguration {
                         .requestMatchers("/oauth2/token").permitAll()
                         .anyRequest().authenticated()
                 )
+                .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .formLogin(
                         AbstractHttpConfigurer::disable
                 )

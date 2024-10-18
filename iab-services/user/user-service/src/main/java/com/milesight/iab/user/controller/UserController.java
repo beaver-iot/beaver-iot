@@ -5,6 +5,7 @@ import com.milesight.iab.user.model.request.UserRegisterRequest;
 import com.milesight.iab.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,7 +21,7 @@ public class UserController {
     UserService userService;
 
     @PostMapping("/register")
-    public ResponseBody register(UserRegisterRequest userRegisterRequest) {
+    public ResponseBody register(@RequestBody UserRegisterRequest userRegisterRequest) {
         return userService.register(userRegisterRequest);
     }
 

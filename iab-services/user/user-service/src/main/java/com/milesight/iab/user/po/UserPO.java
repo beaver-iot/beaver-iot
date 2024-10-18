@@ -1,4 +1,4 @@
-package com.milesight.iab.user.entity;
+package com.milesight.iab.user.po;
 
 import lombok.Data;
 
@@ -12,7 +12,7 @@ public class UserPO {
     private Long id;
     private String email;
     private String emailHash;
-    private String nickName;
+    private String nickname;
     private String password;
     private String preference;
     private Long createdAt;

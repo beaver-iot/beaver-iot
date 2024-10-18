@@ -1,6 +1,9 @@
 package com.milesight.iab.authentication.exception;
 
 import com.milesight.iab.authentication.util.OAuth2ResponseUtils;
+import com.milesight.iab.base.enums.ErrorCode;
+import com.milesight.iab.base.response.ResponseBody;
+import com.milesight.iab.base.response.ResponseBuilder;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -16,8 +19,7 @@ import java.io.IOException;
 public class CustomOAuth2Exception {
 
     public static void exceptionResponse(HttpServletResponse response, Exception exception) throws IOException {
-        //TODO
-        String code = null;
+        String code = ErrorCode.AUTHENTICATION_FAILED.getErrorCode();
         String msg;
         if (exception instanceof OAuth2AuthenticationException e) {
             String errorCode = e.getError().getErrorCode();
@@ -26,7 +28,8 @@ public class CustomOAuth2Exception {
         } else {
             msg = OAuth2ErrorCodes.INVALID_REQUEST + ":" + exception.getMessage();
         }
-        OAuth2ResponseUtils.response(response, code, msg, null);
+        ResponseBody responseBody = ResponseBuilder.fail(code, msg);
+        OAuth2ResponseUtils.response(response, responseBody);
     }
 
 }

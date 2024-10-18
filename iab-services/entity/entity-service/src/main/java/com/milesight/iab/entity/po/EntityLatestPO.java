@@ -1,4 +1,4 @@
-package com.milesight.iab.entity.entity;
+package com.milesight.iab.entity.po;
 
 import lombok.Data;
 
@@ -12,6 +12,7 @@ import java.sql.Blob;
 public class EntityLatestPO {
 
     private Long id;
+    private Long entityId;
     private Integer valueInt;
     private Float valueFloat;
     private Boolean valueBoolean;

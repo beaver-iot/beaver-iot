@@ -1,6 +1,8 @@
 package com.milesight.iab.authentication.handler;
 
 import com.milesight.iab.authentication.util.OAuth2ResponseUtils;
+import com.milesight.iab.base.response.ResponseBody;
+import com.milesight.iab.base.response.ResponseBuilder;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -53,8 +55,9 @@ public class CustomOAuth2AccessTokenResponseHandler implements AuthenticationSuc
         OAuth2AccessTokenResponse accessTokenResponse = builder.build();
         Map<String, Object> tokenResponseParameters = new DefaultOAuth2AccessTokenResponseMapConverter()
                 .convert(accessTokenResponse);
-        //TODO
-        OAuth2ResponseUtils.response(response, "200", "success", tokenResponseParameters);
+
+        ResponseBody responseBody = ResponseBuilder.success(tokenResponseParameters);
+        OAuth2ResponseUtils.response(response, responseBody);
     }
 
 }

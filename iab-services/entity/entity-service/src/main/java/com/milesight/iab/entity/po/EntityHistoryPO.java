@@ -1,4 +1,4 @@
-package com.milesight.iab.entity.entity;
+package com.milesight.iab.entity.po;
 
 import lombok.Data;
 
