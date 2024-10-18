@@ -3,11 +3,16 @@ package com.milesight.iab.demo.service;
 import com.milesight.iab.demo.entity.DeviceDemoEntity;
 import com.milesight.iab.demo.model.DemoQuery;
 import com.milesight.iab.demo.repository.DeviceDemoRepository;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -17,10 +22,27 @@ import java.util.List;
  * @author leon
  */
 @Service
-public class DeviceDemoService {
+public class DeviceDemoService<T> {
 
     @Autowired
     private DeviceDemoRepository deviceDemoRepository;
+
+    public Page<DeviceDemoEntity> findAllBySpec(DemoQuery demoQuery) {
+
+        //分页查询
+        Page<DeviceDemoEntity> all = deviceDemoRepository.findAll(f -> f.eq(DeviceDemoEntity.Fields.name, demoQuery.getName())
+                .like(DeviceDemoEntity.Fields.key, demoQuery.getKey())
+                .between(DeviceDemoEntity.Fields.id, 1,2)
+                .in(DeviceDemoEntity.Fields.name, "a","b")
+                .or(f2 -> f2
+                        .like(DeviceDemoEntity.Fields.name, demoQuery.getName())
+                        .eq(DeviceDemoEntity.Fields.key, demoQuery.getKey())),
+                demoQuery.toPageable());
+
+        DeviceDemoEntity uniqueOne = deviceDemoRepository.findUniqueOne(f -> f.eq(DeviceDemoEntity.Fields.name, demoQuery.getName()));
+
+        return all;
+    }
 
     public Page<DeviceDemoEntity> findAll(DemoQuery demoQuery) {
 //        ExampleMatcher matcher = ExampleMatcher.matching()

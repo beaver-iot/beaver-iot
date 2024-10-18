@@ -8,11 +8,19 @@ import com.milesight.iab.base.response.ResponseBuilder;
 import com.milesight.iab.demo.entity.DeviceDemoEntity;
 import com.milesight.iab.demo.model.DemoQuery;
 import com.milesight.iab.demo.service.DeviceDemoService;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.Optional;
 
 /**
  * @author leon
@@ -25,13 +33,16 @@ public class DemoController {
     @Autowired
     private DeviceDemoService deviceDemoService;
 
-    @PostMapping("/findall")
-    public ResponseBody<Page<DeviceDemoEntity>> findAllError(@RequestBody DemoQuery query){
-        if(!StringUtils.hasText(query.getName())){
+    @PostMapping("/findSpec")
+    public ResponseBody<Page<DeviceDemoEntity>> findAllError(@RequestBody DemoQuery demoQuery){
+
+        if(!StringUtils.hasText(demoQuery.getName())){
+            ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
 //            throw ServiceException.with(ErrorCode.DATA_NO_FOUND).detailMessage("eg: No data found").args(query).build();
             throw new ServiceException(ErrorCode.DATA_NO_FOUND);
         }
-        return ResponseBuilder.success(deviceDemoService.findAll(query));
+
+        return ResponseBuilder.success(deviceDemoService.findAllBySpec(demoQuery));
     }
     @PostMapping("/search")
     public ResponseBody<Page<DeviceDemoEntity>> search(@RequestBody DemoQuery query){

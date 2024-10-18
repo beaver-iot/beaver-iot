@@ -3,6 +3,7 @@ package com.milesight.iab.demo.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.FieldNameConstants;
 
 /**
  * @author leon
@@ -10,6 +11,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @Entity
 @Table(name = "device_demo")
+@FieldNameConstants
 public class DeviceDemoEntity {
 
     @Id

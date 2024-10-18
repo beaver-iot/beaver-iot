@@ -10,5 +10,5 @@ import lombok.Data;
 public class DemoQuery extends GenericPageRequest {
 
     private String name;
-    private String age;
+    private String key;
 }

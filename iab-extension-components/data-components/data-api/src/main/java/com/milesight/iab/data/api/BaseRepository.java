@@ -1,5 +1,6 @@
 package com.milesight.iab.data.api;
 
+import com.milesight.iab.data.filterable.Filterable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -7,6 +8,7 @@ import org.springframework.data.domain.Sort;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * @author leon
@@ -30,4 +32,32 @@ public interface BaseRepository<T,ID extends Serializable> {
 
     Page<T> findAll(Pageable pageable);
 
+    /**
+     * Query based on condition list
+     * @param filterable
+     * @return
+     */
+    List<T> findAll(Consumer<Filterable> filterable);
+
+    /**
+     * Query based on conditions, search by page
+     * @param filterable
+     * @param pageable
+     * @return
+     */
+    Page<T> findAll(Consumer<Filterable> filterable, Pageable pageable);
+
+    /**
+     * Finds a unique value and throws an exception if it does not exist or if there are multiple values
+     * @param filterable
+     * @return
+     */
+    T findUniqueOne(Consumer<Filterable> filterable);
+
+    /**
+     * Find a unique value. If there are multiple values, null will be returned.
+     * @param filterable
+     * @return
+     */
+    Optional<T> findOne(Consumer<Filterable> filterable);
 }
