@@ -76,6 +76,6 @@ public class GenericPageResult<T> implements PageResultSpec<T>{
     }
 
     public static <T> PageResultSpec<T> of(PageImpl page){
-        return of(page.getSize(), page.getNumber(),page.getTotalElements(), page.getContent());
+        return of(page.getSize(), page.getNumber() + 1,page.getTotalElements(), page.getContent());
     }
 }

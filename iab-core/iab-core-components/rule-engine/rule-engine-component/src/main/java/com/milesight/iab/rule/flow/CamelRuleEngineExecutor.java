@@ -33,31 +33,21 @@ public class CamelRuleEngineExecutor implements RuleEngineExecutor {
 
     @Override
     public void execute(String endpointUri, Object payload) {
-
+        producerTemplate.sendBody(endpointUri, payload);
     }
 
     @Override
     public void execute(String endPointUri, Exchange exchange) {
-
-    }
-
-    @Override
-    public Exchange executeWithResponse(String endpointUri, Exchange payload) {
-        return null;
-    }
-
-    @Override
-    public Object executeWithResponse(String endpointUri, Object exchange) {
-        return null;
+        producerTemplate.send(endPointUri, exchange);
     }
 
     @Override
     public CompletableFuture<Exchange> asyncExecute(String endpointUri, Exchange exchange) {
-        return null;
+        return producerTemplate.asyncSend(endpointUri, exchange);
     }
 
     @Override
     public CompletableFuture<Object> asyncExecute(String endpointUri, Object exchange) {
-        return null;
+        return producerTemplate.asyncSendBody(endpointUri, exchange);
     }
 }

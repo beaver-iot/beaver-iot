@@ -17,10 +17,6 @@ public interface RuleEngineExecutor {
 
     void execute(String endPointUri, Exchange exchange);
 
-    Exchange executeWithResponse(String endpointUri, Exchange payload);
-
-    Object executeWithResponse(String endpointUri, Object exchange);
-
     CompletableFuture<Exchange> asyncExecute(String endpointUri, Exchange exchange);
 
     CompletableFuture<Object> asyncExecute(String endpointUri, Object exchange);
