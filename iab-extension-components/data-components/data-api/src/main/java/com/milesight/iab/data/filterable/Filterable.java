@@ -7,10 +7,9 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 /**
- * todo: filterable.of().
  * @author leon
  */
-public interface Filterable /*extends CompositeFilterable, ISqlSegment, Supplier<Searchable>*/ {
+public interface Filterable {
 
     Filterable like(String name, String value);
 

@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author leon
@@ -39,7 +40,12 @@ public class DeviceDemoService<T> {
                         .eq(DeviceDemoEntity.Fields.key, demoQuery.getKey())),
                 demoQuery.toPageable());
 
+        //唯一值查询（不可空）
         DeviceDemoEntity uniqueOne = deviceDemoRepository.findUniqueOne(f -> f.eq(DeviceDemoEntity.Fields.name, demoQuery.getName()));
+        //唯一值查询（可空）
+        Optional<DeviceDemoEntity> one = deviceDemoRepository.findOne(f -> f.eq(DeviceDemoEntity.Fields.name, demoQuery.getName()));
+        //列表查询
+        List<DeviceDemoEntity> all1 = deviceDemoRepository.findAll(f -> f.eq(DeviceDemoEntity.Fields.name, demoQuery.getName()));
 
         return all;
     }
