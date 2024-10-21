@@ -19,22 +19,22 @@ import java.util.Map;
 @Setter
 public class Device implements IdentityKey {
 
+    private Long id;
+
     @JsonIgnore
     private Integration integration;
     private String name;
     private Map<String,Object> additional;
-    private Long identifier;
+    private String identifier;
     private List<Entity> entities = new ArrayList<>();
-    private String externalId;
 
     public Device() {
     }
-    public Device(String name, Map<String,Object> additional, Long identifier, List<Entity> entityConfigs, String externalId) {
+    public Device(String name, Map<String,Object> additional, String identifier, List<Entity> entityConfigs) {
         this.name = name;
         this.additional = additional;
         this.entities = entityConfigs;
         this.identifier = identifier;
-        this.externalId = externalId;
     }
 
     @Override

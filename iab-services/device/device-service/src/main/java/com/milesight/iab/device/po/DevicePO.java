@@ -1,11 +1,10 @@
 package com.milesight.iab.device.po;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.experimental.FieldNameConstants;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 
 @Data
@@ -28,15 +27,17 @@ public class DevicePO {
     @Column(name = "integration")
     private String integration;
 
-    @Column(name = "external_id")
-    private String externalId;
+    @Column(name = "identifier")
+    private String identifier;
 
     @Column(name = "additional_data")
     private String additionalData;
 
     @Column(name = "created_at")
+    @CreatedDate
     private Long createdAt;
 
     @Column(name = "updated_at")
+    @LastModifiedDate
     private Long updatedAt;
 }
