@@ -39,7 +39,7 @@ public class Device implements IdentityKey {
 
     @Override
     public String getKey() {
-        return IntegrationConstants.formatIntegrationDeviceKey(integration.getName(), identifier.toString());
+        return IntegrationConstants.formatIntegrationDeviceKey(integration.getName(), identifier);
     }
 
     public void initializeProperties(Integration integration) {

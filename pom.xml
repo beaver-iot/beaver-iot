@@ -23,6 +23,7 @@
         <spring-boot.version>3.3.4</spring-boot.version>
         <camel.version>4.4.3</camel.version>
         <postgresql.version>42.7.3</postgresql.version>
+        <disruptor.version>3.4.4</disruptor.version>
     </properties>
 
     <dependencyManagement>
@@ -59,6 +60,12 @@
                 <artifactId>postgresql</artifactId>
                 <version>${postgresql.version}</version>
                 <scope>runtime</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.lmax</groupId>
+                <artifactId>disruptor</artifactId>
+                <version>${disruptor.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

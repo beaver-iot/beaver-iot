@@ -13,7 +13,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>eventbus-api</module>
-        <module>eventbus-disruptor</module>
+        <module>eventbus-component</module>
     </modules>
 
     <properties>

@@ -22,6 +22,11 @@ public class DeviceEvent implements Event<Device> {
     }
 
     @Override
+    public void setPayload(Device payload) {
+        this.device = payload;
+    }
+
+    @Override
     public Device getPayload() {
         return device;
     }

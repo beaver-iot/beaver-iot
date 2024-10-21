@@ -25,20 +25,20 @@ public class Sequence {
      */
     private final long twepoch = 1288834974657L;
     /**
-     * 机器标识位数
+     * Machine identification digits
      */
     private final long workerIdBits = 5L;
     private final long datacenterIdBits = 5L;
     private final long maxWorkerId = -1L ^ (-1L << workerIdBits);
     private final long maxDatacenterId = -1L ^ (-1L << datacenterIdBits);
     /**
-     * 毫秒内自增位
+     * Increment within milliseconds
      */
     private final long sequenceBits = 12L;
     private final long workerIdShift = sequenceBits;
     private final long datacenterIdShift = sequenceBits + workerIdBits;
     /**
-     * 时间戳左移动位
+     * Timestamp shifted left
      */
     private final long timestampLeftShift = sequenceBits + workerIdBits + datacenterIdBits;
     private final long sequenceMask = -1L ^ (-1L << sequenceBits);
@@ -46,15 +46,15 @@ public class Sequence {
     private final long workerId;
 
     /**
-     * 数据标识 ID 部分
+     * Data identification ID part
      */
     private final long datacenterId;
     /**
-     * 并发控制
+     * Concurrency control
      */
     private long sequence = 0L;
     /**
-     * 上次生产 ID 时间戳
+     * Last production ID timestamp
      */
     private long lastTimestamp = -1L;
 
@@ -89,10 +89,8 @@ public class Sequence {
     }
 
     /**
-     * 有参构造器
-     *
-     * @param workerId     工作机器 ID
-     * @param datacenterId 序列号
+     * @param workerId     WORKING MACHINE ID
+     * @param datacenterId SerialNumber
      */
     public Sequence(long workerId, long datacenterId) {
         Assert.isTrue(!(workerId > maxWorkerId || workerId < 0),
@@ -104,7 +102,7 @@ public class Sequence {
     }
 
     /**
-     * 获取 maxWorkerId
+     * get maxWorkerId
      */
     protected long getMaxWorkerId(long datacenterId, long maxWorkerId) {
         StringBuilder mpid = new StringBuilder();
@@ -117,13 +115,13 @@ public class Sequence {
             mpid.append(name.split(StringConstant.AT)[0]);
         }
         /*
-         * MAC + PID 的 hashcode 获取16个低位
+         * The hashcode of MAC + PID gets the 16 low bits
          */
         return (mpid.toString().hashCode() & 0xffff) % (maxWorkerId + 1);
     }
 
     /**
-     * 数据标识id部分
+     * Data identification id part
      */
     protected long getDatacenterId(long maxDatacenterId) {
         long id = 0L;
@@ -145,9 +143,9 @@ public class Sequence {
     }
 
     /**
-     * 获取下一个 ID
+     * Get next ID
      *
-     * @return 下一个 ID
+     * @return next ID
      */
     public synchronized long nextId() {
         long timestamp = timeGen();
@@ -170,20 +168,20 @@ public class Sequence {
         }
 
         if (lastTimestamp == timestamp) {
-            // 相同毫秒内，序列号自增
+            // Within the same millisecond, the sequence number increases automatically.
             sequence = (sequence + 1) & sequenceMask;
             if (sequence == 0) {
                 // 同一毫秒的序列数已经达到最大
                 timestamp = tilNextMillis(lastTimestamp);
             }
         } else {
-            // 不同毫秒内，序列号置为 1 - 3 随机数
+            // Within different milliseconds, the sequence number is set to 1 - 3 random numbers
             sequence = ThreadLocalRandom.current().nextLong(1, 3);
         }
 
         lastTimestamp = timestamp;
 
-        // 时间戳部分 | 数据中心部分 | 机器标识部分 | 序列号部分
+        // Timestamp part | Data center part | Machine identification part | Serial number part
         return ((timestamp - twepoch) << timestampLeftShift)
                 | (datacenterId << datacenterIdShift)
                 | (workerId << workerIdShift)

@@ -23,6 +23,11 @@ public class ExchangeEvent implements Event<ExchangePayload> {
     }
 
     @Override
+    public void setPayload(ExchangePayload payload) {
+        this.exchangePayload = payload;
+    }
+
+    @Override
     public ExchangePayload getPayload() {
         return exchangePayload;
     }

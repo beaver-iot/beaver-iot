@@ -21,7 +21,7 @@ public class BaseEntityBuilder<T extends BaseEntityBuilder> {
     protected EntityType type;
     protected EntityValueType valueType;
     protected Map<String, Object> attributes;
-    protected String group;
+    protected String parentIdentifier;
 
     public T identifier(String identifier) {
         this.identifier = identifier;

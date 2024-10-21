@@ -68,7 +68,7 @@
 
         <dependency>
             <groupId>com.milesight.iab</groupId>
-            <artifactId>eventbus-disruptor</artifactId>
+            <artifactId>eventbus-component</artifactId>
             <version>${project.version}</version>
         </dependency>
 
