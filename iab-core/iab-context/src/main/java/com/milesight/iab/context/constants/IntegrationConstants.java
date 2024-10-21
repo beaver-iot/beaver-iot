@@ -14,6 +14,8 @@ public class IntegrationConstants {
 
     public static final String INTEGRATION_YAML = "integration.yaml";
 
+    public static final String INTEGRATION_YML = "integration.yml";
+
     public static final String INTEGRATION_PROPERTY_PREFIX = "integration";
 
     public static final String INTEGRATION_PROPERTY_NAME = "name";

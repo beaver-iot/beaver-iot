@@ -1,9 +1,11 @@
-package com.milesight.iab.eventbus;
+package com.milesight.iab.eventbus.subscribe;
 
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.util.DaemonThreadFactory;
+import com.milesight.iab.eventbus.EventBus;
 import com.milesight.iab.eventbus.api.Event;
 import com.milesight.iab.eventbus.api.IdentityKey;
+import com.milesight.iab.eventbus.configuration.DisruptorOptions;
 import org.springframework.util.Assert;
 
 import java.util.Map;
@@ -13,9 +15,9 @@ import java.util.function.Consumer;
 /**
  * @author leon
  */
-public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implements EventBus<T>{
+public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implements EventBus<T> {
 
-    private final Map<Class<?>, Disruptor<Event<?>>> disruptorCahce = new ConcurrentHashMap<>();
+    private final Map<Class<?>, Disruptor<Event<?>>> disruptorCache = new ConcurrentHashMap<>();
 
     private final ConcurrentHashMap<Class<?>, Executor> executorCache = new ConcurrentHashMap<>();
 
@@ -45,7 +47,7 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
 
     @Override
     public void publish(T message) {
-        Disruptor<Event<?>> disruptor = disruptorCahce.get(message.getClass());
+        Disruptor<Event<?>> disruptor = disruptorCache.get(message.getClass());
 
         Assert.notNull(disruptor, "disruptor is null, please subscribe first");
 
@@ -61,14 +63,9 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
     }
 
     @Override
-    public CompletableFuture<Long> publishAsync(T message) {
-        throw new UnsupportedOperationException("not support async publish");
-    }
-
-    @Override
     public void subscribe(Class<T> target, Consumer<T> listener, Executor executor){
 
-        disruptorCahce.computeIfAbsent(target, k -> {
+        disruptorCache.computeIfAbsent(target, k -> {
 
             Disruptor<Event<?>> disruptor = new Disruptor(() -> loadClass(target), disruptorOptions.getRingBufferSize(), executor);
 
@@ -93,7 +90,7 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
     @Override
     public void shutdown() {
 
-        disruptorCahce.values().forEach(Disruptor::shutdown);
+        disruptorCache.values().forEach(Disruptor::shutdown);
 
 //        executorCache.values().forEach(ExecutorService::shutdown);
     }

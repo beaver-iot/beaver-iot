@@ -1,6 +1,7 @@
 
 integration:
   yaml-integration:  #当前集成的名称
+    name: yaml-integration
     enabled: true
     #配置当前集成（云生态）下行处理规则引擎子流程
     flow-exchange-down-handler: "direct:myDemoExchangeDownHandler"

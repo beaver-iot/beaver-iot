@@ -1,8 +1,7 @@
 package com.milesight.iab.eventbus.configuration;
 
 import com.lmax.disruptor.dsl.Disruptor;
-import com.milesight.iab.eventbus.DisruptorEventBusRegister;
-import com.milesight.iab.eventbus.DisruptorOptions;
+import com.milesight.iab.eventbus.subscribe.DisruptorEventBusRegister;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

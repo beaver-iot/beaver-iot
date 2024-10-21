@@ -1,6 +1,7 @@
 
 integration:
    msc-integration:
+     name: msc-integration
      enabled: true
 #     flow-exchange-down-handler: direct:mscExchangeDownHandler
      #添加设备

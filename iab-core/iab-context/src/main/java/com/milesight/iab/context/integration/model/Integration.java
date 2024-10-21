@@ -15,9 +15,13 @@ import java.util.List;
 @Setter
 public class Integration {
 
+    private String id;
+
     private String name;
 
     private String description;
+
+    private String iconUrl;
 
     private boolean enabled = true;
 
@@ -35,13 +39,23 @@ public class Integration {
 
     public Integration() {
     }
-    public Integration(String name, String description) {
+    public Integration(String id, String name, String description, String iconUrl) {
+        this.id = id;
         this.name = name;
         this.description = description;
+        this.iconUrl = iconUrl;
     }
 
-    public static Integration of(String name, String description){
-        return new Integration(name, description);
+    public static Integration of(String id,String name){
+        return new Integration(id, name, null,null);
+    }
+
+    public static Integration of(String id,String name, String description){
+        return new Integration(id, name, description,null);
+    }
+
+    public static Integration of(String id,String name, String description, String iconUrl){
+        return new Integration(id, name, description, iconUrl);
     }
 
     public void initializeProperties() {

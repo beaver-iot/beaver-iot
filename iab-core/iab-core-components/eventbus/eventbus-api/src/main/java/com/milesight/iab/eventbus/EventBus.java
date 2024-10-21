@@ -12,15 +12,13 @@ import java.util.function.Consumer;
  */
 public interface EventBus<T extends Event<? extends IdentityKey>> {
 
-    void publish(T var1);
+    void publish(T message);
 
-    CompletableFuture<Long> publishAsync(T var1);
+    void subscribe(Class<T> target, Consumer<T> listener);
 
-    void subscribe(Class<T> var1, Consumer<T> var2);
+    void subscribe(Class<T> target, Consumer<T> listener, Executor executor);
 
-    void subscribe(Class<T> var1, Consumer<T> var2, Executor var3);
-
-    default void shutdown() {
+    default void shutdown(){
     }
 
 }

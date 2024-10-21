@@ -113,6 +113,11 @@ public class IntegrationBuilder {
             this.integrationBuilder = integrationBuilder;
         }
 
+        public IntegrationConfigBuilder id(String id) {
+            this.integrationBuilder.integration.setId(id);
+            return this;
+        }
+
         public IntegrationConfigBuilder name(String name) {
             this.integrationBuilder.integration.setName(name);
             return this;
@@ -120,6 +125,11 @@ public class IntegrationBuilder {
 
         public IntegrationConfigBuilder description(String description) {
             this.integrationBuilder.integration.setDescription(description);
+            return this;
+        }
+
+        public IntegrationConfigBuilder iconUrl(String iconUrl) {
+            this.integrationBuilder.integration.setIconUrl(iconUrl);
             return this;
         }
 

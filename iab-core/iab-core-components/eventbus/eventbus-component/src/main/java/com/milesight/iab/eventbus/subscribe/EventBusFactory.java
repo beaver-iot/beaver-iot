@@ -1,5 +1,7 @@
-package com.milesight.iab.eventbus;
+package com.milesight.iab.eventbus.subscribe;
 
+
+import com.milesight.iab.eventbus.EventBus;
 
 /**
  * @author leon
