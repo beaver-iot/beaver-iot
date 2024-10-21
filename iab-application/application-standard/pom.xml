@@ -88,6 +88,11 @@
             <artifactId>sample-complex</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.milesight.iab</groupId>
+            <artifactId>device-service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
     </dependencies>
 

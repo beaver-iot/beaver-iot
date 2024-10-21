@@ -19,7 +19,7 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   datasource:
     #url: jdbc:mysql://localhost:3306/jpa-demo?allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&useSSL=false&useColumnNamesInFindColumn=true&createDatabaseIfNotExist=true
-    url: "${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/iab}"
+    url: "${SPRING_DATASOURCE_URL:jdbc:postgresql://192.168.43.48:5432/iab}"
     username: "${SPRING_DATASOURCE_USERNAME:postgres}"
     password: "${SPRING_DATASOURCE_PASSWORD:postgres}"
     driverClassName: "${SPRING_DRIVER_CLASS_NAME:org.postgresql.Driver}"

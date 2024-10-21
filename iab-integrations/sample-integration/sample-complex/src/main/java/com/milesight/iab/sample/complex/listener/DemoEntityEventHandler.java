@@ -10,7 +10,7 @@ import com.milesight.iab.eventbus.annotations.EventHandler;
 public class DemoEntityEventHandler {
 
     //connect service
-    @EventHandler(payloadKey="msc-integration.integration.connect", eventType = ExchangeEvent.EventType.DOWN)
+    @EventHandler(payloadKey="msc-integration.integration.addDevice", eventType = ExchangeEvent.EventType.DOWN)
     public String handleConnect(ExchangeEvent event) {
 
         return "success";

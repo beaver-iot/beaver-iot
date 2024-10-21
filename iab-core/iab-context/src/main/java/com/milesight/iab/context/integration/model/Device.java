@@ -23,21 +23,23 @@ public class Device implements IdentityKey {
     private Integration integration;
     private String name;
     private Map<String,Object> additional;
-    private String identifier;
+    private Long identifier;
     private List<Entity> entities = new ArrayList<>();
+    private String externalId;
 
     public Device() {
     }
-    public Device(String name, Map<String,Object> additional, String identifier, List<Entity> entityConfigs) {
+    public Device(String name, Map<String,Object> additional, Long identifier, List<Entity> entityConfigs, String externalId) {
         this.name = name;
         this.additional = additional;
         this.entities = entityConfigs;
         this.identifier = identifier;
+        this.externalId = externalId;
     }
 
     @Override
     public String getKey() {
-        return IntegrationConstants.formatIntegrationDeviceKey(integration.getName(), identifier);
+        return IntegrationConstants.formatIntegrationDeviceKey(integration.getName(), identifier.toString());
     }
 
     public void initializeProperties(Integration integration) {
