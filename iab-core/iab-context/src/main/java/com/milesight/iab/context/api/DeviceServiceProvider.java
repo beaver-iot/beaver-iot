@@ -14,7 +14,7 @@ public interface DeviceServiceProvider {
 
     Device findById(Long id, String integration);
 
-    Device findByExternalId(Long externalId, String integration);
+    Device findByIdentifier(Long identifier, String integration);
 
     List<Device> findAll(String integration);
 }

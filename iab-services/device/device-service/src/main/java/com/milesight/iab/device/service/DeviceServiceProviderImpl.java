@@ -28,9 +28,9 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
             e.printStackTrace();
         }
 
+        device.setId(devicePO.getId());
         device.setName(devicePO.getName());
-        device.setIdentifier(devicePO.getId());
-        device.setExternalId(devicePO.getExternalId());
+        device.setIdentifier(devicePO.getIdentifier());
         device.setIntegration(integrationServiceProvider.getIntegration(devicePO.getIntegration()));
 
         // TODO set entities
@@ -50,7 +50,7 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
         }
 
         devicePO.setIntegration(device.getIntegration().getName());
-        devicePO.setExternalId(device.getExternalId());
+        devicePO.setIdentifier(device.getIdentifier());
         Long deviceId = devicePO.getId();
         deviceRepository.save(devicePO);
         if (deviceId == null) {
@@ -81,10 +81,10 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
     }
 
     @Override
-    public Device findByExternalId(Long externalId, String integration) {
+    public Device findByIdentifier(Long identifier, String integration) {
         return deviceRepository
                 .findOne(f -> f
-                        .eq(DevicePO.Fields.externalId, externalId)
+                        .eq(DevicePO.Fields.identifier, identifier)
                         .eq(DevicePO.Fields.integration, integration)
                 )
                 .map(this::convertPO)

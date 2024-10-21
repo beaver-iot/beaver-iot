@@ -87,7 +87,8 @@ public class DeviceService {
             deviceResponseData.setAdditionalData(device.getAdditionalData());
             deviceResponseData.setUpdatedAt(device.getUpdatedAt());
             deviceResponseData.setCreatedAt(deviceResponseData.getCreatedAt());
-            deviceResponseData.setCanBeDeleted(integrationConfig.getEntityIdentifierDeleteDevice() != null);
+            deviceResponseData.setDeletable(integrationConfig.getEntityIdentifierDeleteDevice() != null);
+            deviceResponseData.setIntegrationName(integrationConfig.getName());
             return deviceResponseData;
         }));
     }

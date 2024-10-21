@@ -7,5 +7,6 @@ import lombok.*;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class DeviceResponseData extends DevicePO {
-    private Boolean canBeDeleted;
+    private String integrationName;
+    private Boolean deletable;
 }
