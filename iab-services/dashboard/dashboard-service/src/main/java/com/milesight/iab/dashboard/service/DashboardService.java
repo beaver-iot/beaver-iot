@@ -2,8 +2,6 @@ package com.milesight.iab.dashboard.service;
 
 import com.milesight.iab.base.enums.ErrorCode;
 import com.milesight.iab.base.exception.ServiceException;
-import com.milesight.iab.base.response.ResponseBody;
-import com.milesight.iab.base.response.ResponseBuilder;
 import com.milesight.iab.base.utils.snowflake.SnowflakeUtil;
 import com.milesight.iab.dashboard.convert.DashboardConvert;
 import com.milesight.iab.dashboard.convert.DashboardWidgetConvert;
@@ -21,6 +19,7 @@ import com.milesight.iab.dashboard.repository.DashboardWidgetRepository;
 import com.milesight.iab.dashboard.repository.DashboardWidgetTemplateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -39,11 +38,9 @@ public class DashboardService {
     @Autowired
     private DashboardWidgetTemplateRepository dashboardWidgetTemplateRepository;
 
-    public ResponseBody createDashboard(CreateDashboardRequest createDashboardRequest) {
+    public void createDashboard(CreateDashboardRequest createDashboardRequest) {
         String name = createDashboardRequest.getName();
-        DashboardPO dashboardPO = null;
-        //TODO
-//        DashboardPO dashboardPO = dashboardRepository.getByName(name);
+        DashboardPO dashboardPO = dashboardRepository.findUniqueOne(filterable -> filterable.eq(DashboardPO.Fields.name, name));
         if(dashboardPO != null){
             throw ServiceException.with(DashboardErrorCode.DASHBOARD_NAME_EXIST).build();
         }
@@ -52,44 +49,32 @@ public class DashboardService {
         dashboardPO.setName(name);
         dashboardPO.setCreatedAt(System.currentTimeMillis());
         dashboardRepository.save(dashboardPO);
-        return ResponseBuilder.success();
     }
 
-    public ResponseBody updateDashboard(Long dashboardId, UpdateDashboardRequest updateDashboardRequest) {
+    public void updateDashboard(Long dashboardId, UpdateDashboardRequest updateDashboardRequest) {
         String name = updateDashboardRequest.getName();
-        DashboardPO otherDashboardPO = null;
-        //TODO
-//        DashboardPO otherDashboardPO = dashboardRepository.getByName(name);
+        DashboardPO otherDashboardPO = dashboardRepository.findUniqueOne(filterable -> filterable.eq(DashboardPO.Fields.name, name));
         if(otherDashboardPO != null && !Objects.equals(otherDashboardPO.getId(), dashboardId)){
             throw ServiceException.with(DashboardErrorCode.DASHBOARD_NAME_EXIST).build();
         }
-        dashboardRepository.findById(dashboardId).orElseThrow(() -> ServiceException.with(ErrorCode.DATA_NO_FOUND).detailMessage("dashboard not exist").build());
-
-        DashboardPO updateDashboardPO = new DashboardPO();
-        updateDashboardPO.setId(dashboardId);
-        updateDashboardPO.setName(name);
-        updateDashboardPO.setUpdatedAt(System.currentTimeMillis());
-        //TODO
-//        dashboardRepository.update(updateDashboardPO);
-        return ResponseBuilder.success();
+        DashboardPO dashboardPO = dashboardRepository.findById(dashboardId).orElseThrow(() -> ServiceException.with(ErrorCode.DATA_NO_FOUND).detailMessage("dashboard not exist").build());
+        dashboardPO.setName(name);
+        dashboardPO.setUpdatedAt(System.currentTimeMillis());
+        dashboardRepository.save(dashboardPO);
     }
 
-//    @Transactional(rollbackFor = Exception.class)
-    public ResponseBody deleteDashboard(Long dashboardId) {
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteDashboard(Long dashboardId) {
         dashboardRepository.deleteById(dashboardId);
-        //TODO
-//        dashboardWidgetRepository.deleteByDashboardId(dashboardId);
-        return ResponseBuilder.success();
+        dashboardWidgetRepository.deleteByDashboardId(dashboardId);
     }
 
-    public ResponseBody getDashboards() {
+    public List<DashboardResponse> getDashboards() {
         List<DashboardPO> dashboardPOList = dashboardRepository.findAll();
-
-        List<DashboardResponse> dashboardResponseList = DashboardConvert.INSTANCE.convertResponseList(dashboardPOList);
-        return ResponseBuilder.success(dashboardResponseList);
+        return DashboardConvert.INSTANCE.convertResponseList(dashboardPOList);
     }
 
-    public ResponseBody createWidget(Long dashboardId, CreateWidgetRequest createWidgetRequest) {
+    public void createWidget(Long dashboardId, CreateWidgetRequest createWidgetRequest) {
         dashboardRepository.findById(dashboardId).orElseThrow(() -> ServiceException.with(ErrorCode.DATA_NO_FOUND).detailMessage("dashboard not exist").build());
 
         DashboardWidgetPO dashboardWidgetPO = new DashboardWidgetPO();
@@ -99,40 +84,30 @@ public class DashboardService {
         dashboardWidgetPO.setData(createWidgetRequest.getData());
         dashboardWidgetPO.setCreatedAt(System.currentTimeMillis());
         dashboardWidgetRepository.save(dashboardWidgetPO);
-        return ResponseBuilder.success();
     }
 
-    public ResponseBody updateWidget(Long dashboardId, Long widgetId, UpdateWidgetRequest updateWidgetRequest) {
+    public void updateWidget(Long dashboardId, Long widgetId, UpdateWidgetRequest updateWidgetRequest) {
         DashboardWidgetPO dashboardWidgetPO = dashboardWidgetRepository.findById(widgetId).orElseThrow(() -> ServiceException.with(ErrorCode.DATA_NO_FOUND).detailMessage("widget not exist").build());
         if(!Objects.equals(dashboardWidgetPO.getDashboardId(), dashboardId)){
             throw ServiceException.with(ErrorCode.DATA_NO_FOUND).detailMessage("widget not exist").build();
         }
-        DashboardWidgetPO updateDashboardWidgetPO = new DashboardWidgetPO();
-        updateDashboardWidgetPO.setId(widgetId);
-        updateDashboardWidgetPO.setName(updateWidgetRequest.getName());
-        updateDashboardWidgetPO.setData(updateWidgetRequest.getData());
-        updateDashboardWidgetPO.setUpdatedAt(System.currentTimeMillis());
-        //TODO
-//        dashboardWidgetRepository.update(updateDashboardWidgetPO);
-        return ResponseBuilder.success();
+        dashboardWidgetPO.setName(updateWidgetRequest.getName());
+        dashboardWidgetPO.setData(updateWidgetRequest.getData());
+        dashboardWidgetPO.setUpdatedAt(System.currentTimeMillis());
+        dashboardWidgetRepository.save(dashboardWidgetPO);
     }
 
-    public ResponseBody deleteWidget(Long dashboardId, Long widgetId) {
+    public void deleteWidget(Long dashboardId, Long widgetId) {
         DashboardWidgetPO dashboardWidgetPO = dashboardWidgetRepository.findById(widgetId).orElseThrow(() -> ServiceException.with(ErrorCode.DATA_NO_FOUND).detailMessage("widget not exist").build());
         if(!Objects.equals(dashboardWidgetPO.getDashboardId(), dashboardId)){
             throw ServiceException.with(ErrorCode.DATA_NO_FOUND).detailMessage("widget not exist").build();
         }
         dashboardWidgetRepository.deleteById(widgetId);
-        return ResponseBuilder.success();
     }
 
-    public ResponseBody getWidgets(Long dashboardId) {
-        List<DashboardWidgetPO> dashboardWidgetPOList = null;
-        //TODO
-//        List<DashboardWidgetPO> dashboardWidgetPOList = dashboardWidgetRepository.findAllByDashboardId(dashboardId);
-
-        List<DashboardWidgetResponse> dashboardWidgetResponseList = DashboardWidgetConvert.INSTANCE.convertResponseList(dashboardWidgetPOList);
-        return ResponseBuilder.success(dashboardWidgetResponseList);
+    public List<DashboardWidgetResponse> getWidgets(Long dashboardId) {
+        List<DashboardWidgetPO> dashboardWidgetPOList = dashboardWidgetRepository.findAll(filter -> filter.eq(DashboardWidgetPO.Fields.dashboardId, dashboardId));
+        return DashboardWidgetConvert.INSTANCE.convertResponseList(dashboardWidgetPOList);
     }
 
 }

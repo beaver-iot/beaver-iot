@@ -1,14 +1,22 @@
 package com.milesight.iab.authentication.po;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.experimental.FieldNameConstants;
 
 /**
  * @author loong
  * @date 2024/10/14 9:43
  */
 @Data
+@Table(name = "oauth2_authorization")
+@Entity
+@FieldNameConstants
 public class OAuth2AuthorizationPO {
 
+    @Id
     private String id;
     private String registeredClientId;
     private String principalName;

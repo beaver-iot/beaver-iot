@@ -14,7 +14,7 @@ import io.netty.util.NetUtil;
  */
 public class WebSocketNettyServer {
 
-    public void start(int websocketPort, WebSocketChannelInitializer webSocketChannelInitializer) throws Exception {
+    public void start(int webSocketPort, WebSocketChannelInitializer webSocketChannelInitializer) throws Exception {
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
@@ -26,7 +26,7 @@ public class WebSocketNettyServer {
                     .childOption(ChannelOption.SO_KEEPALIVE, true)
                     .childOption(ChannelOption.SO_REUSEADDR, true)
                     .childHandler(webSocketChannelInitializer);
-            ChannelFuture future = bootstrap.bind(websocketPort).sync();
+            ChannelFuture future = bootstrap.bind(webSocketPort).sync();
             future.channel().closeFuture().sync();
         } finally {
             workerGroup.shutdownGracefully();

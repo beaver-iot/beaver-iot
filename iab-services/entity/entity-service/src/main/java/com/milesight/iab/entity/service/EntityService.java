@@ -50,22 +50,22 @@ public class EntityService implements EntityServiceProvider {
         return null;
     }
 
-    public ResponseBody historySearch(EntityHistoryQuery entityHistoryQuery) {
+    public String historySearch(EntityHistoryQuery entityHistoryQuery) {
         //TODO
         return null;
     }
 
-    public ResponseBody getEntityStatus(Long entityId) {
+    public String getEntityStatus(Long entityId) {
         //TODO
         return null;
     }
 
-    public ResponseBody updateEntity(UpdateEntityRequest updateEntityRequest) {
+    public String updateEntity(UpdateEntityRequest updateEntityRequest) {
         //TODO
         return null;
     }
 
-    public ResponseBody callService(CallServiceRequest callServiceRequest) {
+    public String callService(CallServiceRequest callServiceRequest) {
         //TODO
         return null;
     }

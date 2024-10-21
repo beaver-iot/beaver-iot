@@ -1,6 +1,10 @@
 package com.milesight.iab.entity.po;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.experimental.FieldNameConstants;
 
 import java.sql.Blob;
 
@@ -9,8 +13,12 @@ import java.sql.Blob;
  * @date 2024/10/16 14:30
  */
 @Data
+@Table(name = "entity_history")
+@Entity
+@FieldNameConstants
 public class EntityHistoryPO {
 
+    @Id
     private Long id;
     private Long entityId;
     private Integer valueInt;

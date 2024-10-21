@@ -1,6 +1,7 @@
 package com.milesight.iab.entity.controller;
 
 import com.milesight.iab.base.response.ResponseBody;
+import com.milesight.iab.base.response.ResponseBuilder;
 import com.milesight.iab.entity.model.request.CallServiceRequest;
 import com.milesight.iab.entity.model.request.EntityHistoryQuery;
 import com.milesight.iab.entity.model.request.EntityQuery;
@@ -32,22 +33,26 @@ public class EntityController {
 
     @PostMapping("/history/search")
     public ResponseBody historySearch(@RequestBody EntityHistoryQuery entityHistoryQuery) {
-        return entityService.historySearch(entityHistoryQuery);
+        entityService.historySearch(entityHistoryQuery);
+        return ResponseBuilder.success();
     }
 
     @GetMapping("/{entityId}/status")
     public ResponseBody getEntityStatus(@PathVariable("entityId") Long entityId) {
-        return entityService.getEntityStatus(entityId);
+        entityService.getEntityStatus(entityId);
+        return ResponseBuilder.success();
     }
 
     @PostMapping("/update")
     public ResponseBody updateEntity(@RequestBody UpdateEntityRequest updateEntityRequest) {
-        return entityService.updateEntity(updateEntityRequest);
+        entityService.updateEntity(updateEntityRequest);
+        return ResponseBuilder.success();
     }
 
     @PostMapping("/call-service")
     public ResponseBody callService(@RequestBody CallServiceRequest callServiceRequest) {
-        return entityService.callService(callServiceRequest);
+        entityService.callService(callServiceRequest);
+        return ResponseBuilder.success();
     }
 
 }

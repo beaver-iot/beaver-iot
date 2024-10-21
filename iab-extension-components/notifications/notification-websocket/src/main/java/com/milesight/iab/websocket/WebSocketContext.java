@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author loong
  * @date 2024/10/18 14:42
  */
-public class WebsocketContext {
+public class WebSocketContext {
 
     private static final Map<String, ChannelHandlerContext> channelMap = new ConcurrentHashMap<>();
 
