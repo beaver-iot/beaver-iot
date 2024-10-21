@@ -81,7 +81,7 @@ public class BaseEntityBuilder<T extends BaseEntityBuilder> {
         entity.setValueType(valueType);
         entity.setType(type);
         entity.setAttributes(attributes);
-        entity.setGroup(group);
+        entity.setParentIdentifier(parentIdentifier);
         return entity;
     }
 
