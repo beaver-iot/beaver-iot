@@ -20,9 +20,7 @@ public interface EntityServiceProvider {
 
     void saveExchangeHistory(ExchangePayload exchangePayloadList);
 
-    Entity findByIdentifier(String identifier);
-
-    List<Entity> findAllByIntegration(String integration);
+    Object findExchangeValueByKey(String key);
 
     <T> T findExchangeByKey(String key, Class<T> entitiesClazz);
 

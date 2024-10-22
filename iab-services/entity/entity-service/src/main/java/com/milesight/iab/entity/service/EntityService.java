@@ -38,6 +38,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -91,8 +92,12 @@ public class EntityService implements EntityServiceProvider {
                 attachTarget = AttachTargetType.INTEGRATION;
                 attachTargetId = entity.getIntegration().getName();
             }
+            Long entityId = entity.getId();
+            if(entityId == null){
+                entityId = SnowflakeUtil.nextId();
+            }
             EntityPO entityPO = new EntityPO();
-            entityPO.setId(SnowflakeUtil.nextId());
+            entityPO.setId(entityId);
             entityPO.setKey(entity.getKey());
             entityPO.setName(entity.getName());
             entityPO.setType(entity.getType());
@@ -234,21 +239,50 @@ public class EntityService implements EntityServiceProvider {
     }
 
     @Override
-    public Entity findByIdentifier(String identifier) {
-        //TODO
-        return null;
-    }
-
-    @Override
-    public List<Entity> findAllByIntegration(String integration) {
-        //TODO
-        return null;
+    public Object findExchangeValueByKey(String key){
+        EntityPO entityPO = getByKey(key);
+        if(entityPO == null){
+            return null;
+        }
+        Long entityId = entityPO.getId();
+        EntityLatestPO entityLatestPO = entityLatestRepository.findUniqueOne(filter -> filter.eq(EntityLatestPO.Fields.entityId, entityId));
+        if(entityLatestPO == null){
+            return null;
+        }
+        Object value = null;
+        if(entityLatestPO.getValueBoolean() != null){
+            value = entityLatestPO.getValueBoolean();
+        }else if(entityLatestPO.getValueInt() != null){
+            value = entityLatestPO.getValueInt();
+        }else if(entityLatestPO.getValueFloat() != null){
+            value = entityLatestPO.getValueFloat();
+        }else if (entityLatestPO.getValueString() != null){
+            value = entityLatestPO.getValueString();
+        }else if(entityLatestPO.getValueBinary() != null){
+            value = entityLatestPO.getValueBinary();
+        }
+        return value;
     }
 
     @Override
     public <T> T findExchangeByKey(String key, Class<T> entitiesClazz) {
-        //TODO
-        return null;
+        Object value = findExchangeValueByKey(key);
+        try {
+            T instance = entitiesClazz.getDeclaredConstructor().newInstance();
+            Field[] fields = entitiesClazz.getDeclaredFields();
+            for (Field field : fields) {
+                String keyFieldName = key.substring(key.lastIndexOf(".") + 1);
+                if (field.getName().equals(keyFieldName)) {
+                    field.setAccessible(true);
+                    field.set(instance, value);
+                    break;
+                }
+            }
+            return instance;
+        } catch (Exception e) {
+            log.error("findExchangeByKey error:{}", e.getMessage(),e);
+            return null;
+        }
     }
 
     public Page<EntityResponse> search(EntityQuery entityQuery) {
@@ -279,15 +313,21 @@ public class EntityService implements EntityServiceProvider {
             return Page.empty();
         }
         List<String> resultDeviceIds = entityPOList.stream().filter(entityPO -> entityPO.getAttachTarget() == AttachTargetType.DEVICE).map(EntityPO::getAttachTargetId).toList();
-
+        List<Device> resultDevices = deviceFacade.findByIds(resultDeviceIds);
+        Map<String,String> deviceNameMap = new HashMap<>();
+        Map<String,String> deviceIntegrationNameMap = new HashMap<>();
+        if(resultDevices != null && !resultDevices.isEmpty()) {
+            deviceNameMap.putAll(resultDevices.stream().collect(Collectors.toMap(t -> String.valueOf(t.getId()), Device::getName)));
+            deviceIntegrationNameMap.putAll(resultDevices.stream().collect(Collectors.toMap(t -> String.valueOf(t.getId()), t -> t.getIntegration().getName())));
+        }
         return entityPOList.map(entityPO -> {
             EntityResponse response = new EntityResponse();
             String deviceName = null;
             String integrationName = null;
             if(entityPO.getAttachTarget() == AttachTargetType.DEVICE){
                 String deviceId = entityPO.getAttachTargetId();
-                //TODO
-
+                deviceName = deviceNameMap.get(deviceId);
+                integrationName = deviceIntegrationNameMap.get(deviceId);
             }else if(entityPO.getAttachTarget() == AttachTargetType.INTEGRATION){
                 integrationName = entityPO.getAttachTargetId();
             }
