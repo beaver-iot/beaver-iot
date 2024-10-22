@@ -2,8 +2,6 @@ package com.milesight.iab.entity.model.response;
 
 import lombok.Data;
 
-import java.util.List;
-
 /**
  * @author loong
  * @date 2024/10/21 10:51
@@ -11,12 +9,7 @@ import java.util.List;
 @Data
 public class EntityHistoryResponse {
 
-    private List<HistoryData> historyData;
+    private String timestamp;
+    private Object value;
 
-    public static class HistoryData {
-
-        private String timestamp;
-        private String value;
-
-    }
 }

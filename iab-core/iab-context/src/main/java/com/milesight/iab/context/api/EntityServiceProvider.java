@@ -24,6 +24,6 @@ public interface EntityServiceProvider {
 
     List<Entity> findAllByIntegration(String integration);
 
-    <T> T findByKey(String key, Class<T> entitiesClazz);
+    <T> T findExchangeByKey(String key, Class<T> entitiesClazz);
 
 }

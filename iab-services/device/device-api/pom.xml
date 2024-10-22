@@ -22,10 +22,6 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.milesight.iab</groupId>
-            <artifactId>iab-base</artifactId>
-        </dependency>
     </dependencies>
 
 </project>

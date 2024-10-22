@@ -11,6 +11,7 @@ public class EntityResponse {
 
     private String deviceName;
     private String integrationName;
+    private String entityId;
     private String entityKey;
     private String entityName;
     private String entityValueAttribute;

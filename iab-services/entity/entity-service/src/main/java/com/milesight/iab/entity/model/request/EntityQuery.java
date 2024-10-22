@@ -1,6 +1,7 @@
 package com.milesight.iab.entity.model.request;
 
 import com.milesight.iab.base.page.GenericPageRequest;
+import com.milesight.iab.context.integration.enums.EntityType;
 import lombok.Data;
 
 /**
@@ -11,5 +12,6 @@ import lombok.Data;
 public class EntityQuery extends GenericPageRequest {
 
     private String keyword;
+    private EntityType entityType;
 
 }

@@ -2,12 +2,15 @@ package com.milesight.iab.entity.controller;
 
 import com.milesight.iab.base.response.ResponseBody;
 import com.milesight.iab.base.response.ResponseBuilder;
+import com.milesight.iab.entity.model.request.EntityAggregateQuery;
 import com.milesight.iab.entity.model.request.EntityHistoryQuery;
 import com.milesight.iab.entity.model.request.EntityQuery;
 import com.milesight.iab.entity.model.request.ServiceCallRequest;
 import com.milesight.iab.entity.model.request.UpdatePropertyEntityRequest;
+import com.milesight.iab.entity.model.response.EntityAggregateResponse;
 import com.milesight.iab.entity.model.response.EntityHistoryResponse;
 import com.milesight.iab.entity.model.response.EntityLatestResponse;
+import com.milesight.iab.entity.model.response.EntityMetaResponse;
 import com.milesight.iab.entity.model.response.EntityResponse;
 import com.milesight.iab.entity.service.EntityService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,10 +45,22 @@ public class EntityController {
         return ResponseBuilder.success(entityHistoryResponse);
     }
 
+    @PostMapping("/history/aggregate")
+    public ResponseBody<EntityAggregateResponse> historyAggregate(@RequestBody EntityAggregateQuery entityAggregateQuery) {
+        EntityAggregateResponse entityAggregateResponse = entityService.historyAggregate(entityAggregateQuery);
+        return ResponseBuilder.success(entityAggregateResponse);
+    }
+
     @GetMapping("/{entityId}/status")
     public ResponseBody<EntityLatestResponse> getEntityStatus(@PathVariable("entityId") Long entityId) {
         EntityLatestResponse entityLatestResponse = entityService.getEntityStatus(entityId);
         return ResponseBuilder.success(entityLatestResponse);
+    }
+
+    @GetMapping("/{entityId}/meta")
+    public ResponseBody<EntityMetaResponse> getEntityMeta(@PathVariable("entityId") Long entityId) {
+        EntityMetaResponse entityMetaResponse = entityService.getEntityMeta(entityId);
+        return ResponseBuilder.success(entityMetaResponse);
     }
 
     @PostMapping("/property/update")
