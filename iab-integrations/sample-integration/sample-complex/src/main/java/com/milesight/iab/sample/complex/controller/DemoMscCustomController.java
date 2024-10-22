@@ -1,10 +1,9 @@
 package com.milesight.iab.sample.complex.controller;
 
-import com.milesight.iab.rule.RuleEngineExecutor;
-import com.milesight.iab.rule.constants.RuleNodeNames;
-import com.milesight.iab.sample.complex.entity.DemoMscSettingEntities;
 import com.milesight.iab.context.api.EntityServiceProvider;
 import com.milesight.iab.context.integration.model.ExchangePayload;
+import com.milesight.iab.rule.RuleEngineExecutor;
+import com.milesight.iab.sample.complex.entity.DemoMscSettingEntities;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,13 +20,13 @@ public class DemoMscCustomController {
     @PostMapping("/testConnect")
     public String testConnect(@RequestBody DemoMscSettingEntities demoMscSettingEntities) {
         // save entities to latest database
-        entityServiceProvider.saveExchange(ExchangePayload.createFrom(demoMscSettingEntities), true);
+        entityServiceProvider.saveExchange(ExchangePayload.createFrom(demoMscSettingEntities));
 
         // call testConnect
             //todo : call msc url
 
         // generate token
-        entityServiceProvider.saveExchange(ExchangePayload.create("msc-integration.integration.token", "xxxxxxx"), true);
+        entityServiceProvider.saveExchange(ExchangePayload.create("msc-integration.integration.token", "xxxxxxx"));
 
         return "success";
     }

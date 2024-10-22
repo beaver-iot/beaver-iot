@@ -1,7 +1,8 @@
 package com.milesight.iab.dashboard.service;
 
-import com.milesight.iab.context.integration.model.event.ExchangeEvent;
+import com.milesight.iab.context.integration.model.ExchangePayload;
 import com.milesight.iab.eventbus.annotations.EventSubscribe;
+import com.milesight.iab.eventbus.api.Event;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Service;
 public class DashboardNotifyService {
 
     @EventSubscribe
-    public void onDashboardNotify(ExchangeEvent event) {
+    public void onDashboardNotify(Event<ExchangePayload> event) {
         //TODO
 //        WebSocketEvent webSocketEvent = WebSocketEvent.of(WebSocketEvent.EventType.EXCHANGE, event.getPayload());
 //        WebSocketContext.sendMessage(, webSocketEvent);

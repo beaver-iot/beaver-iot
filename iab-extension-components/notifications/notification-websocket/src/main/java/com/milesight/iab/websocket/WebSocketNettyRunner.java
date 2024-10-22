@@ -42,7 +42,7 @@ public class WebSocketNettyRunner implements CommandLineRunner {
             }catch (Exception e){
                 log.error("init websocket error:{}", e.getMessage(),e);
             } finally {
-                executor.shutdown(); // 关闭线程池
+                executor.shutdown();
             }
         });
     }

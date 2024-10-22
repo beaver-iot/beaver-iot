@@ -3,8 +3,10 @@ package com.milesight.iab.user.service;
 import com.milesight.iab.base.enums.ErrorCode;
 import com.milesight.iab.base.exception.ServiceException;
 import com.milesight.iab.base.utils.snowflake.SnowflakeUtil;
+import com.milesight.iab.context.security.SecurityUserContext;
 import com.milesight.iab.user.enums.UserErrorCode;
 import com.milesight.iab.user.model.request.UserRegisterRequest;
+import com.milesight.iab.user.model.response.UserInfoResponse;
 import com.milesight.iab.user.po.UserPO;
 import com.milesight.iab.user.repository.UserRepository;
 import com.milesight.iab.user.util.SignUtils;
@@ -42,6 +44,17 @@ public class UserService {
         userPO.setPreference(null);
         userPO.setCreatedAt(System.currentTimeMillis());
         userRepository.save(userPO);
+    }
+
+    public UserInfoResponse getUserInfo(){
+        SecurityUserContext.SecurityUser securityUser = SecurityUserContext.getSecurityUser();
+        UserInfoResponse userInfoResponse = new UserInfoResponse();
+        if(securityUser != null){
+            userInfoResponse.setUserId(securityUser.getPayload().get("userId").toString());
+            userInfoResponse.setNickname(securityUser.getPayload().get("nickname").toString());
+            userInfoResponse.setEmail(securityUser.getPayload().get("email").toString());
+        }
+        return userInfoResponse;
     }
 
     public UserPO getUserByEmail(String email) {

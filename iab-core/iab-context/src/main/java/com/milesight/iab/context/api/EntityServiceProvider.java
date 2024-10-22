@@ -10,10 +10,18 @@ import java.util.List;
  */
 public interface EntityServiceProvider {
 
+    List<Entity> findByTargetId(String targetId);
+
     void save(Entity entity);
 
     void batchSave(List<Entity> entityList);
 
-    void saveExchange(ExchangePayload exchangePayloadList, boolean includedHistory);
+    void saveExchange(ExchangePayload exchangePayloadList);
+
+    void saveExchangeHistory(ExchangePayload exchangePayloadList);
+
+    Object findExchangeValueByKey(String key);
+
+    <T> T findExchangeByKey(String key, Class<T> entitiesClazz);
 
 }

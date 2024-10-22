@@ -19,7 +19,6 @@ public class DashboardWidgetPO {
     @Id
     private Long id;
     private Long dashboardId;
-    private String name;
     private String data;
     private Long createdAt;
     private Long updatedAt;

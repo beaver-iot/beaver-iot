@@ -1,6 +1,7 @@
 package com.milesight.iab.context.security;
 
 import lombok.Builder;
+import lombok.Getter;
 
 import java.util.Map;
 
@@ -24,6 +25,7 @@ public class SecurityUserContext {
     }
 
     @Builder
+    @Getter
     public static class SecurityUser {
         private String accessToken;
         private Map<String, Object> header;
