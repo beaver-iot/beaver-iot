@@ -40,6 +40,14 @@ public class ExchangePayload extends HashMap<String,Object> implements ExchangeP
         this.context = context;
     }
 
+    public Object getContext(String key) {
+        if(context == null){
+           return null;
+        }
+        return context.get(key);
+    }
+
+
     public void putContext(String key, Object value) {
         if(context == null){
             context = new HashMap<>();
