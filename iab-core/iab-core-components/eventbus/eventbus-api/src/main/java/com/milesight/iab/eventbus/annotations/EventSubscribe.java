@@ -26,6 +26,6 @@ public @interface EventSubscribe {
      * 线程执行器，默认采用EventBus的线程池: asyncTaskExecutor
      * @return
      */
-    String executor() default "";
+//    String executor() default "";
 
 }

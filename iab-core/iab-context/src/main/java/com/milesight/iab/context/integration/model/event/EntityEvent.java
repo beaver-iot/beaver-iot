@@ -3,6 +3,7 @@ package com.milesight.iab.context.integration.model.event;
 
 import com.milesight.iab.eventbus.api.Event;
 import com.milesight.iab.context.integration.model.Entity;
+import com.milesight.iab.eventbus.api.IdentityKey;
 
 /**
  * @author leon
@@ -26,8 +27,13 @@ public class EntityEvent implements Event<Entity> {
     }
 
     @Override
-    public void setPayload(Entity payload) {
-        this.entity = payload;
+    public void setPayload(IdentityKey payload) {
+        this.entity = (Entity) payload;
+    }
+
+    @Override
+    public void setEventType(String eventType) {
+        this.eventType = eventType;
     }
 
     @Override

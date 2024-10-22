@@ -75,4 +75,8 @@ public interface BaseJpaRepository<T,ID extends Serializable> extends JpaReposit
         return CollectionUtils.isEmpty(all) ? Optional.empty() : Optional.of(all.get(0));
     }
 
+    @Override
+    default Long count(Consumer<Filterable> filterable){
+        return count(SpecificationConverter.toSpecification(filterable));
+    }
 }

@@ -30,7 +30,6 @@ public class CamelRuleEngineExecutor implements RuleEngineExecutor {
         return producerTemplate.sendBody(RuleNodeNames.innerExchangeDownFlow, ExchangePattern.InOut, payload);
     }
 
-
     @Override
     public void execute(String endpointUri, Object payload) {
         producerTemplate.sendBody(endpointUri, payload);

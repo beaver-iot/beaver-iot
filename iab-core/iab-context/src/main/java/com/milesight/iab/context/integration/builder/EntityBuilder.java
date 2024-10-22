@@ -22,6 +22,9 @@ import java.util.List;
  *                         .property("timestamp", AccessMod.RW)
  *                         .end()
  *                 .build();
+ *
+ *
+ *           []
  * @author leon
  */
 public class EntityBuilder extends BaseEntityBuilder<EntityBuilder>{

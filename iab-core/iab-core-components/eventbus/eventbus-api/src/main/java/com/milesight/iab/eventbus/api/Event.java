@@ -11,7 +11,9 @@ public interface Event<T extends IdentityKey> {
         return getPayload().getKey();
     }
 
-    void setPayload(T payload);
+    void setPayload(IdentityKey payload);
+
+    void setEventType(String eventType);
 
     T getPayload();
 }

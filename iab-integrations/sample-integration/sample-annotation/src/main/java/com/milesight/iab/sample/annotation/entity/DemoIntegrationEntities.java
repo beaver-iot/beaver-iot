@@ -6,13 +6,14 @@ import com.milesight.iab.context.integration.entity.annotation.Entities;
 import com.milesight.iab.context.integration.entity.annotation.IntegrationEntities;
 import com.milesight.iab.context.integration.entity.annotation.KeyValue;
 import com.milesight.iab.context.integration.enums.EntityType;
+import com.milesight.iab.context.integration.model.ExchangePayload;
 
 /**
  * 注解方式定义集成实体及子实体
  * @author leon
  */
 @IntegrationEntities
-public class DemoIntegrationEntities {
+public class DemoIntegrationEntities extends ExchangePayload {
 
     @Entity(type = EntityType.SERVICE, name = "mscEntitySync", identifier = "mscEntitySync", attributes = {@KeyValue(key = "key1", value = "value1")})
     private String entitySync;

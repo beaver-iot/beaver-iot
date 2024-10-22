@@ -62,4 +62,6 @@ public interface BaseRepository<T,ID extends Serializable> {
      * @return
      */
     Optional<T> findOne(Consumer<Filterable> filterable);
+
+    Long count(Consumer<Filterable> filterable);
 }

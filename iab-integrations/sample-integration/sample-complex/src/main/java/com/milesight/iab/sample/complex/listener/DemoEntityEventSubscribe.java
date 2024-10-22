@@ -12,10 +12,14 @@ import com.milesight.iab.context.integration.enums.AccessMod;
 import com.milesight.iab.context.integration.model.Entity;
 import com.milesight.iab.context.integration.model.Integration;
 import com.milesight.iab.context.integration.model.event.ExchangeEvent;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 /**
  * @author leon
  */
+@Component
+@Slf4j
 public class DemoEntityEventSubscribe {
 
     private DeviceServiceProvider deviceServiceProvider;
@@ -24,11 +28,13 @@ public class DemoEntityEventSubscribe {
     // save properties
     @EventSubscribe(payloadKeyExpression ="msc-integration.integration.connect")
     public void subscribeSaveSetting(Event<DemoMscSettingEntities> event) {
+        log.debug("DemoEntityEventSubscribe subscribeSaveSetting:{}",event);
     }
 
     // sync event
     @EventSubscribe(payloadKeyExpression ="msc-integration.integration.syncDevice")
     public void subscribeSyncEntity(ExchangeEvent event) {
+        log.debug("DemoEntityEventSubscribe subscribeSyncEntity:{}",event);
         //1.call msc url
 
         //2. save device\entity metadata
@@ -54,15 +60,17 @@ public class DemoEntityEventSubscribe {
         integrationServiceProvider.save(integrationConfig);
 
     }
-    @EventSubscribe(payloadKeyExpression ="${integration.name}.integration.syncHistory")
+    @EventSubscribe(payloadKeyExpression ="msc-integration.integration.syncHistory")
     public void subscribeHistory(ExchangeEvent event) {
         //方案1： 采用api调用 + 编码
         //方案2： 采用规则引擎编排 + timer
+        log.debug("DemoEntityEventSubscribe subscribeHistory:{}",event);
     }
 
     //exchange up ? async?
-    @EventSubscribe(payloadKeyExpression ="${integration.name}.integration.*", eventType = ExchangeEvent.EventType.UP)
+    @EventSubscribe(payloadKeyExpression ="msc-integration.integration.*", eventType = ExchangeEvent.EventType.UP)
     public void subscribeDeviceExchangeUp(ExchangeEvent event) {
         // 同上
+        log.debug("DemoEntityEventSubscribe subscribeDeviceExchangeUp:{}",event);
     }
 }

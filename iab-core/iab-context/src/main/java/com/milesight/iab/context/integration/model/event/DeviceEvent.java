@@ -3,6 +3,7 @@ package com.milesight.iab.context.integration.model.event;
 
 import com.milesight.iab.eventbus.api.Event;
 import com.milesight.iab.context.integration.model.Device;
+import com.milesight.iab.eventbus.api.IdentityKey;
 
 /**
  * @author leon
@@ -25,8 +26,13 @@ public class DeviceEvent implements Event<Device> {
     }
 
     @Override
-    public void setPayload(Device payload) {
-        this.device = payload;
+    public void setPayload(IdentityKey payload) {
+        this.device = (Device) payload;
+    }
+
+    @Override
+    public void setEventType(String eventType) {
+        this.eventType = eventType;
     }
 
     @Override

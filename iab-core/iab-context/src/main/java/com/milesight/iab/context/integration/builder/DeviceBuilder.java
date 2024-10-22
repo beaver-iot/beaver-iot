@@ -24,7 +24,7 @@ import java.util.Map;
  *                         .end()
  *                 .build();
  *
- *         Device device = new DeviceBuilder("myIntegration")
+ *         Device device = new DeviceBuilder("myIntegrationId"，"myIntegration")
  *                             .name("myDevice")
  *                             .identifier("mySN")
  *                             .entity(entityConfig)
@@ -39,7 +39,6 @@ public class DeviceBuilder {
     private Map<String,Object> additional;
     private IntegrationBuilder integrationBuilder;
     private Integration integration;
-
     private Long id;
 
     public DeviceBuilder(IntegrationBuilder integrationBuilder) {

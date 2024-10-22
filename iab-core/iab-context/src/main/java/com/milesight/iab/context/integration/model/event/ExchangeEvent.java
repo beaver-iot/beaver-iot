@@ -3,6 +3,7 @@ package com.milesight.iab.context.integration.model.event;
 
 import com.milesight.iab.eventbus.api.Event;
 import com.milesight.iab.context.integration.model.ExchangePayload;
+import com.milesight.iab.eventbus.api.IdentityKey;
 
 /**
  * @author leon
@@ -25,8 +26,13 @@ public class ExchangeEvent implements Event<ExchangePayload> {
     }
 
     @Override
-    public void setPayload(ExchangePayload payload) {
-        this.exchangePayload = payload;
+    public void setPayload(IdentityKey payload) {
+        this.exchangePayload = (ExchangePayload) payload;
+    }
+
+    @Override
+    public void setEventType(String eventType) {
+        this.eventType = eventType;
     }
 
     @Override
