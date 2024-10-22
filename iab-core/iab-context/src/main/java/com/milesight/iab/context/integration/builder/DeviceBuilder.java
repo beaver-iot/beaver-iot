@@ -9,6 +9,26 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * DeviceBuilder is a builder class for Device, eg:
+ *         Entity entityConfig = new EntityBuilder()
+ *                 .property("humidity", AccessMod.RW)
+ *                 .identifier("humidity")
+ *                     .children()
+ *                         .property("value", AccessMod.RW)
+ *                         .end()
+ *                     .children()
+ *                         .property("unit", AccessMod.RW)
+ *                         .end()
+ *                     .children()
+ *                         .property("timestamp", AccessMod.RW)
+ *                         .end()
+ *                 .build();
+ *
+ *         Device device = new DeviceBuilder("myIntegration")
+ *                             .name("myDevice")
+ *                             .identifier("mySN")
+ *                             .entity(entityConfig)
+ *                             .build();
  * @author leon
  */
 public class DeviceBuilder {
@@ -79,6 +99,7 @@ public class DeviceBuilder {
         device.setIdentifier(identifier);
         device.setEntities(entities);
         device.setIntegration(integration);
+        device.initializeProperties(integration);
         return device;
     }
 

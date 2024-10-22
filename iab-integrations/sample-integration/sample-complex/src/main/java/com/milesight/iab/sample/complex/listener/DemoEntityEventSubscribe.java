@@ -22,7 +22,7 @@ public class DemoEntityEventSubscribe {
     private IntegrationServiceProvider integrationServiceProvider;
 
     // save properties
-    @EventSubscribe(payloadKeyExpression ="msc-integration.integration.connect.*")
+    @EventSubscribe(payloadKeyExpression ="msc-integration.integration.connect")
     public void subscribeSaveSetting(Event<DemoMscSettingEntities> event) {
     }
 

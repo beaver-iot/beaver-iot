@@ -2,7 +2,7 @@ package com.milesight.iab.data.jpa.repository;
 
 import com.milesight.iab.data.api.BaseRepository;
 import com.milesight.iab.data.filterable.Filterable;
-import com.milesight.iab.data.jpa.utils.SpecificationUtils;
+import com.milesight.iab.data.jpa.support.SpecificationConverter;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,6 +42,9 @@ public interface BaseJpaRepository<T,ID extends Serializable> extends JpaReposit
     void deleteAllById(Iterable<? extends ID> ids);
 
     @Override
+    <S extends T> List<S> saveAll(Iterable<S> entities);
+
+    @Override
     List<T> findAll();
 
     @Override
@@ -50,14 +53,15 @@ public interface BaseJpaRepository<T,ID extends Serializable> extends JpaReposit
     @Override
     Page<T> findAll(Pageable pageable);
 
+
     @Override
     default List<T> findAll(Consumer<Filterable> consumer){
-        return findAll(SpecificationUtils.toSpecification(consumer));
+        return findAll(SpecificationConverter.toSpecification(consumer));
     }
 
     @Override
     default Page<T> findAll(Consumer<Filterable> filterable, Pageable pageable){
-        return findAll(SpecificationUtils.toSpecification(filterable), pageable);
+        return findAll(SpecificationConverter.toSpecification(filterable), pageable);
     }
 
     @Override
@@ -67,7 +71,7 @@ public interface BaseJpaRepository<T,ID extends Serializable> extends JpaReposit
 
     @Override
     default Optional<T> findOne(Consumer<Filterable> filterable){
-        List<T> all = findAll(SpecificationUtils.toSpecification(filterable));
+        List<T> all = findAll(SpecificationConverter.toSpecification(filterable));
         return CollectionUtils.isEmpty(all) ? Optional.empty() : Optional.of(all.get(0));
     }
 

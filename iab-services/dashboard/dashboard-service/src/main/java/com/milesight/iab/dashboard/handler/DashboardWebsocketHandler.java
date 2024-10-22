@@ -1,13 +1,15 @@
 package com.milesight.iab.dashboard.handler;
 
 import com.milesight.iab.websocket.AbstractWebSocketHandler;
-import com.milesight.iab.websocket.WebsocketContext;
+import com.milesight.iab.websocket.WebSocketContext;
+import com.milesight.iab.websocket.WebSocketProperties;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
@@ -16,12 +18,13 @@ import java.util.Map;
  * @author loong
  * @date 2024/10/18 11:19
  */
+@Component
 @Getter
 @Slf4j
 public class DashboardWebsocketHandler extends AbstractWebSocketHandler {
 
-    public DashboardWebsocketHandler(String websocketPath) {
-        super(websocketPath);
+    public DashboardWebsocketHandler(WebSocketProperties webSocketProperties) {
+        super(webSocketProperties);
     }
 
     @Override
@@ -31,7 +34,7 @@ public class DashboardWebsocketHandler extends AbstractWebSocketHandler {
             sendHttpResponse(ctx, request, HttpResponseStatus.FORBIDDEN);
             return;
         }
-        WebsocketContext.addChannel(token, ctx);
+        WebSocketContext.addChannel(token, ctx);
     }
 
     @Override
@@ -40,7 +43,7 @@ public class DashboardWebsocketHandler extends AbstractWebSocketHandler {
 
     @Override
     public void disconnect(ChannelHandlerContext ctx) throws Exception {
-        WebsocketContext.removeChannelByValue(ctx);
+        WebSocketContext.removeChannelByValue(ctx);
     }
 
     @Override

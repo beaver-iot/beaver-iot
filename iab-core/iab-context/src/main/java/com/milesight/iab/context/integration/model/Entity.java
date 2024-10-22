@@ -22,6 +22,7 @@ import java.util.Map;
 @Setter
 public class Entity implements IdentityKey {
 
+    private Long id;
     @JsonIgnore
     private Device device;
     @JsonIgnore
@@ -33,12 +34,16 @@ public class Entity implements IdentityKey {
     private EntityValueType valueType;
     private EntityType type;
     private Map<String,Object> attributes;
-    private String group;
+    private String parentIdentifier;
     private List<Entity> children;
+
+    public String getFullIdentifier(){
+        return StringUtils.hasLength(parentIdentifier) ? parentIdentifier + "." + identifier : identifier;
+    }
 
     @Override
     public String getKey() {
-        String fullIdentifier = StringUtils.hasLength(group) ? group + "." + identifier : identifier;
+        String fullIdentifier = getFullIdentifier();
         if(device != null){
             return IntegrationConstants.formatIntegrationDeviceEntityKey(integration.getName(), device.getIdentifier(), fullIdentifier);
         }else{

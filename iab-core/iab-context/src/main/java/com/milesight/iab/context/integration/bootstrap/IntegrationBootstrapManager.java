@@ -84,7 +84,10 @@ public class IntegrationBootstrapManager {
             String path = integrationBootstrap.getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
             FileUrlResource fileUrlResource = new FileUrlResource(path + IntegrationConstants.INTEGRATION_YAML);
             if (!fileUrlResource.exists()) {
-                throw new BootstrapException("Integration yaml not found, please check integration.yaml");
+                fileUrlResource = new FileUrlResource(path + IntegrationConstants.INTEGRATION_YML);
+                if(!fileUrlResource.exists()){
+                    throw new BootstrapException("Integration yaml not found, please check integration.yaml");
+                }
             }
             return propertySourceFactory.createPropertySource(integrationBootstrap.getClass().getSimpleName(), new EncodedResource(fileUrlResource));
         } catch (IOException e) {
@@ -132,9 +135,9 @@ public class IntegrationBootstrapManager {
         if (integrationRoot.get().size() != 1) {
             throw new ConfigurationException("Integration information not configured correctly, There is one and only one integration configuration, please check integration.yaml");
         }
-        String integrationName = (String) integrationRoot.get().keySet().iterator().next();
-        Integration integration = Binder.get(environment).bind(IntegrationConstants.INTEGRATION_PROPERTY_PREFIX + "." + integrationName, Integration.class).get();
-        integration.setName(integrationName);
+        String integrationId = (String) integrationRoot.get().keySet().iterator().next();
+        Integration integration = Binder.get(environment).bind(IntegrationConstants.INTEGRATION_PROPERTY_PREFIX + "." + integrationId, Integration.class).get();
+        integration.setId(integrationId);
         integration.setIntegrationClass(clazz);
         return integration;
     }

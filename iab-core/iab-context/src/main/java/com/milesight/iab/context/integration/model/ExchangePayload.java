@@ -13,6 +13,8 @@ public class ExchangePayload extends HashMap<String,Object> implements ExchangeP
 
     private transient Map<String,Object> context;
 
+    private long timestamp;
+
     public ExchangePayload() {
     }
 
@@ -45,6 +47,14 @@ public class ExchangePayload extends HashMap<String,Object> implements ExchangeP
         context.put(key,value);
     }
 
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
     @Override
     public Object getPayload(String key) {
         return this.get(key);
@@ -58,6 +68,7 @@ public class ExchangePayload extends HashMap<String,Object> implements ExchangeP
     public static ExchangePayload create(String key, Object value) {
         ExchangePayload exchangePayload = new ExchangePayload();
         exchangePayload.put(key, value);
+        exchangePayload.setTimestamp(System.currentTimeMillis());
         return exchangePayload;
     }
 

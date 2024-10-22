@@ -29,10 +29,10 @@ import java.util.Map;
 @ChannelHandler.Sharable
 public abstract class AbstractWebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
 
-    private final String websocketPath;
+    private final WebSocketProperties webSocketProperties;
 
-    public AbstractWebSocketHandler(String websocketPath) {
-        this.websocketPath = websocketPath;
+    public AbstractWebSocketHandler(WebSocketProperties webSocketProperties) {
+        this.webSocketProperties = webSocketProperties;
     }
 
     /**
@@ -70,7 +70,7 @@ public abstract class AbstractWebSocketHandler extends SimpleChannelInboundHandl
             if (path.contains("?")) {
                 path = path.substring(0, path.indexOf("?"));
             }
-            if (!path.equals(websocketPath)) {
+            if (!path.equals(webSocketProperties.getContextPath())) {
                 sendHttpResponse(ctx, request, HttpResponseStatus.FORBIDDEN);
                 return;
             }

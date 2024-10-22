@@ -18,6 +18,8 @@ public interface BaseRepository<T,ID extends Serializable> {
 
     <S extends T> S save(S entity);
 
+    <S extends T> List<S> saveAll(Iterable<S> entities);
+
     Optional<T> findById(ID id);
 
     void deleteById(ID id);

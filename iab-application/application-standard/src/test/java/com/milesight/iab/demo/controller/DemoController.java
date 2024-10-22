@@ -26,7 +26,7 @@ import java.util.Optional;
  * @author leon
  */
 @RestController
-@RequestMapping("/device")
+@RequestMapping("/demo-device")
 @Slf4j
 public class DemoController {
 

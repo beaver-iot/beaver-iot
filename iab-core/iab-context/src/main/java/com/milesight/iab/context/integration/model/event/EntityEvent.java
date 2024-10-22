@@ -23,6 +23,11 @@ public class EntityEvent implements Event<Entity> {
     }
 
     @Override
+    public void setPayload(Entity payload) {
+        this.entity = payload;
+    }
+
+    @Override
     public Entity getPayload() {
         return entity;
     }

@@ -1,6 +1,7 @@
 package com.milesight.iab.user.controller;
 
 import com.milesight.iab.base.response.ResponseBody;
+import com.milesight.iab.base.response.ResponseBuilder;
 import com.milesight.iab.user.model.request.UserRegisterRequest;
 import com.milesight.iab.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +22,9 @@ public class UserController {
     UserService userService;
 
     @PostMapping("/register")
-    public ResponseBody register(@RequestBody UserRegisterRequest userRegisterRequest) {
-        return userService.register(userRegisterRequest);
+    public ResponseBody<Void> register(@RequestBody UserRegisterRequest userRegisterRequest) {
+        userService.register(userRegisterRequest);
+        return ResponseBuilder.success();
     }
 
 }

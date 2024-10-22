@@ -39,10 +39,13 @@ public class Device implements IdentityKey {
 
     @Override
     public String getKey() {
-        return IntegrationConstants.formatIntegrationDeviceKey(integration.getName(), identifier.toString());
+        return IntegrationConstants.formatIntegrationDeviceKey(integration.getName(), identifier);
     }
 
     public void initializeProperties(Integration integration) {
+        if(integration == null){
+            return;
+        }
         Assert.notNull(integration, "Integration must not be null");
         this.setIntegration(integration);
         List<Entity> entitiesList = getEntities();

@@ -1,4 +1,4 @@
-package com.milesight.iab.data.jpa.utils;
+package com.milesight.iab.data.jpa.support;
 
 import com.milesight.iab.data.filterable.Filterable;
 import com.milesight.iab.data.filterable.SearchFilter;
@@ -20,12 +20,12 @@ import java.util.function.Consumer;
 /**
  * @author leon
  */
-public class SpecificationUtils {
+public class SpecificationConverter {
 
     public static <T> Specification<T> toSpecification(Consumer<Filterable> consumer){
         SearchFilter nextQuerySpecs = new SearchFilter(BooleanOperator.AND, new ArrayList<>());
         consumer.accept(nextQuerySpecs);
-        return SpecificationUtils.toSpecification(nextQuerySpecs);
+        return SpecificationConverter.toSpecification(nextQuerySpecs);
     }
 
     public static <T> Specification<T> toSpecification(SearchFilter searchFilter){

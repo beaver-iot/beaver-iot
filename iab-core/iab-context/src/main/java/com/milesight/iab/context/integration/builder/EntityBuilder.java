@@ -8,6 +8,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * EntityBuilder is a builder class for Entity, eg:
+ *         Entity entityConfig = new EntityBuilder()
+ *                 .property("humidity", AccessMod.RW)
+ *                 .identifier("humidity")
+ *                     .children()
+ *                         .property("value", AccessMod.RW)
+ *                         .end()
+ *                     .children()
+ *                         .property("unit", AccessMod.RW)
+ *                         .end()
+ *                     .children()
+ *                         .property("timestamp", AccessMod.RW)
+ *                         .end()
+ *                 .build();
  * @author leon
  */
 public class EntityBuilder extends BaseEntityBuilder<EntityBuilder>{
@@ -63,7 +77,7 @@ public class EntityBuilder extends BaseEntityBuilder<EntityBuilder>{
 
         public ChildEntityBuilder(EntityBuilder entityBuilder) {
             this.entityBuilder = entityBuilder;
-            this.group = entityBuilder.identifier;
+            this.parentIdentifier = entityBuilder.identifier;
         }
 
         public EntityBuilder end() {

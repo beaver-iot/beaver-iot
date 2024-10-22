@@ -84,7 +84,7 @@ public class AnnotationEntityLoader implements EntityLoader {
                 if (valueType == EntityValueType.OBJECT) {
                     List<com.milesight.iab.context.integration.model.Entity> children = parserEntities(field.getType(), propertyResolver);
                     children.forEach(entity -> {
-                        entity.setGroup(identifier);
+                        entity.setParentIdentifier(identifier);
                         entity.setType(entityAnnotation.type());
                         entity.setAccessMod(entityAnnotation.accessMod());
                         entity.setSyncCall(entityAnnotation.syncCall());
