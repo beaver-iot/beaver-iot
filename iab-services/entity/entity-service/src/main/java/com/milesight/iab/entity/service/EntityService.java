@@ -45,6 +45,24 @@ public class EntityService implements EntityServiceProvider {
         //TODO
     }
 
+    @Override
+    public Entity findByIdentifier(String identifier) {
+        //TODO
+        return null;
+    }
+
+    @Override
+    public List<Entity> findAllByIntegration(String integration) {
+        //TODO
+        return null;
+    }
+
+    @Override
+    public <T> T findByKey(String key, Class<T> entitiesClazz) {
+        //TODO
+        return null;
+    }
+
     public ResponseBody search(EntityQuery entityQuery) {
         //TODO
         return null;

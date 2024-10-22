@@ -16,4 +16,10 @@ public interface EntityServiceProvider {
 
     void saveExchange(ExchangePayload exchangePayloadList, boolean includedHistory);
 
+    Entity findByIdentifier(String identifier);
+
+    List<Entity> findAllByIntegration(String integration);
+
+    <T> T findByKey(String key, Class<T> entitiesClazz);
+
 }
