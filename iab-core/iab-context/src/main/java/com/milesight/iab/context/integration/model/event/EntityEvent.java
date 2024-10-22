@@ -12,6 +12,9 @@ public class EntityEvent implements Event<Entity> {
     private Entity entity;
     private String eventType;
 
+    public EntityEvent(){
+    }
+
     public EntityEvent(String eventType, Entity entity) {
         this.eventType = eventType;
         this.entity = entity;
