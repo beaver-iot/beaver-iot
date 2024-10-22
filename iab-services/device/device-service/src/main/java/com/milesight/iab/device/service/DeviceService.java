@@ -9,12 +9,14 @@ import com.milesight.iab.context.api.IntegrationServiceProvider;
 import com.milesight.iab.context.integration.model.Device;
 import com.milesight.iab.context.integration.model.ExchangePayload;
 import com.milesight.iab.context.integration.model.Integration;
+import com.milesight.iab.context.integration.model.event.DeviceEvent;
 import com.milesight.iab.device.model.request.CreateDeviceRequest;
 import com.milesight.iab.device.model.request.SearchDeviceRequest;
 import com.milesight.iab.device.model.request.UpdateDeviceRequest;
 import com.milesight.iab.device.model.response.DeviceResponseData;
 import com.milesight.iab.device.po.DevicePO;
 import com.milesight.iab.device.repository.DeviceRepository;
+import com.milesight.iab.eventbus.EventBus;
 import com.milesight.iab.rule.RuleEngineExecutor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -39,6 +41,13 @@ public class DeviceService {
 
     @Autowired
     RuleEngineExecutor engineExecutor;
+
+    @Autowired
+    DeviceServiceHelper deviceServiceHelper;
+
+    @Autowired
+    EventBus eventBus;
+
 
     private Integration getIntegrationConfig(String integrationIdentifier) {
         Integration integrationConfig = integrationServiceProvider.getIntegration(integrationIdentifier);
@@ -102,8 +111,9 @@ public class DeviceService {
         DevicePO device = findResult.get();
         device.setName(updateDeviceRequest.getName());
 
-        // TODO Send Device Name Updated Event
+        eventBus.publish(DeviceEvent.of(DeviceEvent.EventType.UPDATED, deviceServiceHelper.convertPO(device)));
         deviceRepository.save(device);
+
     }
 
     public void batchDeleteDevices(List<Long> deviceIdList) {
@@ -136,8 +146,6 @@ public class DeviceService {
         }).forEach((ExchangePayload payload) -> {
             // call service for deleting
             engineExecutor.exchangeDown(payload);
-
-            // TODO Send Device Deleted Event
         });
     }
 }
