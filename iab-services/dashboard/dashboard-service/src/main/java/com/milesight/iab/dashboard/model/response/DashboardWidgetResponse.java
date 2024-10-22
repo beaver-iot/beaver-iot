@@ -11,7 +11,6 @@ public class DashboardWidgetResponse {
 
     private Long widgetId;
     private Long dashboardId;
-    private String name;
     private String data;
     private Long createdAt;
 

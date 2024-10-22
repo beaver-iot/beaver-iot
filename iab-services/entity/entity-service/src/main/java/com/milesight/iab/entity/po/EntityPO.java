@@ -1,5 +1,9 @@
 package com.milesight.iab.entity.po;
 
+import com.milesight.iab.context.integration.enums.AccessMod;
+import com.milesight.iab.context.integration.enums.EntityType;
+import com.milesight.iab.context.integration.enums.EntityValueType;
+import com.milesight.iab.entity.enums.AttachTargetType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -20,14 +24,14 @@ public class EntityPO {
     private Long id;
     private String key;
     private String name;
-    private String type;
-    private String accessMod;
+    private EntityType type;
+    private AccessMod accessMod;
     private Boolean syncCall;
-    private Long parent;
-    private String attachTarget;
+    private String parent;
+    private AttachTargetType attachTarget;
     private String attachTargetId;
     private String valueAttribute;
-    private String valueType;
+    private EntityValueType valueType;
     private Long createdAt;
     private Long updatedAt;
 

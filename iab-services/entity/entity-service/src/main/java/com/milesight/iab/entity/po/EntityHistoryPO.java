@@ -6,8 +6,6 @@ import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
 
-import java.sql.Blob;
-
 /**
  * @author loong
  * @date 2024/10/16 14:30
@@ -25,7 +23,7 @@ public class EntityHistoryPO {
     private Float valueFloat;
     private Boolean valueBoolean;
     private String valueString;
-    private Blob valueBinary;
+    private Byte[] valueBinary;
     private Long timestamp;
     private Long createdAt;
     private String createdBy;

@@ -9,7 +9,6 @@ import lombok.Data;
 @Data
 public class UpdateWidgetRequest {
 
-    private String name;
     private String data;
 
 }

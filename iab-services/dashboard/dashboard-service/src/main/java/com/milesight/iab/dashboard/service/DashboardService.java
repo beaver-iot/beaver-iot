@@ -21,8 +21,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author loong
@@ -71,7 +74,15 @@ public class DashboardService {
 
     public List<DashboardResponse> getDashboards() {
         List<DashboardPO> dashboardPOList = dashboardRepository.findAll();
-        return DashboardConvert.INSTANCE.convertResponseList(dashboardPOList);
+        if(dashboardPOList == null || dashboardPOList.isEmpty()){
+            return new ArrayList<>();
+        }
+        List<DashboardResponse> dashboardResponseList = DashboardConvert.INSTANCE.convertResponseList(dashboardPOList);
+        List<Long> dashboardIdList = dashboardResponseList.stream().map(DashboardResponse::getDashboardId).toList();
+        List<DashboardWidgetResponse> dashboardWidgetResponseList = getWidgetsByDashBoards(dashboardIdList);
+        Map<Long, List<DashboardWidgetResponse> > dashboardWidgetMap = dashboardWidgetResponseList.stream().filter(dashboardWidgetResponse -> dashboardWidgetResponse.getDashboardId() != null).collect(Collectors.groupingBy(DashboardWidgetResponse::getDashboardId));
+        dashboardResponseList.forEach(dashboardResponse -> dashboardResponse.setWidgets(dashboardWidgetMap.get(dashboardResponse.getDashboardId())));
+        return dashboardResponseList;
     }
 
     public void createWidget(Long dashboardId, CreateWidgetRequest createWidgetRequest) {
@@ -80,7 +91,6 @@ public class DashboardService {
         DashboardWidgetPO dashboardWidgetPO = new DashboardWidgetPO();
         dashboardWidgetPO.setId(SnowflakeUtil.nextId());
         dashboardWidgetPO.setDashboardId(dashboardId);
-        dashboardWidgetPO.setName(createWidgetRequest.getName());
         dashboardWidgetPO.setData(createWidgetRequest.getData());
         dashboardWidgetPO.setCreatedAt(System.currentTimeMillis());
         dashboardWidgetRepository.save(dashboardWidgetPO);
@@ -91,7 +101,6 @@ public class DashboardService {
         if(!Objects.equals(dashboardWidgetPO.getDashboardId(), dashboardId)){
             throw ServiceException.with(ErrorCode.DATA_NO_FOUND).detailMessage("widget not exist").build();
         }
-        dashboardWidgetPO.setName(updateWidgetRequest.getName());
         dashboardWidgetPO.setData(updateWidgetRequest.getData());
         dashboardWidgetPO.setUpdatedAt(System.currentTimeMillis());
         dashboardWidgetRepository.save(dashboardWidgetPO);
@@ -107,6 +116,14 @@ public class DashboardService {
 
     public List<DashboardWidgetResponse> getWidgets(Long dashboardId) {
         List<DashboardWidgetPO> dashboardWidgetPOList = dashboardWidgetRepository.findAll(filter -> filter.eq(DashboardWidgetPO.Fields.dashboardId, dashboardId));
+        return DashboardWidgetConvert.INSTANCE.convertResponseList(dashboardWidgetPOList);
+    }
+
+    private List<DashboardWidgetResponse> getWidgetsByDashBoards(List<Long> dashboardIds) {
+        List<DashboardWidgetPO> dashboardWidgetPOList = dashboardWidgetRepository.findAll(filter -> filter.in(DashboardWidgetPO.Fields.dashboardId, dashboardIds));
+        if(dashboardWidgetPOList == null || dashboardWidgetPOList.isEmpty()){
+            return new ArrayList<>();
+        }
         return DashboardWidgetConvert.INSTANCE.convertResponseList(dashboardWidgetPOList);
     }
 

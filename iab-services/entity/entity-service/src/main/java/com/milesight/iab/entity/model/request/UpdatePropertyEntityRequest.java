@@ -9,7 +9,7 @@ import java.util.Map;
  * @date 2024/10/17 9:17
  */
 @Data
-public class CallServiceRequest {
+public class UpdatePropertyEntityRequest {
 
     private Long entityId;
     private Map<String,Object> exchange;
