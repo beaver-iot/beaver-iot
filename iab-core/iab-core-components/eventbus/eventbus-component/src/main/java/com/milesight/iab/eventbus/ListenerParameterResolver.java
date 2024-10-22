@@ -18,10 +18,11 @@ public class ListenerParameterResolver {
 
     public <T extends Event<? extends IdentityKey>> T resolveEvent(T event){
         // If it is Event type, return ExchangeEvent
-//        if(ExchangePayload.class.isAssignableFrom(event.getPayload().getClass())){
-//            return (T) new ExchangeEvent(event.getEventType(), event.getPayload());
-//        }
-        return null;
+        //todo:  转换问题
+        if(event.getClass().isInterface() && ExchangePayload.class.isAssignableFrom(event.getPayload().getClass())){
+            return (T) new ExchangeEvent(event.getEventType(), (ExchangePayload) event.getPayload());
+        }
+        return event;
     }
 
     public Class resolveEventType(Method method){

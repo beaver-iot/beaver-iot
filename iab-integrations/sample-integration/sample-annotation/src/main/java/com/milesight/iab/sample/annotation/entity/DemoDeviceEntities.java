@@ -10,12 +10,14 @@ import com.milesight.iab.context.integration.entity.annotation.KeyValue;
 import com.milesight.iab.context.integration.enums.AccessMod;
 import com.milesight.iab.context.integration.enums.EntityType;
 import com.milesight.iab.context.integration.model.ExchangePayloadAccessor;
+import lombok.Data;
 
 /**
  * 注解方式定义设备实体
  *
  * @author leon
  */
+@Data
 @DeviceTemplateEntities(name="demoDevice")
 //@DeviceEntities(name="demoDevice", additional = {@KeyValue(key = "sn", value = "demoSN")}, identifier = "demoSN")
 public class DemoDeviceEntities extends ExchangePayload {

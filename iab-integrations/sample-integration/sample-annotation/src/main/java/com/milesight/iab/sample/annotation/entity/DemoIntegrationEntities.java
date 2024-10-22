@@ -7,11 +7,13 @@ import com.milesight.iab.context.integration.entity.annotation.IntegrationEntiti
 import com.milesight.iab.context.integration.entity.annotation.KeyValue;
 import com.milesight.iab.context.integration.enums.EntityType;
 import com.milesight.iab.context.integration.model.ExchangePayload;
+import lombok.Data;
 
 /**
  * 注解方式定义集成实体及子实体
  * @author leon
  */
+@Data
 @IntegrationEntities
 public class DemoIntegrationEntities extends ExchangePayload {
 

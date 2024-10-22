@@ -20,7 +20,7 @@ public @interface EventSubscribe {
 
     String eventType() default "";
 
-    String payloadKeyExpression() default "";
+    String payloadKeyExpression() ;
 
     /**
      * 线程执行器，默认采用EventBus的线程池: asyncTaskExecutor

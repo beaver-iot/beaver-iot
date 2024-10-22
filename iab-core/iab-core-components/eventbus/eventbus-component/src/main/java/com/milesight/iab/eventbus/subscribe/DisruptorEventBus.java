@@ -125,7 +125,7 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
                 ListenerCacheKey cacheKey = entry.getKey();
                 List<EventSubscribeInvoker> invokers = entry.getValue();
                 return (Consumer<T>) o -> {
-                    if(cacheKey.expressionMatch(o.getPayloadKey(),o.getEventType())){
+                    if(!cacheKey.expressionMatch(o.getPayloadKey(),o.getEventType())){
                        return;
                     }
                     invokers.forEach(invoker -> {

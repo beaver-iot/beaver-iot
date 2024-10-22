@@ -13,6 +13,7 @@ import com.milesight.iab.context.integration.model.Entity;
 import com.milesight.iab.context.integration.model.Integration;
 import com.milesight.iab.context.integration.model.event.ExchangeEvent;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Component;
 public class DemoEntityEventSubscribe {
 
     private DeviceServiceProvider deviceServiceProvider;
+    @Autowired
     private IntegrationServiceProvider integrationServiceProvider;
 
     // save properties

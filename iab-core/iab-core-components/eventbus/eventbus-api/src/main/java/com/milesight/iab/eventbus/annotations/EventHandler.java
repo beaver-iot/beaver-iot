@@ -14,5 +14,5 @@ public @interface EventHandler {
 
     String payloadKey();
 
-    String eventType() default "";
+    String eventType();
 }

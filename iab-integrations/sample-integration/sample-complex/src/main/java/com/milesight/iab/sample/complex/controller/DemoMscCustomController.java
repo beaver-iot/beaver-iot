@@ -2,11 +2,13 @@ package com.milesight.iab.sample.complex.controller;
 
 import com.milesight.iab.context.api.EntityServiceProvider;
 import com.milesight.iab.context.integration.model.ExchangePayload;
+import com.milesight.iab.context.integration.model.event.ExchangeEvent;
+import com.milesight.iab.eventbus.EventBus;
 import com.milesight.iab.rule.RuleEngineExecutor;
+import com.milesight.iab.sample.complex.entity.DemoMscServiceEntities;
 import com.milesight.iab.sample.complex.entity.DemoMscSettingEntities;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author leon
@@ -16,7 +18,8 @@ public class DemoMscCustomController {
 
     private EntityServiceProvider entityServiceProvider;
     private RuleEngineExecutor ruleEngineExecutor;
-
+    @Autowired
+    private EventBus eventBus;
     @PostMapping("/testConnect")
     public String testConnect(@RequestBody DemoMscSettingEntities demoMscSettingEntities) {
         // save entities to latest database
@@ -41,6 +44,20 @@ public class DemoMscCustomController {
         ruleEngineExecutor.exchangeUp(exchangePayload);
 
         return "success";
+    }
+
+    @GetMapping("/api/v1/eventbus2/{key}")
+    public String eventBusTest2(@PathVariable("key") String key) throws Exception {
+        eventBus.publish(ExchangeEvent.of(ExchangeEvent.EventType.DOWN, new DemoMscServiceEntities()));
+//        camelContext.getRouteController().stopRoute(endpoint);
+        return "success";
+    }
+
+    @GetMapping("/api/v1/eventhandler/{key}")
+    public Object eventHandleTest(@PathVariable("key") String key) throws Exception {
+        Object test = eventBus.handle(ExchangeEvent.of(ExchangeEvent.EventType.DOWN, ExchangePayload.create(key, "test")));
+//        camelContext.getRouteController().stopRoute(endpoint);
+        return test;
     }
 
     private ExchangePayload toExchangePayload(MscExchangePayload mscExchangePayload) {

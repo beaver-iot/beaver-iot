@@ -1,6 +1,7 @@
 package com.milesight.iab.eventbus;
 
 import lombok.Data;
+import org.springframework.util.StringUtils;
 
 import java.util.Objects;
 
@@ -19,12 +20,12 @@ public class ListenerCacheKey {
         this.eventType = eventType;
     }
 
-    public boolean expressionMatch(String payloadKeyConfig, String eventTypeConfig) {
-        return equals(eventType, eventTypeConfig) && matchPayloadKeyExpression(payloadKey.trim(), payloadKeyConfig.trim());
+    public boolean expressionMatch(String requestPayloadKey, String requestEventType) {
+        return matchEventType(eventType, requestEventType) && matchPayloadKeyExpression(payloadKey.trim(), requestPayloadKey.trim());
     }
 
     private boolean matchPayloadKeyExpression(String payloadKeyPattern, String payloadKey) {
-        if(equals(payloadKeyPattern, payloadKey)){
+        if(payloadKeyPattern.equals(payloadKey)){
             return true;
         }
         return matchPattern(payloadKeyPattern, payloadKey);
@@ -63,14 +64,11 @@ public class ListenerCacheKey {
         return true;
     }
 
-    private boolean equals(String str1, String str2) {
-        if (null == str1) {
-            return str2 == null;
+    private boolean matchEventType(String eventTypeConfig, String requestEventType) {
+        if (!StringUtils.hasText(eventTypeConfig)) {
+            return true;
         }
-        if (null == str2) {
-            return false;
-        }
-        return str1.equals(str2);
+        return eventTypeConfig.equals(requestEventType);
     }
 
     @Override
