@@ -12,9 +12,9 @@ public interface DeviceServiceProvider {
 
     void deleteById(Long id);
 
-    Device findById(Long id, String integration);
+    Device findById(Long id);
 
-    Device findByIdentifier(Long identifier, String integration);
+    Device findByIdentifier(String identifier, String integration);
 
     List<Device> findAll(String integration);
 }
