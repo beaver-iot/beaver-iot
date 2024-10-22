@@ -24,6 +24,8 @@ public class DisruptorOptions {
 
     private int maxPoolSize = Integer.MAX_VALUE;
 
+    private String eventBusTaskExecutor = "applicationTaskExecutor";
+
     public static DisruptorOptions defaultOptions() {
         return new DisruptorOptions();
     }
