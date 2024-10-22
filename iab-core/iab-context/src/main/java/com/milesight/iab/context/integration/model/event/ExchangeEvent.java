@@ -12,6 +12,8 @@ public class ExchangeEvent implements Event<ExchangePayload> {
     private ExchangePayload exchangePayload;
     private String eventType;
 
+    public ExchangeEvent(){
+    }
     public ExchangeEvent(String eventType, ExchangePayload exchangePayload) {
         this.eventType = eventType;
         this.exchangePayload = exchangePayload;

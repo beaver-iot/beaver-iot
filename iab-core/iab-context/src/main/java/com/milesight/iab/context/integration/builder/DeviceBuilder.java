@@ -40,6 +40,8 @@ public class DeviceBuilder {
     private IntegrationBuilder integrationBuilder;
     private Integration integration;
 
+    private Long id;
+
     public DeviceBuilder(IntegrationBuilder integrationBuilder) {
         this.integrationBuilder = integrationBuilder;
         this.integration = integrationBuilder.integration;
@@ -49,8 +51,8 @@ public class DeviceBuilder {
         this.integration = integration;
     }
 
-    public DeviceBuilder(String integrationName){
-        this.integration = Integration.of(integrationName, null);
+    public DeviceBuilder(String integrationId, String integrationName){
+        this.integration = Integration.of(integrationId, integrationName);
     }
 
     public DeviceBuilder(){
@@ -77,6 +79,11 @@ public class DeviceBuilder {
         return integrationBuilder;
     }
 
+    public DeviceBuilder id(Long id) {
+        this.id = id;
+        return this;
+    }
+
     public DeviceBuilder name(String name) {
         this.name = name;
         return this;
@@ -100,6 +107,7 @@ public class DeviceBuilder {
         device.setEntities(entities);
         device.setIntegration(integration);
         device.initializeProperties(integration);
+        device.setId(id);
         return device;
     }
 

@@ -11,6 +11,9 @@ public class DeviceEvent implements Event<Device> {
 
     private Device device;
     private String eventType;
+
+    public DeviceEvent(){
+    }
     public DeviceEvent(String eventType, Device device) {
         this.eventType = eventType;
         this.device = device;
