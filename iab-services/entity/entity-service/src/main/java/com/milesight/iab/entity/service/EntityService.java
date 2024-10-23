@@ -21,6 +21,7 @@ import com.milesight.iab.entity.enums.AggregateType;
 import com.milesight.iab.entity.enums.AttachTargetType;
 import com.milesight.iab.entity.model.dto.EntityHistoryUnionQuery;
 import com.milesight.iab.entity.model.request.EntityAggregateQuery;
+import com.milesight.iab.entity.model.request.EntityFormRequest;
 import com.milesight.iab.entity.model.request.EntityHistoryQuery;
 import com.milesight.iab.entity.model.request.EntityQuery;
 import com.milesight.iab.entity.model.request.ServiceCallRequest;
@@ -38,6 +39,7 @@ import com.milesight.iab.entity.repository.EntityLatestRepository;
 import com.milesight.iab.entity.repository.EntityRepository;
 import com.milesight.iab.eventbus.EventBus;
 import com.milesight.iab.rule.RuleEngineExecutor;
+import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -80,6 +82,8 @@ public class EntityService implements EntityServiceProvider {
     RuleEngineExecutor engineExecutor;
     @Autowired
     EventBus eventBus;
+    @Autowired
+    private EntityManager entityManager;
 
     private final Comparator<Byte[]> byteArrayComparator = (a, b) -> {
         if (a == b) return 0;
@@ -272,8 +276,17 @@ public class EntityService implements EntityServiceProvider {
 
     @Override
     public Map<String, Long> countAllEntitiesByIntegrationIds(List<String> integrationIds) {
-        //TODO
-        return Collections.emptyMap();
+        Map<String, Long> allEntityCountMap = new HashMap<>();
+        allEntityCountMap.putAll(countIntegrationEntitiesByIntegrationIds(integrationIds));
+        List<DeviceNameDTO> integrationDevices = deviceFacade.getDeviceNameByIntegrations(integrationIds);
+        if (integrationDevices != null && !integrationDevices.isEmpty()) {
+            List<String> deviceIds = integrationDevices.stream().map(DeviceNameDTO::getId).map(String::valueOf).toList();
+            List<EntityPO> deviceEntityPOList = entityRepository.findAll(filter -> filter.eq(EntityPO.Fields.attachTarget, AttachTargetType.DEVICE).in(EntityPO.Fields.attachTargetId, deviceIds));
+            if (deviceEntityPOList != null && !deviceEntityPOList.isEmpty()) {
+                allEntityCountMap.putAll(deviceEntityPOList.stream().collect(Collectors.groupingBy(EntityPO::getAttachTargetId, Collectors.counting())));
+            }
+        }
+        return allEntityCountMap;
     }
 
     @Override
@@ -288,7 +301,7 @@ public class EntityService implements EntityServiceProvider {
     @Override
     public Map<String, Long> countIntegrationEntitiesByIntegrationIds(List<String> integrationIds) {
         List<EntityPO> integrationEntityPOList = entityRepository.findAll(filter -> filter.eq(EntityPO.Fields.attachTarget, AttachTargetType.INTEGRATION).in(EntityPO.Fields.attachTargetId, integrationIds));
-        if (integrationEntityPOList == null || integrationEntityPOList.isEmpty()){
+        if (integrationEntityPOList == null || integrationEntityPOList.isEmpty()) {
             return Collections.emptyMap();
         }
         return integrationEntityPOList.stream().collect(Collectors.groupingBy(EntityPO::getAttachTargetId, Collectors.counting()));
@@ -368,7 +381,7 @@ public class EntityService implements EntityServiceProvider {
             entityHistoryUnionQuery.setTimestamp(exchangePayload.getTimestamp());
             return entityHistoryUnionQuery;
         }).filter(Objects::nonNull).toList();
-        List<EntityHistoryPO> existEntityHistoryPOList = entityHistoryRepository.findByUnionUnique(entityHistoryUnionQueryList);
+        List<EntityHistoryPO> existEntityHistoryPOList = entityHistoryRepository.findByUnionUnique(entityManager, entityHistoryUnionQueryList);
         Map<String, Long> existUnionIdMap = new HashMap<>();
         if (existEntityHistoryPOList != null && !existEntityHistoryPOList.isEmpty()) {
             existUnionIdMap.putAll(existEntityHistoryPOList.stream().collect(Collectors.toMap(entityHistoryPO -> entityHistoryPO.getEntityId() + ":" + entityHistoryPO.getTimestamp(), EntityHistoryPO::getId)));
@@ -687,6 +700,12 @@ public class EntityService implements EntityServiceProvider {
         entityMetaResponse.setValueAttribute(entityPO.getValueAttribute());
         entityMetaResponse.setValueType(entityPO.getValueType());
         return entityMetaResponse;
+    }
+
+    public Map<String, Object> getEntityForm(EntityFormRequest entityFormRequest) {
+        List<String> entityIds = entityFormRequest.getEntityIdList();
+        //TODO
+        return null;
     }
 
     public void updatePropertyEntity(UpdatePropertyEntityRequest updatePropertyEntityRequest) {
