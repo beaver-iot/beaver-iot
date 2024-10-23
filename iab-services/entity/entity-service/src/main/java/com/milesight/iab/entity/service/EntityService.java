@@ -7,10 +7,13 @@ import com.milesight.iab.base.utils.snowflake.SnowflakeUtil;
 import com.milesight.iab.context.api.DeviceServiceProvider;
 import com.milesight.iab.context.api.EntityServiceProvider;
 import com.milesight.iab.context.api.IntegrationServiceProvider;
+import com.milesight.iab.context.integration.enums.AccessMod;
+import com.milesight.iab.context.integration.enums.EntityType;
 import com.milesight.iab.context.integration.model.Device;
 import com.milesight.iab.context.integration.model.Entity;
 import com.milesight.iab.context.integration.model.ExchangePayload;
 import com.milesight.iab.context.integration.model.Integration;
+import com.milesight.iab.context.integration.model.event.ExchangeEvent;
 import com.milesight.iab.context.security.SecurityUserContext;
 import com.milesight.iab.device.dto.DeviceNameDTO;
 import com.milesight.iab.device.facade.IDeviceFacade;
@@ -32,6 +35,8 @@ import com.milesight.iab.entity.po.EntityPO;
 import com.milesight.iab.entity.repository.EntityHistoryRepository;
 import com.milesight.iab.entity.repository.EntityLatestRepository;
 import com.milesight.iab.entity.repository.EntityRepository;
+import com.milesight.iab.eventbus.EventBus;
+import com.milesight.iab.rule.RuleEngineExecutor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -40,6 +45,7 @@ import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -68,6 +74,10 @@ public class EntityService implements EntityServiceProvider {
     IntegrationServiceProvider integrationServiceProvider;
     @Autowired
     DeviceServiceProvider deviceServiceProvider;
+    @Autowired
+    RuleEngineExecutor engineExecutor;
+    @Autowired
+    EventBus eventBus;
 
     private final Comparator<Byte[]> byteArrayComparator = (a, b) -> {
         if (a == b) return 0;
@@ -81,19 +91,22 @@ public class EntityService implements EntityServiceProvider {
         return Integer.compare(a.length, b.length);
     };
 
-    private EntityPO saveConvert(Entity entity) {
+    private EntityPO saveConvert(Entity entity, Map<String, Long> deviceKeyMap) {
         try {
             AttachTargetType attachTarget;
             String attachTargetId;
-            if(entity.getDevice() != null){
+            if (StringUtils.hasText(entity.getDeviceKey())) {
                 attachTarget = AttachTargetType.DEVICE;
-                attachTargetId = String.valueOf(entity.getDevice().getId());
-            }else{
+                attachTargetId = deviceKeyMap.get(entity.getDeviceKey()) == null ? null : String.valueOf(deviceKeyMap.get(entity.getDeviceKey()));
+                if (attachTargetId == null) {
+                    throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
+                }
+            } else {
                 attachTarget = AttachTargetType.INTEGRATION;
-                attachTargetId = entity.getIntegration().getName();
+                attachTargetId = entity.getIntegrationId();
             }
             Long entityId = entity.getId();
-            if(entityId == null){
+            if (entityId == null) {
                 entityId = SnowflakeUtil.nextId();
             }
             EntityPO entityPO = new EntityPO();
@@ -110,8 +123,8 @@ public class EntityService implements EntityServiceProvider {
             entityPO.setValueType(entity.getValueType());
             entityPO.setCreatedAt(System.currentTimeMillis());
             return entityPO;
-        }catch (Exception e){
-            log.error("save entity error:{}", e.getMessage(),e);
+        } catch (Exception e) {
+            log.error("save entity error:{}", e.getMessage(), e);
             throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
         }
     }
@@ -119,58 +132,168 @@ public class EntityService implements EntityServiceProvider {
     @Override
     public List<Entity> findByTargetId(String targetId) {
         List<EntityPO> entityPOList = entityRepository.findAll(filter -> filter.eq(EntityPO.Fields.attachTargetId, targetId));
-        if(entityPOList == null || entityPOList.isEmpty()){
+        if (entityPOList == null || entityPOList.isEmpty()) {
             return new ArrayList<>();
         }
-        //TODO
-        return null;
+        List<DeviceNameDTO> deviceNameDTOList = deviceFacade.getDeviceNameByIds(Collections.singletonList(Long.valueOf(targetId)));
+        Map<String, String> deviceKeyMap = new HashMap<>();
+        Map<String, Integration> deviceIntegrationMap = new HashMap<>();
+        if (deviceNameDTOList != null && !deviceNameDTOList.isEmpty()) {
+            deviceKeyMap.putAll(deviceNameDTOList.stream().collect(Collectors.toMap(t -> String.valueOf(t.getId()), DeviceNameDTO::getKey)));
+            deviceIntegrationMap.putAll(deviceNameDTOList.stream().collect(Collectors.toMap(t -> String.valueOf(t.getId()), DeviceNameDTO::getIntegrationConfig)));
+        }
+        List<EntityPO> parentEntityPOList = entityPOList.stream().filter(entityPO -> !StringUtils.hasText(entityPO.getParent())).toList();
+        List<EntityPO> childrenEntityPOList = entityPOList.stream().filter(entityPO -> StringUtils.hasText(entityPO.getParent())).toList();
+        List<Entity> childrenEntityList = new ArrayList<>();
+        if (!childrenEntityPOList.isEmpty()) {
+            childrenEntityPOList.forEach(childEntityPO -> {
+                try {
+                    Entity entity = new Entity();
+                    entity.setId(childEntityPO.getId());
+                    entity.setName(childEntityPO.getName());
+                    entity.setIdentifier(childEntityPO.getKey().substring(childEntityPO.getKey().lastIndexOf(".") + 1));
+                    entity.setAccessMod(childEntityPO.getAccessMod());
+                    entity.setSyncCall(childEntityPO.getSyncCall());
+                    entity.setValueType(childEntityPO.getValueType());
+                    entity.setType(childEntityPO.getType());
+                    entity.setAttributes(objectMapper.readValue(childEntityPO.getValueAttribute(), Map.class));
+                    entity.setParentIdentifier(childEntityPO.getParent());
+                    childrenEntityList.add(entity);
+                } catch (Exception e) {
+                    log.error("find entity by targetId error:{}", e.getMessage(), e);
+                    throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
+                }
+            });
+        }
+        List<Entity> entityList = new ArrayList<>();
+        parentEntityPOList.forEach(entityPO -> {
+            try {
+                Entity entity = new Entity();
+                entity.setId(entityPO.getId());
+                entity.setName(entityPO.getName());
+                entity.setIdentifier(entityPO.getKey().substring(entityPO.getKey().lastIndexOf(".") + 1));
+                entity.setAccessMod(entityPO.getAccessMod());
+                entity.setSyncCall(entityPO.getSyncCall());
+                entity.setValueType(entityPO.getValueType());
+                entity.setType(entityPO.getType());
+                entity.setAttributes(objectMapper.readValue(entityPO.getValueAttribute(), Map.class));
+                entity.setParentIdentifier(entityPO.getParent());
+                String key = entityPO.getKey();
+                List<Entity> childEntityList = childrenEntityList.stream().filter(childEntity -> key.contains(childEntity.getParentIdentifier())).toList();
+                entity.setChildren(childEntityList);
+
+                String attachTargetId = entityPO.getAttachTargetId();
+                AttachTargetType attachTarget = entityPO.getAttachTarget();
+                if (attachTarget == AttachTargetType.DEVICE) {
+                    String deviceKey = deviceKeyMap.get(attachTargetId);
+                    String integrationId = null;
+                    Integration deviceIntegration = deviceIntegrationMap.get(attachTargetId);
+                    if (deviceIntegration != null) {
+                        integrationId = deviceIntegration.getId();
+                    }
+                    entity.initializeProperties(integrationId, deviceKey);
+                } else if (attachTarget == AttachTargetType.INTEGRATION) {
+                    entity.initializeProperties(attachTargetId);
+                }
+                entityList.add(entity);
+            } catch (Exception e) {
+                log.error("find entity by targetId error:{}", e.getMessage(), e);
+                throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
+            }
+        });
+        return entityList;
     }
 
     @Override
     public void save(Entity entity) {
-        EntityPO entityPO = saveConvert(entity);
+        Map<String, Long> deviceKeyMap = new HashMap<>();
+        if (StringUtils.hasText(entity.getDeviceKey())) {
+            DeviceNameDTO deviceNameDTO = deviceFacade.getDeviceNameByKey(entity.getDeviceKey());
+            if (deviceNameDTO != null) {
+                deviceKeyMap.put(entity.getDeviceKey(), deviceNameDTO.getId());
+            }
+        }
+        EntityPO entityPO = saveConvert(entity, deviceKeyMap);
         entityRepository.save(entityPO);
     }
 
     @Override
     public void batchSave(List<Entity> entityList) {
-        if(entityList == null || entityList.isEmpty()){
+        if (entityList == null || entityList.isEmpty()) {
             return;
+        }
+        Map<String, Long> deviceKeyMap = new HashMap<>();
+        List<String> deviceKeys = entityList.stream().map(Entity::getDeviceKey).filter(StringUtils::hasText).toList();
+        if (!deviceKeys.isEmpty()) {
+            List<DeviceNameDTO> deviceNameDTOList = deviceFacade.getDeviceNameByKey(deviceKeys);
+            if (deviceNameDTOList != null && !deviceNameDTOList.isEmpty()) {
+                deviceKeyMap.putAll(deviceNameDTOList.stream().collect(Collectors.toMap(DeviceNameDTO::getKey, DeviceNameDTO::getId)));
+            }
         }
         List<EntityPO> entityPOList = new ArrayList<>();
         entityList.forEach(entity -> {
-            EntityPO entityPO = saveConvert(entity);
+            EntityPO entityPO = saveConvert(entity, deviceKeyMap);
             entityPOList.add(entityPO);
         });
         entityRepository.saveAll(entityPOList);
     }
 
     @Override
+    public void deleteByTargetId(String targetId) {
+        entityRepository.deleteByTargetId(targetId);
+    }
+
+    @Override
+    public long countAllEntitiesByIntegration(String integrationId) {
+        long allEntityCount = 0L;
+        long integrationEntityCount = countIntegrationEntitiesByIntegration(integrationId);
+        allEntityCount += integrationEntityCount;
+        List<Device> integrationDevices = deviceServiceProvider.findAll(integrationId);
+        if (integrationDevices != null && !integrationDevices.isEmpty()) {
+            List<String> deviceIds = integrationDevices.stream().map(t -> String.valueOf(t.getId())).toList();
+            List<EntityPO> deviceEntityPOList = entityRepository.findAll(filter -> filter.eq(EntityPO.Fields.attachTarget, AttachTargetType.DEVICE).in(EntityPO.Fields.attachTargetId, deviceIds));
+            if (deviceEntityPOList != null && !deviceEntityPOList.isEmpty()) {
+                allEntityCount += deviceEntityPOList.size();
+            }
+        }
+        return allEntityCount;
+    }
+
+    @Override
+    public long countIntegrationEntitiesByIntegration(String integrationId) {
+        List<EntityPO> integrationEntityPOList = entityRepository.findAll(filter -> filter.eq(EntityPO.Fields.attachTarget, AttachTargetType.INTEGRATION).eq(EntityPO.Fields.attachTargetId, integrationId));
+        if (integrationEntityPOList == null || integrationEntityPOList.isEmpty()) {
+            return 0L;
+        }
+        return integrationEntityPOList.size();
+    }
+
+    @Override
     public void saveExchange(ExchangePayload exchangePayloadList) {
         Map<String, Object> payloads = exchangePayloadList.getAllPayloads();
-        if(payloads == null || payloads.isEmpty()){
+        if (payloads == null || payloads.isEmpty()) {
             return;
         }
         List<String> entityKeys = payloads.keySet().stream().toList();
         List<EntityPO> entityPOList = getByKeys(entityKeys);
-        if(entityPOList == null || entityPOList.isEmpty()){
+        if (entityPOList == null || entityPOList.isEmpty()) {
             return;
         }
-        Map<String,Long> entityIdMap = entityPOList.stream().collect(Collectors.toMap(EntityPO::getKey, EntityPO::getId));
+        Map<String, Long> entityIdMap = entityPOList.stream().collect(Collectors.toMap(EntityPO::getKey, EntityPO::getId));
         List<Long> entityIds = entityPOList.stream().map(EntityPO::getId).toList();
         List<EntityLatestPO> nowEntityLatestPOList = entityLatestRepository.findAll(filter -> filter.in(EntityLatestPO.Fields.entityId, entityIds));
-        Map<Long,Long> entityIdNowMap = new HashMap<>();
-        if(nowEntityLatestPOList != null && !nowEntityLatestPOList.isEmpty()) {
-            entityIdNowMap.putAll(nowEntityLatestPOList.stream().collect(Collectors.toMap(EntityLatestPO::getEntityId, EntityLatestPO::getId)));
+        Map<Long, Long> entityIdDataMap = new HashMap<>();
+        if (nowEntityLatestPOList != null && !nowEntityLatestPOList.isEmpty()) {
+            entityIdDataMap.putAll(nowEntityLatestPOList.stream().collect(Collectors.toMap(EntityLatestPO::getEntityId, EntityLatestPO::getId)));
         }
         List<EntityLatestPO> entityLatestPOList = new ArrayList<>();
         payloads.forEach((entityKey, payload) -> {
             Long entityId = entityIdMap.get(entityKey);
-            if(entityId == null){
+            if (entityId == null) {
                 return;
             }
-            Long entityLatestId = entityIdNowMap.get(entityId);
-            if (entityLatestId == null){
+            Long entityLatestId = entityIdDataMap.get(entityId);
+            if (entityLatestId == null) {
                 entityLatestId = SnowflakeUtil.nextId();
             }
             EntityLatestPO entityLatestPO = new EntityLatestPO();
@@ -186,32 +309,38 @@ public class EntityService implements EntityServiceProvider {
                 entityLatestPO.setValueFloat((Float) payload);
             } else if (payload instanceof Byte[]) {
                 entityLatestPO.setValueBinary((Byte[]) payload);
-            } else{
+            } else {
                 throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
             }
             entityLatestPO.setUpdatedAt(System.currentTimeMillis());
             entityLatestPOList.add(entityLatestPO);
         });
         entityLatestRepository.saveAll(entityLatestPOList);
+
+        eventBus.publish(ExchangeEvent.of(ExchangeEvent.EventType.DOWN, exchangePayloadList));
     }
 
     @Override
     public void saveExchangeHistory(ExchangePayload exchangePayloadList) {
         Map<String, Object> payloads = exchangePayloadList.getAllPayloads();
-        if(payloads == null || payloads.isEmpty()){
+        if (payloads == null || payloads.isEmpty()) {
             return;
         }
         List<String> entityKeys = payloads.keySet().stream().toList();
         List<EntityPO> entityPOList = getByKeys(entityKeys);
-        if(entityPOList == null || entityPOList.isEmpty()){
+        if (entityPOList == null || entityPOList.isEmpty()) {
             return;
         }
-        Map<String,Long> entityIdMap = entityPOList.stream().collect(Collectors.toMap(EntityPO::getKey, EntityPO::getId));
+        Map<String, Long> entityIdMap = entityPOList.stream().collect(Collectors.toMap(EntityPO::getKey, EntityPO::getId));
         List<EntityHistoryPO> entityHistoryPOList = new ArrayList<>();
         payloads.forEach((entityKey, payload) -> {
+            Long entityId = entityIdMap.get(entityKey);
+            if (entityId == null) {
+                return;
+            }
             EntityHistoryPO entityHistoryPO = new EntityHistoryPO();
             entityHistoryPO.setId(SnowflakeUtil.nextId());
-            entityHistoryPO.setEntityId(entityIdMap.get(entityKey));
+            entityHistoryPO.setEntityId(entityId);
             if (payload instanceof Boolean) {
                 entityHistoryPO.setValueBoolean((Boolean) payload);
             } else if (payload instanceof Integer) {
@@ -222,43 +351,41 @@ public class EntityService implements EntityServiceProvider {
                 entityHistoryPO.setValueFloat((Float) payload);
             } else if (payload instanceof Byte[]) {
                 entityHistoryPO.setValueBinary((Byte[]) payload);
-            } else{
+            } else {
                 throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
             }
             entityHistoryPO.setTimestamp(exchangePayloadList.getTimestamp());
             entityHistoryPO.setCreatedAt(System.currentTimeMillis());
-            SecurityUserContext.SecurityUser securityUser = SecurityUserContext.getSecurityUser();
-            String createdBy = null;
-            if(securityUser != null){
-                createdBy = securityUser.getPayload().get("userId").toString();
-            }
+            String createdBy = SecurityUserContext.getUserId();
             entityHistoryPO.setCreatedBy(createdBy);
             entityHistoryPOList.add(entityHistoryPO);
         });
         entityHistoryRepository.saveAll(entityHistoryPOList);
+
+        eventBus.publish(ExchangeEvent.of(ExchangeEvent.EventType.DOWN, exchangePayloadList));
     }
 
     @Override
-    public Object findExchangeValueByKey(String key){
+    public Object findExchangeValueByKey(String key) {
         EntityPO entityPO = getByKey(key);
-        if(entityPO == null){
+        if (entityPO == null) {
             return null;
         }
         Long entityId = entityPO.getId();
         EntityLatestPO entityLatestPO = entityLatestRepository.findUniqueOne(filter -> filter.eq(EntityLatestPO.Fields.entityId, entityId));
-        if(entityLatestPO == null){
+        if (entityLatestPO == null) {
             return null;
         }
         Object value = null;
-        if(entityLatestPO.getValueBoolean() != null){
+        if (entityLatestPO.getValueBoolean() != null) {
             value = entityLatestPO.getValueBoolean();
-        }else if(entityLatestPO.getValueInt() != null){
+        } else if (entityLatestPO.getValueInt() != null) {
             value = entityLatestPO.getValueInt();
-        }else if(entityLatestPO.getValueFloat() != null){
+        } else if (entityLatestPO.getValueFloat() != null) {
             value = entityLatestPO.getValueFloat();
-        }else if (entityLatestPO.getValueString() != null){
+        } else if (entityLatestPO.getValueString() != null) {
             value = entityLatestPO.getValueString();
-        }else if(entityLatestPO.getValueBinary() != null){
+        } else if (entityLatestPO.getValueBinary() != null) {
             value = entityLatestPO.getValueBinary();
         }
         return value;
@@ -280,28 +407,28 @@ public class EntityService implements EntityServiceProvider {
             }
             return instance;
         } catch (Exception e) {
-            log.error("findExchangeByKey error:{}", e.getMessage(),e);
+            log.error("findExchangeByKey error:{}", e.getMessage(), e);
             return null;
         }
     }
 
     public Page<EntityResponse> search(EntityQuery entityQuery) {
-        if(!StringUtils.hasText(entityQuery.getKeyword())){
+        if (!StringUtils.hasText(entityQuery.getKeyword())) {
             return Page.empty();
         }
         List<String> attachTargetIds = new ArrayList<>();
         List<Integration> integrations = integrationServiceProvider.findIntegrations(f -> f.getName().contains(entityQuery.getKeyword()));
-        if(integrations != null && !integrations.isEmpty()){
-            List<String> integrationNames = integrations.stream().map(Integration::getName).toList();
-            attachTargetIds.addAll(integrationNames);
-            List<Device> integrationDevices = deviceServiceProvider.findAll(integrationNames);
-            if(integrationDevices != null && !integrationDevices.isEmpty()){
-                List<String> deviceIds = integrationDevices.stream().map(t-> String.valueOf(t.getId())).toList();
+        if (integrations != null && !integrations.isEmpty()) {
+            List<String> integrationIds = integrations.stream().map(Integration::getId).toList();
+            attachTargetIds.addAll(integrationIds);
+            List<DeviceNameDTO> integrationDevices = deviceFacade.getDeviceNameByIntegrations(integrationIds);
+            if (integrationDevices != null && !integrationDevices.isEmpty()) {
+                List<String> deviceIds = integrationDevices.stream().map(t -> String.valueOf(t.getId())).toList();
                 attachTargetIds.addAll(deviceIds);
             }
         }
         List<DeviceNameDTO> deviceNameDTOList = deviceFacade.fuzzySearchDeviceByName(entityQuery.getKeyword());
-        if(deviceNameDTOList != null && !deviceNameDTOList.isEmpty()){
+        if (deviceNameDTOList != null && !deviceNameDTOList.isEmpty()) {
             List<String> deviceIds = deviceNameDTOList.stream().map(DeviceNameDTO::getId).map(String::valueOf).toList();
             attachTargetIds.addAll(deviceIds);
         }
@@ -309,27 +436,29 @@ public class EntityService implements EntityServiceProvider {
                         .or(f1 -> f1.like(EntityPO.Fields.name, entityQuery.getKeyword())
                                 .in(EntityPO.Fields.attachTargetId, attachTargetIds)),
                 entityQuery.toPageable());
-        if(entityPOList == null || entityPOList.getContent().isEmpty()){
+        if (entityPOList == null || entityPOList.getContent().isEmpty()) {
             return Page.empty();
         }
-        List<String> resultDeviceIds = entityPOList.stream().filter(entityPO -> entityPO.getAttachTarget() == AttachTargetType.DEVICE).map(EntityPO::getAttachTargetId).toList();
-        List<Device> resultDevices = deviceFacade.findByIds(resultDeviceIds);
-        Map<String,String> deviceNameMap = new HashMap<>();
-        Map<String,String> deviceIntegrationNameMap = new HashMap<>();
-        if(resultDevices != null && !resultDevices.isEmpty()) {
-            deviceNameMap.putAll(resultDevices.stream().collect(Collectors.toMap(t -> String.valueOf(t.getId()), Device::getName)));
-            deviceIntegrationNameMap.putAll(resultDevices.stream().collect(Collectors.toMap(t -> String.valueOf(t.getId()), t -> t.getIntegration().getName())));
+        List<Long> resultDeviceIds = entityPOList.stream().filter(entityPO -> entityPO.getAttachTarget() == AttachTargetType.DEVICE).map(t -> Long.parseLong(t.getAttachTargetId())).toList();
+        List<DeviceNameDTO> resultDevices = deviceFacade.getDeviceNameByIds(resultDeviceIds);
+        Map<String, String> deviceNameMap = new HashMap<>();
+        Map<String, String> deviceIntegrationNameMap = new HashMap<>();
+        if (resultDevices != null && !resultDevices.isEmpty()) {
+            deviceNameMap.putAll(resultDevices.stream().collect(Collectors.toMap(t -> String.valueOf(t.getId()), DeviceNameDTO::getName)));
+            deviceIntegrationNameMap.putAll(resultDevices.stream().collect(Collectors.toMap(t -> String.valueOf(t.getId()), t -> t.getIntegrationConfig().getName())));
         }
         return entityPOList.map(entityPO -> {
             EntityResponse response = new EntityResponse();
             String deviceName = null;
             String integrationName = null;
-            if(entityPO.getAttachTarget() == AttachTargetType.DEVICE){
+            if (entityPO.getAttachTarget() == AttachTargetType.DEVICE) {
                 String deviceId = entityPO.getAttachTargetId();
                 deviceName = deviceNameMap.get(deviceId);
                 integrationName = deviceIntegrationNameMap.get(deviceId);
-            }else if(entityPO.getAttachTarget() == AttachTargetType.INTEGRATION){
-                integrationName = entityPO.getAttachTargetId();
+            } else if (entityPO.getAttachTarget() == AttachTargetType.INTEGRATION) {
+                String integrationId = entityPO.getAttachTargetId();
+                Integration integration = integrationServiceProvider.getIntegration(integrationId);
+                integrationName = integration.getName();
             }
             response.setDeviceName(deviceName);
             response.setIntegrationName(integrationName);
@@ -347,20 +476,20 @@ public class EntityService implements EntityServiceProvider {
                         .ge(EntityHistoryPO.Fields.timestamp, entityHistoryQuery.getStartTimestamp())
                         .le(EntityHistoryPO.Fields.timestamp, entityHistoryQuery.getEndTimestamp()),
                 entityHistoryQuery.toPageable());
-        if(entityHistoryPage == null || entityHistoryPage.getContent().isEmpty()){
+        if (entityHistoryPage == null || entityHistoryPage.getContent().isEmpty()) {
             return Page.empty();
         }
         return entityHistoryPage.map(entityHistoryPO -> {
             EntityHistoryResponse response = new EntityHistoryResponse();
-            if(entityHistoryPO.getValueBoolean() != null){
+            if (entityHistoryPO.getValueBoolean() != null) {
                 response.setValue(entityHistoryPO.getValueBoolean());
-            }else if (entityHistoryPO.getValueInt() != null){
+            } else if (entityHistoryPO.getValueInt() != null) {
                 response.setValue(entityHistoryPO.getValueInt());
-            }else if (entityHistoryPO.getValueFloat() != null){
+            } else if (entityHistoryPO.getValueFloat() != null) {
                 response.setValue(entityHistoryPO.getValueFloat());
-            }else if (entityHistoryPO.getValueString() != null){
+            } else if (entityHistoryPO.getValueString() != null) {
                 response.setValue(entityHistoryPO.getValueString());
-            }else if (entityHistoryPO.getValueBinary() != null){
+            } else if (entityHistoryPO.getValueBinary() != null) {
                 response.setValue(entityHistoryPO.getValueBinary());
             }
             response.setTimestamp(entityHistoryPO.getTimestamp().toString());
@@ -370,16 +499,16 @@ public class EntityService implements EntityServiceProvider {
 
     public EntityAggregateResponse historyAggregate(EntityAggregateQuery entityAggregateQuery) {
         List<EntityHistoryPO> entityHistoryPOList = entityHistoryRepository.findAll(filter -> filter.eq(EntityHistoryPO.Fields.entityId, entityAggregateQuery.getEntityId())
-                .ge(EntityHistoryPO.Fields.timestamp, entityAggregateQuery.getStartTimestamp())
-                .le(EntityHistoryPO.Fields.timestamp, entityAggregateQuery.getEndTimestamp()))
+                        .ge(EntityHistoryPO.Fields.timestamp, entityAggregateQuery.getStartTimestamp())
+                        .le(EntityHistoryPO.Fields.timestamp, entityAggregateQuery.getEndTimestamp()))
                 .stream().sorted(Comparator.comparingLong(EntityHistoryPO::getTimestamp)).toList();
         EntityAggregateResponse entityAggregateResponse = new EntityAggregateResponse();
-        if(entityHistoryPOList.isEmpty()){
+        if (entityHistoryPOList.isEmpty()) {
             return entityAggregateResponse;
         }
         AggregateType aggregateType = entityAggregateQuery.getAggregateType();
         EntityHistoryPO oneEntityHistoryPO = entityHistoryPOList.get(0);
-        switch (aggregateType){
+        switch (aggregateType) {
             case LAST:
                 EntityHistoryPO lastEntityHistoryPO = entityHistoryPOList.get(entityHistoryPOList.size() - 1);
                 if (lastEntityHistoryPO.getValueBoolean() != null) {
@@ -404,7 +533,7 @@ public class EntityService implements EntityServiceProvider {
                 } else if (oneEntityHistoryPO.getValueFloat() != null) {
                     EntityHistoryPO minEntityHistoryPO = entityHistoryPOList.stream().min(Comparator.comparing(EntityHistoryPO::getValueFloat)).get();
                     entityAggregateResponse.setValue(minEntityHistoryPO.getValueFloat());
-                } else if (oneEntityHistoryPO.getValueString()!= null) {
+                } else if (oneEntityHistoryPO.getValueString() != null) {
                     EntityHistoryPO minEntityHistoryPO = entityHistoryPOList.stream().min(Comparator.comparing(EntityHistoryPO::getValueString)).get();
                     entityAggregateResponse.setValue(minEntityHistoryPO.getValueString());
                 } else if (oneEntityHistoryPO.getValueBinary() != null) {
@@ -413,41 +542,41 @@ public class EntityService implements EntityServiceProvider {
                 }
                 break;
             case MAX:
-                if (oneEntityHistoryPO.getValueBoolean() != null){
+                if (oneEntityHistoryPO.getValueBoolean() != null) {
                     entityAggregateResponse.setValue(entityHistoryPOList.stream().max(Comparator.comparing(EntityHistoryPO::getValueBoolean)).get().getValueBoolean());
-                }else if (oneEntityHistoryPO.getValueInt() != null){
+                } else if (oneEntityHistoryPO.getValueInt() != null) {
                     entityAggregateResponse.setValue(entityHistoryPOList.stream().max(Comparator.comparing(EntityHistoryPO::getValueInt)).get().getValueInt());
-                }else if (oneEntityHistoryPO.getValueFloat() != null){
+                } else if (oneEntityHistoryPO.getValueFloat() != null) {
                     entityAggregateResponse.setValue(entityHistoryPOList.stream().max(Comparator.comparing(EntityHistoryPO::getValueFloat)).get().getValueFloat());
-                }else if (oneEntityHistoryPO.getValueString() != null){
+                } else if (oneEntityHistoryPO.getValueString() != null) {
                     entityAggregateResponse.setValue(entityHistoryPOList.stream().max(Comparator.comparing(EntityHistoryPO::getValueString)).get().getValueString());
-                }else if (oneEntityHistoryPO.getValueBinary() != null){
+                } else if (oneEntityHistoryPO.getValueBinary() != null) {
                     entityAggregateResponse.setValue(entityHistoryPOList.stream().max(Comparator.comparing(EntityHistoryPO::getValueBinary, byteArrayComparator)).get().getValueBinary());
                 }
                 break;
             case AVG:
-                if (oneEntityHistoryPO.getValueBoolean() != null){
+                if (oneEntityHistoryPO.getValueBoolean() != null) {
                     throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
-                }else if (oneEntityHistoryPO.getValueInt() != null){
+                } else if (oneEntityHistoryPO.getValueInt() != null) {
                     entityAggregateResponse.setValue(entityHistoryPOList.stream().mapToInt(EntityHistoryPO::getValueInt).average());
-                }else if (oneEntityHistoryPO.getValueFloat() != null){
+                } else if (oneEntityHistoryPO.getValueFloat() != null) {
                     entityAggregateResponse.setValue(entityHistoryPOList.stream().mapToDouble(EntityHistoryPO::getValueFloat).average());
-                }else if (oneEntityHistoryPO.getValueString() != null){
+                } else if (oneEntityHistoryPO.getValueString() != null) {
                     throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
-                }else if (oneEntityHistoryPO.getValueBinary() != null){
+                } else if (oneEntityHistoryPO.getValueBinary() != null) {
                     throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
                 }
                 break;
             case SUM:
-                if (oneEntityHistoryPO.getValueBoolean() != null){
+                if (oneEntityHistoryPO.getValueBoolean() != null) {
                     throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
-                }else if (oneEntityHistoryPO.getValueInt() != null){
+                } else if (oneEntityHistoryPO.getValueInt() != null) {
                     entityAggregateResponse.setValue(entityHistoryPOList.stream().mapToInt(EntityHistoryPO::getValueInt).sum());
-                }else if (oneEntityHistoryPO.getValueFloat() != null){
+                } else if (oneEntityHistoryPO.getValueFloat() != null) {
                     entityAggregateResponse.setValue(entityHistoryPOList.stream().mapToDouble(EntityHistoryPO::getValueFloat).sum());
-                }else if (oneEntityHistoryPO.getValueString() != null){
+                } else if (oneEntityHistoryPO.getValueString() != null) {
                     throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
-                }else if (oneEntityHistoryPO.getValueBinary() != null){
+                } else if (oneEntityHistoryPO.getValueBinary() != null) {
                     throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
                 }
                 break;
@@ -456,21 +585,21 @@ public class EntityService implements EntityServiceProvider {
             default:
                 throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
         }
-        if(aggregateType == AggregateType.COUNT){
+        if (aggregateType == AggregateType.COUNT) {
             List<EntityAggregateResponse.CountResult> countResult = new ArrayList<>();
-            if (oneEntityHistoryPO.getValueBoolean() != null){
+            if (oneEntityHistoryPO.getValueBoolean() != null) {
                 Map<Boolean, Long> entityHistoryPOGroup = entityHistoryPOList.stream().collect(Collectors.groupingBy(EntityHistoryPO::getValueBoolean, Collectors.counting()));
                 entityHistoryPOGroup.forEach((key, value) -> countResult.add(new EntityAggregateResponse.CountResult(key, value)));
-            }else if (oneEntityHistoryPO.getValueInt() != null){
+            } else if (oneEntityHistoryPO.getValueInt() != null) {
                 Map<Integer, Long> entityHistoryPOGroup = entityHistoryPOList.stream().collect(Collectors.groupingBy(EntityHistoryPO::getValueInt, Collectors.counting()));
                 entityHistoryPOGroup.forEach((key, value) -> countResult.add(new EntityAggregateResponse.CountResult(key, value)));
-            }else if (oneEntityHistoryPO.getValueFloat() != null){
+            } else if (oneEntityHistoryPO.getValueFloat() != null) {
                 Map<Float, Long> entityHistoryPOGroup = entityHistoryPOList.stream().collect(Collectors.groupingBy(EntityHistoryPO::getValueFloat, Collectors.counting()));
                 entityHistoryPOGroup.forEach((key, value) -> countResult.add(new EntityAggregateResponse.CountResult(key, value)));
-            }else if (oneEntityHistoryPO.getValueString() != null){
+            } else if (oneEntityHistoryPO.getValueString() != null) {
                 Map<String, Long> entityHistoryPOGroup = entityHistoryPOList.stream().collect(Collectors.groupingBy(EntityHistoryPO::getValueString, Collectors.counting()));
                 entityHistoryPOGroup.forEach((key, value) -> countResult.add(new EntityAggregateResponse.CountResult(key, value)));
-            }else if (oneEntityHistoryPO.getValueBinary() != null){
+            } else if (oneEntityHistoryPO.getValueBinary() != null) {
                 Map<Byte[], Long> entityHistoryPOGroup = entityHistoryPOList.stream().collect(Collectors.groupingBy(EntityHistoryPO::getValueBinary, Collectors.counting()));
                 entityHistoryPOGroup.forEach((key, value) -> countResult.add(new EntityAggregateResponse.CountResult(key, value)));
             }
@@ -482,22 +611,22 @@ public class EntityService implements EntityServiceProvider {
     public EntityLatestResponse getEntityStatus(Long entityId) {
         EntityLatestPO entityLatestPO = entityLatestRepository.findUniqueOne(filter -> filter.eq(EntityLatestPO.Fields.entityId, entityId));
         EntityLatestResponse entityLatestResponse = new EntityLatestResponse();
-        if(entityLatestPO.getValueBoolean() != null){
+        if (entityLatestPO.getValueBoolean() != null) {
             entityLatestResponse.setValue(entityLatestPO.getValueBoolean());
-        }else if (entityLatestPO.getValueInt() != null){
+        } else if (entityLatestPO.getValueInt() != null) {
             entityLatestResponse.setValue(entityLatestPO.getValueInt());
-        }else if (entityLatestPO.getValueFloat() != null){
+        } else if (entityLatestPO.getValueFloat() != null) {
             entityLatestResponse.setValue(entityLatestPO.getValueFloat());
-        }else if (entityLatestPO.getValueString() != null){
+        } else if (entityLatestPO.getValueString() != null) {
             entityLatestResponse.setValue(entityLatestPO.getValueString());
-        }else if (entityLatestPO.getValueBinary() != null){
+        } else if (entityLatestPO.getValueBinary() != null) {
             entityLatestResponse.setValue(entityLatestPO.getValueBinary());
         }
         entityLatestResponse.setUpdateAt(entityLatestPO.getUpdatedAt().toString());
         return entityLatestResponse;
     }
 
-    public EntityMetaResponse getEntityMeta(Long entityId){
+    public EntityMetaResponse getEntityMeta(Long entityId) {
         EntityPO entityPO = entityRepository.getOne(entityId);
         EntityMetaResponse entityMetaResponse = new EntityMetaResponse();
         entityMetaResponse.setKey(entityPO.getKey());
@@ -510,11 +639,38 @@ public class EntityService implements EntityServiceProvider {
     }
 
     public void updatePropertyEntity(UpdatePropertyEntityRequest updatePropertyEntityRequest) {
-        //TODO
+        Long entityId = updatePropertyEntityRequest.getEntityId();
+        Map<String, Object> exchange = updatePropertyEntityRequest.getExchange();
+        EntityPO entityPO = entityRepository.getOne(entityId);
+        if (entityPO == null) {
+            return;
+        }
+        if (!entityPO.getType().equals(EntityType.PROPERTY)) {
+            log.info("update property entity only support property entity:{}", entityId);
+            return;
+        }
+        if (entityPO.getAccessMod() != AccessMod.W && entityPO.getAccessMod() != AccessMod.RW) {
+            log.info("update property entity only support write access:{}", entityId);
+            return;
+        }
+        ExchangePayload payload = new ExchangePayload(exchange);
+        payload.getContext().put(SecurityUserContext.USER_ID, SecurityUserContext.getUserId());
+        engineExecutor.exchangeDown(payload);
     }
 
     public void serviceCall(ServiceCallRequest serviceCallRequest) {
-        //TODO
+        Long entityId = serviceCallRequest.getEntityId();
+        Map<String, Object> exchange = serviceCallRequest.getExchange();
+        EntityPO entityPO = entityRepository.getOne(entityId);
+        if (entityPO == null) {
+            return;
+        }
+        if (!entityPO.getType().equals(EntityType.SERVICE)) {
+            log.info("service call only support service entity:{}", entityId);
+            return;
+        }
+        ExchangePayload payload = new ExchangePayload(exchange);
+        engineExecutor.exchangeDown(payload);
     }
 
     private EntityPO getByKey(String entityKey) {

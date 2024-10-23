@@ -56,7 +56,7 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
     public void save(Device device) {
         DevicePO devicePO;
         Assert.notNull(device.getIdentifier(), "Device identifier must be provided!");
-        Assert.notNull(device.getIntegration(), "Integration must be provided!");
+        Assert.notNull(device.getIntegrationId(), "Integration must be provided!");
 
         boolean shouldCreate = false;
         boolean shouldUpdate = false;
@@ -75,7 +75,7 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
             devicePO = deviceRepository
                     .findOne(f -> f
                             .eq(DevicePO.Fields.identifier, device.getIdentifier())
-                            .eq(DevicePO.Fields.integration, device.getIntegration().getName())
+                            .eq(DevicePO.Fields.integration, device.getIntegrationId())
                     ).orElse(null);
             if (devicePO == null) {
                 devicePO = new DevicePO();
@@ -88,8 +88,8 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
 
         // set device data
         devicePO.setName(device.getName());
-        devicePO.setKey(device.getKey());
         devicePO.setIdentifier(device.getIdentifier());
+        devicePO.setKey(device.getKey());
         try {
             devicePO.setAdditionalData(new ObjectMapper().writeValueAsString(device.getAdditional()));
         } catch (JsonProcessingException e) {
@@ -99,7 +99,7 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
         // create or update
         if (shouldCreate) {
             // integration would not be updated
-            devicePO.setIntegration(device.getIntegration().getName());
+            devicePO.setIntegration(device.getIntegrationId());
             devicePO = deviceRepository.save(devicePO);
             eventBus.publish(DeviceEvent.of(DeviceEvent.EventType.CREATED, device));
         } else if (shouldUpdate) {

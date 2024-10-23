@@ -32,7 +32,7 @@ public class UserService {
             throw ServiceException.with(ErrorCode.PARAMETER_SYNTAX_ERROR).detailMessage("email and nickname and password must be not null").build();
         }
         UserPO userPO = getUserByEmail(email);
-        if(userPO != null){
+        if (userPO != null) {
             throw ServiceException.with(UserErrorCode.USER_REGISTER_EMAIL_EXIST).build();
         }
         userPO = new UserPO();
@@ -46,11 +46,11 @@ public class UserService {
         userRepository.save(userPO);
     }
 
-    public UserInfoResponse getUserInfo(){
+    public UserInfoResponse getUserInfo() {
         SecurityUserContext.SecurityUser securityUser = SecurityUserContext.getSecurityUser();
         UserInfoResponse userInfoResponse = new UserInfoResponse();
-        if(securityUser != null){
-            userInfoResponse.setUserId(securityUser.getPayload().get("userId").toString());
+        if (securityUser != null) {
+            userInfoResponse.setUserId(securityUser.getPayload().get(SecurityUserContext.USER_ID).toString());
             userInfoResponse.setNickname(securityUser.getPayload().get("nickname").toString());
             userInfoResponse.setEmail(securityUser.getPayload().get("email").toString());
         }

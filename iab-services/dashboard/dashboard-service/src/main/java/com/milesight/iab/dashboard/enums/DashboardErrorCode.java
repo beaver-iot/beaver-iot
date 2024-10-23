@@ -19,19 +19,19 @@ public enum DashboardErrorCode implements ErrorCodeSpec {
     private final String errorMessage;
     private final String detailMessage;
 
-    DashboardErrorCode(){
+    DashboardErrorCode() {
         this.errorCode = name().toLowerCase();
         this.errorMessage = null;
         this.detailMessage = null;
     }
 
-    DashboardErrorCode(String errorMessage){
+    DashboardErrorCode(String errorMessage) {
         this.errorCode = name().toLowerCase();
         this.errorMessage = errorMessage;
         this.detailMessage = null;
     }
 
-    DashboardErrorCode(String errorMessage, String detailMessage){
+    DashboardErrorCode(String errorMessage, String detailMessage) {
         this.errorCode = name().toLowerCase();
         this.errorMessage = errorMessage;
         this.detailMessage = detailMessage;

@@ -1,8 +1,11 @@
 package com.milesight.iab.dashboard.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.milesight.iab.context.integration.model.ExchangePayload;
+import com.milesight.iab.context.integration.model.event.WebSocketEvent;
+import com.milesight.iab.context.security.SecurityUserContext;
 import com.milesight.iab.eventbus.annotations.EventSubscribe;
-import com.milesight.iab.eventbus.api.Event;
+import com.milesight.iab.websocket.WebSocketContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -14,12 +17,31 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class DashboardNotifyService {
 
-    @EventSubscribe
-    public void onDashboardNotify(Event<ExchangePayload> event) {
-        //TODO
-//        WebSocketEvent webSocketEvent = WebSocketEvent.of(WebSocketEvent.EventType.EXCHANGE, event.getPayload());
-//        WebSocketContext.sendMessage(, webSocketEvent);
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    @EventSubscribe(payloadKeyExpression = "*.device.*")
+    public void onDeviceDashboardNotify(ExchangePayload exchangePayload) {
+        doDashboardNotify(exchangePayload);
     }
 
+    @EventSubscribe(payloadKeyExpression = "*.integration.*")
+    public void onIntegrationDashboardNotify(ExchangePayload exchangePayload) {
+        doDashboardNotify(exchangePayload);
+    }
+
+    private void doDashboardNotify(ExchangePayload exchangePayload) {
+        try {
+            log.info("onDashboardNotify:{}", exchangePayload);
+            if (exchangePayload.getContext(SecurityUserContext.USER_ID) == null) {
+                log.error("onDashboardNotify userId is null");
+                return;
+            }
+            String userId = exchangePayload.getContext(SecurityUserContext.USER_ID).toString();
+            WebSocketEvent webSocketEvent = WebSocketEvent.of(WebSocketEvent.EventType.EXCHANGE, exchangePayload.getAllPayloads());
+            WebSocketContext.sendMessage(userId, objectMapper.writeValueAsString(webSocketEvent));
+        } catch (Exception e) {
+            log.error("onDashboardNotify error:{}", e.getMessage(), e);
+        }
+    }
 
 }

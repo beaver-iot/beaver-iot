@@ -1,0 +1,25 @@
+package com.milesight.iab.authentication.facade;
+
+import com.milesight.iab.authentication.service.UserAuthenticationService;
+import com.milesight.iab.context.security.SecurityUserContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.stereotype.Service;
+
+/**
+ * @author loong
+ * @date 2024/10/23 13:11
+ */
+@Service
+public class AuthenticationFacade implements IAuthenticationFacade {
+
+    @Autowired
+    UserAuthenticationService userAuthenticationService;
+
+    @Override
+    public String getUserIdByToken(String token) {
+        Jwt jwt = userAuthenticationService.readAccessToken(token);
+        return jwt.getClaims().get(SecurityUserContext.USER_ID).toString();
+    }
+
+}

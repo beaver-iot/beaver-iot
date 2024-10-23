@@ -6,6 +6,7 @@ import com.milesight.iab.device.model.request.BatchDeleteDeviceRequest;
 import com.milesight.iab.device.model.request.CreateDeviceRequest;
 import com.milesight.iab.device.model.request.SearchDeviceRequest;
 import com.milesight.iab.device.model.request.UpdateDeviceRequest;
+import com.milesight.iab.device.model.response.DeviceDetailResponse;
 import com.milesight.iab.device.model.response.DeviceResponseData;
 import com.milesight.iab.device.service.DeviceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,5 +41,10 @@ public class DeviceController {
     public ResponseBody<Void> batchDeleteDevices(@RequestBody BatchDeleteDeviceRequest batchDeleteDeviceRequest) {
         deviceService.batchDeleteDevices(batchDeleteDeviceRequest.getDeviceIdList());
         return ResponseBuilder.success();
+    }
+
+    @GetMapping("/{deviceId}")
+    public ResponseBody<DeviceDetailResponse> getDeviceDetail(@PathVariable("deviceId") Long deviceId) {
+        return ResponseBuilder.success(deviceService.getDeviceDetail(deviceId));
     }
 }

@@ -30,7 +30,7 @@ public class UserController {
     }
 
     @GetMapping("")
-    public ResponseBody<UserInfoResponse> getUserInfo(){
+    public ResponseBody<UserInfoResponse> getUserInfo() {
         UserInfoResponse userInfoResponse = userService.getUserInfo();
         return ResponseBuilder.success(userInfoResponse);
     }

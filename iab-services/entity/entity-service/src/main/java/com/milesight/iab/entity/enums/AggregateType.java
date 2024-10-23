@@ -6,5 +6,5 @@ package com.milesight.iab.entity.enums;
  */
 public enum AggregateType {
 
-    LAST,MIN,MAX,AVG,SUM,COUNT;
+    LAST, MIN, MAX, AVG, SUM, COUNT;
 }

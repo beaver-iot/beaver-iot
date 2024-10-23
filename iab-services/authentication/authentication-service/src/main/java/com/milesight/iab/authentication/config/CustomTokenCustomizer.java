@@ -1,6 +1,7 @@
 package com.milesight.iab.authentication.config;
 
 import com.milesight.iab.authentication.util.OAuth2EndpointUtils;
+import com.milesight.iab.context.security.SecurityUserContext;
 import com.milesight.iab.user.dto.UserDTO;
 import com.milesight.iab.user.facade.IUserFacade;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,11 +24,11 @@ public class CustomTokenCustomizer implements OAuth2TokenCustomizer<JwtEncodingC
     public void customize(JwtEncodingContext context) {
         String username = context.getPrincipal().getName();
         UserDTO userDTO = userFacade.getUserByEmail(username);
-        if(userDTO == null){
+        if (userDTO == null) {
             OAuth2EndpointUtils.throwError(OAuth2ErrorCodes.INVALID_REQUEST, "user not found.", null);
         }
         context.getClaims().claims(claims -> {
-            claims.put("userId", userDTO.getUserId());
+            claims.put(SecurityUserContext.USER_ID, userDTO.getUserId());
             claims.put("nickname", userDTO.getNickname());
             claims.put("email", userDTO.getEmail());
         });

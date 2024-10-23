@@ -1,5 +1,6 @@
 package com.milesight.iab.dashboard.handler;
 
+import com.milesight.iab.authentication.facade.IAuthenticationFacade;
 import com.milesight.iab.websocket.AbstractWebSocketHandler;
 import com.milesight.iab.websocket.WebSocketContext;
 import com.milesight.iab.websocket.WebSocketProperties;
@@ -23,8 +24,11 @@ import java.util.Map;
 @Slf4j
 public class DashboardWebsocketHandler extends AbstractWebSocketHandler {
 
-    public DashboardWebsocketHandler(WebSocketProperties webSocketProperties) {
+    private final IAuthenticationFacade authenticationFacade;
+
+    public DashboardWebsocketHandler(WebSocketProperties webSocketProperties, IAuthenticationFacade authenticationFacade) {
         super(webSocketProperties);
+        this.authenticationFacade = authenticationFacade;
     }
 
     @Override
@@ -34,7 +38,12 @@ public class DashboardWebsocketHandler extends AbstractWebSocketHandler {
             sendHttpResponse(ctx, request, HttpResponseStatus.FORBIDDEN);
             return;
         }
-        WebSocketContext.addChannel(token, ctx);
+        String userId = authenticationFacade.getUserIdByToken(token);
+        if (userId == null) {
+            sendHttpResponse(ctx, request, HttpResponseStatus.FORBIDDEN);
+            return;
+        }
+        WebSocketContext.addChannel(userId, ctx);
     }
 
     @Override
@@ -50,7 +59,7 @@ public class DashboardWebsocketHandler extends AbstractWebSocketHandler {
     public void exception(ChannelHandlerContext ctx, Throwable cause) throws Exception {
     }
 
-    private String getToken(FullHttpRequest request){
+    private String getToken(FullHttpRequest request) {
         String authorizationValue = request.headers().get("Authorization");
 
         if (authorizationValue != null && authorizationValue.startsWith("Bearer ")) {

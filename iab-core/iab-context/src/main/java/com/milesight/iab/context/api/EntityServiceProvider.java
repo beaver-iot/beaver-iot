@@ -16,6 +16,12 @@ public interface EntityServiceProvider {
 
     void batchSave(List<Entity> entityList);
 
+    void deleteByTargetId(String targetId);
+
+    long countAllEntitiesByIntegration(String integrationId);
+
+    long countIntegrationEntitiesByIntegration(String integrationId);
+
     void saveExchange(ExchangePayload exchangePayloadList);
 
     void saveExchangeHistory(ExchangePayload exchangePayloadList);

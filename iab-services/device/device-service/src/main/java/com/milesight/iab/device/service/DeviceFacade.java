@@ -25,6 +25,7 @@ public class DeviceFacade implements IDeviceFacade {
         return DeviceNameDTO.builder()
                 .id(devicePO.getId())
                 .name(devicePO.getName())
+                .key(devicePO.getKey())
                 .integrationConfig(integrationServiceProvider.getIntegration(devicePO.getIntegration()))
                 .build();
     }
@@ -53,5 +54,20 @@ public class DeviceFacade implements IDeviceFacade {
                 .stream()
                 .map(this::convertDevicePO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<DeviceNameDTO> getDeviceNameByKey(List<String> deviceKeys) {
+        return deviceRepository.findAll(f -> f.in(DevicePO.Fields.key, deviceKeys))
+                .stream()
+                .map(this::convertDevicePO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public DeviceNameDTO getDeviceNameByKey(String deviceKey) {
+        return deviceRepository.findOne(f -> f.eq(DevicePO.Fields.key, deviceKey))
+                .map(this::convertDevicePO)
+                .orElse(null);
     }
 }

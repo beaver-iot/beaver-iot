@@ -23,13 +23,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String authorizationValue = request.getHeader("Authorization");
-
-        if (authorizationValue != null && authorizationValue.startsWith("Bearer ")) {
-            String token = authorizationValue.substring(7);
-
-            userAuthenticationService.readAccessToken(token);
-        }
+        userAuthenticationService.loadSecurityContext(request);
         filterChain.doFilter(request, response);
     }
 }
