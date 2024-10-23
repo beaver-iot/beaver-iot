@@ -91,9 +91,10 @@ public class DeviceService {
 
     private DeviceResponseData convertPOToResponseData(DevicePO devicePO) {
         DeviceResponseData deviceResponseData = new DeviceResponseData();
-        BeanUtils.copyProperties(devicePO, deviceResponseData);
+        BeanUtils.copyProperties(devicePO, deviceResponseData, DevicePO.Fields.additionalData);
 
         Integration integrationConfig = getIntegrationConfig(devicePO.getIntegration());
+        deviceResponseData.setAdditionalData(devicePO.getAdditionalData());
         deviceResponseData.setDeletable(integrationConfig.getEntityIdentifierDeleteDevice() != null);
         deviceResponseData.setIntegrationName(integrationConfig.getName());
         return deviceResponseData;
@@ -161,6 +162,8 @@ public class DeviceService {
 
         DeviceDetailResponse deviceDetailResponse = new DeviceDetailResponse();
         BeanUtils.copyProperties(convertPOToResponseData(findResult.get()), deviceDetailResponse);
+
+        // set entities
         List<DeviceEntityData> deviceEntityDataList = entityServiceProvider
                 .findByTargetId(deviceId.toString())
                 .stream().map((Entity entity) -> DeviceEntityData
