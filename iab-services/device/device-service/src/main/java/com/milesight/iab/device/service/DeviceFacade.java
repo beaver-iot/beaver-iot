@@ -1,5 +1,6 @@
 package com.milesight.iab.device.service;
 
+import com.milesight.iab.context.api.IntegrationServiceProvider;
 import com.milesight.iab.device.dto.DeviceNameDTO;
 import com.milesight.iab.device.dto.DeviceNameSearchRequest;
 import com.milesight.iab.device.facade.IDeviceFacade;
@@ -17,11 +18,14 @@ public class DeviceFacade implements IDeviceFacade {
     @Autowired
     DeviceRepository deviceRepository;
 
+    @Autowired
+    IntegrationServiceProvider integrationServiceProvider;
+
     private DeviceNameDTO convertDevicePO(DevicePO devicePO) {
         return DeviceNameDTO.builder()
                 .id(devicePO.getId())
                 .name(devicePO.getName())
-                .integrationId(devicePO.getIntegration())
+                .integrationConfig(integrationServiceProvider.getIntegration(devicePO.getIntegration()))
                 .build();
     }
 
