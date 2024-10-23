@@ -1,10 +1,13 @@
 package com.milesight.iab.device.po;
 
+import com.milesight.iab.data.support.MapJsonConverter;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+
+import java.util.Map;
 
 
 @Data
@@ -30,7 +33,8 @@ public class DevicePO {
     private String identifier;
 
     @Column(name = "additional_data")
-    private String additionalData;
+    @Convert(converter = MapJsonConverter.class)
+    private Map<String, Object> additionalData;
 
     @Column(name = "created_at")
     @CreatedDate

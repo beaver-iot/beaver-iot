@@ -1,14 +1,20 @@
 package com.milesight.iab.integration.service;
 
+import com.milesight.iab.base.enums.ErrorCode;
+import com.milesight.iab.base.exception.ServiceException;
 import com.milesight.iab.context.api.DeviceServiceProvider;
+import com.milesight.iab.context.api.EntityServiceProvider;
 import com.milesight.iab.context.api.IntegrationServiceProvider;
+import com.milesight.iab.context.integration.model.Entity;
 import com.milesight.iab.context.integration.model.Integration;
 import com.milesight.iab.integration.model.request.SearchIntegrationRequest;
+import com.milesight.iab.integration.model.response.IntegrationDetailData;
+import com.milesight.iab.integration.model.response.IntegrationEntityData;
 import com.milesight.iab.integration.model.response.SearchIntegrationResponseData;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,6 +25,21 @@ public class IntegrationService {
 
     @Autowired
     DeviceServiceProvider deviceServiceProvider;
+
+    @Autowired
+    EntityServiceProvider entityServiceProvider;
+
+    private SearchIntegrationResponseData integrationToSearchResponseData(Integration integration) {
+        SearchIntegrationResponseData data = new SearchIntegrationResponseData();
+        data.setId(integration.getId());
+        data.setIcon(integration.getIconUrl());
+        data.setName(integration.getName());
+        data.setDescription(integration.getDescription());
+        data.setAddDeviceServiceKey(integration.getEntityIdentifierAddDevice());
+        data.setDeviceCount(deviceServiceProvider.countAll(integration.getId()));
+//        data.setEntityCount(entityServiceProvider.countAllEntitiesByIntegration(integration.getId()));
+        return data;
+    }
 
     public List<SearchIntegrationResponseData> searchIntegration(SearchIntegrationRequest searchDeviceRequest) {
         return integrationServiceProvider.findActiveIntegrations()
@@ -39,15 +60,30 @@ public class IntegrationService {
             }
 
             return true;
-        }).map(integration -> SearchIntegrationResponseData.builder()
-                .id(integration.getId())
-                .icon(integration.getIconUrl())
-                .name(integration.getName())
-                .description(integration.getDescription())
-                .addDeviceServiceKey(integration.getEntityIdentifierAddDevice())
-                .deviceCount(deviceServiceProvider.countAll(integration.getId()))
-                // TODO: .entityCount()
-                .build()
-        ).collect(Collectors.toList());
+        }).map(this::integrationToSearchResponseData).collect(Collectors.toList());
+    }
+
+    public IntegrationDetailData getDetailData(String integrationId) {
+        Integration integration = integrationServiceProvider.getIntegration(integrationId);
+        if (integration == null) {
+            throw ServiceException
+                    .with(ErrorCode.DATA_NO_FOUND)
+                    .detailMessage("Integration " + integrationId + " not found!")
+                    .build();
+        }
+
+        IntegrationDetailData data = new IntegrationDetailData();
+        BeanUtils.copyProperties(integrationToSearchResponseData(integration), data);
+        data.setEntities(entityServiceProvider.findByTargetId(integrationId)
+                .stream().map((Entity entity) -> IntegrationEntityData
+                        .builder()
+                        .id(entity.getId())
+                        .key(entity.getKey())
+                        .type(entity.getType())
+                        .valueType(entity.getValueType())
+                        .valueAttribute(entity.getAttributes())
+                        .build()
+                ).collect(Collectors.toList()));
+        return data;
     }
 }
