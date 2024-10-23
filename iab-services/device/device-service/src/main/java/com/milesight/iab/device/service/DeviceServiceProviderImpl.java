@@ -34,6 +34,24 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
     @Autowired
     EventBus eventBus;
 
+    private boolean shouldPOUpdate(DevicePO devicePO, Device device) {
+        boolean additionalDataNotChanged = false;
+        try {
+            additionalDataNotChanged = new ObjectMapper()
+                    .writeValueAsString(device.getAdditional())
+                    .equals(devicePO.getAdditionalData());
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        return !(
+                devicePO.getIdentifier().equals(device.getIdentifier())
+                && devicePO.getName().equals(device.getName())
+                && devicePO.getKey().equals(device.getKey())
+                && additionalDataNotChanged
+                );
+    }
+
     @Override
     public void save(Device device) {
         DevicePO devicePO;
@@ -41,6 +59,7 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
         Assert.notNull(device.getIntegration(), "Integration must be provided!");
 
         boolean shouldCreate = false;
+        boolean shouldUpdate = false;
 
         // check id
         if (device.getId() != null) {
@@ -49,6 +68,8 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
                 devicePO = new DevicePO();
                 devicePO.setId(device.getId());
                 shouldCreate = true;
+            } else {
+                shouldUpdate = shouldPOUpdate(devicePO, device);
             }
         } else {
             devicePO = deviceRepository
@@ -60,6 +81,8 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
                 devicePO = new DevicePO();
                 devicePO.setId(SnowflakeUtil.nextId());
                 shouldCreate = true;
+            } else {
+                shouldUpdate = shouldPOUpdate(devicePO, device);
             }
         }
 
@@ -77,12 +100,13 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
         if (shouldCreate) {
             // integration would not be updated
             devicePO.setIntegration(device.getIntegration().getName());
+            devicePO = deviceRepository.save(devicePO);
             eventBus.publish(DeviceEvent.of(DeviceEvent.EventType.CREATED, device));
-        } else {
+        } else if (shouldUpdate) {
+            devicePO = deviceRepository.save(devicePO);
             eventBus.publish(DeviceEvent.of(DeviceEvent.EventType.UPDATED, device));
         }
 
-        deviceRepository.save(devicePO);
         device.setId(devicePO.getId());
 
         device.getEntities().forEach(entityServiceProvider::save);
@@ -111,21 +135,26 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
     }
 
     @Override
-    public Device findByIdentifier(String identifier, String integration) {
+    public Device findByIdentifier(String identifier, String integrationId) {
         return deviceRepository
                 .findOne(f -> f
                         .eq(DevicePO.Fields.identifier, identifier)
-                        .eq(DevicePO.Fields.integration, integration)
+                        .eq(DevicePO.Fields.integration, integrationId)
                 )
                 .map(deviceServiceHelper::convertPO)
                 .orElse(null);
     }
 
     @Override
-    public List<Device> findAll(String integration) {
+    public List<Device> findAll(String integrationId) {
         return deviceRepository
-                .findAll(f -> f.eq("integration", integration))
+                .findAll(f -> f.eq(DevicePO.Fields.integration, integrationId))
                 .stream().map(deviceServiceHelper::convertPO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Long countAll(String integrationId) {
+        return deviceRepository.count(f -> f.eq(DevicePO.Fields.integration, integrationId));
     }
 }
