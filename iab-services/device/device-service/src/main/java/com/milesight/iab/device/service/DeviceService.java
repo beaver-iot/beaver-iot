@@ -7,17 +7,21 @@ import com.milesight.iab.context.api.DeviceServiceProvider;
 import com.milesight.iab.context.api.EntityServiceProvider;
 import com.milesight.iab.context.api.IntegrationServiceProvider;
 import com.milesight.iab.context.integration.model.Device;
+import com.milesight.iab.context.integration.model.Entity;
 import com.milesight.iab.context.integration.model.ExchangePayload;
 import com.milesight.iab.context.integration.model.Integration;
 import com.milesight.iab.context.integration.model.event.DeviceEvent;
 import com.milesight.iab.device.model.request.CreateDeviceRequest;
 import com.milesight.iab.device.model.request.SearchDeviceRequest;
 import com.milesight.iab.device.model.request.UpdateDeviceRequest;
+import com.milesight.iab.device.model.response.DeviceDetailResponse;
+import com.milesight.iab.device.model.response.DeviceEntityData;
 import com.milesight.iab.device.model.response.DeviceResponseData;
 import com.milesight.iab.device.po.DevicePO;
 import com.milesight.iab.device.repository.DeviceRepository;
 import com.milesight.iab.eventbus.EventBus;
 import com.milesight.iab.rule.RuleEngineExecutor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
@@ -44,6 +48,9 @@ public class DeviceService {
 
     @Autowired
     DeviceServiceHelper deviceServiceHelper;
+
+    @Autowired
+    EntityServiceProvider entityServiceProvider;
 
     @Autowired
     EventBus eventBus;
@@ -82,24 +89,21 @@ public class DeviceService {
         engineExecutor.exchangeDown(payload);
     }
 
+    private DeviceResponseData convertPOToResponseData(DevicePO devicePO) {
+        DeviceResponseData deviceResponseData = new DeviceResponseData();
+        BeanUtils.copyProperties(devicePO, deviceResponseData);
+
+        Integration integrationConfig = getIntegrationConfig(devicePO.getIntegration());
+        deviceResponseData.setDeletable(integrationConfig.getEntityIdentifierDeleteDevice() != null);
+        deviceResponseData.setIntegrationName(integrationConfig.getName());
+        return deviceResponseData;
+    }
+
     public Page<DeviceResponseData> searchDevice(SearchDeviceRequest searchDeviceRequest) {
         // convert to `DeviceResponseData`
         return deviceRepository
                 .findAll(f -> f.like(DevicePO.Fields.name, searchDeviceRequest.getName()), searchDeviceRequest.toPageable())
-                .map(((DevicePO device) -> {
-            Integration integrationConfig = getIntegrationConfig(device.getIntegration());
-            DeviceResponseData deviceResponseData = new DeviceResponseData();
-            deviceResponseData.setId(device.getId());
-            deviceResponseData.setKey(device.getKey());
-            deviceResponseData.setName(device.getName());
-            deviceResponseData.setIntegration(device.getIntegration());
-            deviceResponseData.setAdditionalData(device.getAdditionalData());
-            deviceResponseData.setUpdatedAt(device.getUpdatedAt());
-            deviceResponseData.setCreatedAt(deviceResponseData.getCreatedAt());
-            deviceResponseData.setDeletable(integrationConfig.getEntityIdentifierDeleteDevice() != null);
-            deviceResponseData.setIntegrationName(integrationConfig.getName());
-            return deviceResponseData;
-        }));
+                .map(this::convertPOToResponseData);
     }
 
     public void updateDevice(Long deviceId, UpdateDeviceRequest updateDeviceRequest) {
@@ -147,5 +151,28 @@ public class DeviceService {
             // call service for deleting
             engineExecutor.exchangeDown(payload);
         });
+    }
+
+    public DeviceDetailResponse getDeviceDetail(Long deviceId) {
+        Optional<DevicePO> findResult = deviceRepository.findById(deviceId);
+        if (findResult.isEmpty()) {
+            throw ServiceException.with(ErrorCode.DATA_NO_FOUND).build();
+        }
+
+        DeviceDetailResponse deviceDetailResponse = new DeviceDetailResponse();
+        BeanUtils.copyProperties(convertPOToResponseData(findResult.get()), deviceDetailResponse);
+        List<DeviceEntityData> deviceEntityDataList = entityServiceProvider
+                .findByTargetId(deviceId.toString())
+                .stream().map((Entity entity) -> DeviceEntityData
+                        .builder()
+                        .id(entity.getId())
+                        .key(entity.getKey())
+                        .type(entity.getType())
+                        .valueType(entity.getValueType())
+                        .valueAttribute(entity.getAttributes())
+                        .build()
+                ).collect(Collectors.toList());
+        deviceDetailResponse.setEntities(deviceEntityDataList);
+        return deviceDetailResponse;
     }
 }

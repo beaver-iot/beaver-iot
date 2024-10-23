@@ -88,8 +88,8 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
 
         // set device data
         devicePO.setName(device.getName());
-        devicePO.setKey(device.getKey());
         devicePO.setIdentifier(device.getIdentifier());
+        devicePO.setKey(device.getKey());
         try {
             devicePO.setAdditionalData(new ObjectMapper().writeValueAsString(device.getAdditional()));
         } catch (JsonProcessingException e) {
