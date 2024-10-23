@@ -3,6 +3,7 @@ package com.milesight.iab.entity.controller;
 import com.milesight.iab.base.response.ResponseBody;
 import com.milesight.iab.base.response.ResponseBuilder;
 import com.milesight.iab.entity.model.request.EntityAggregateQuery;
+import com.milesight.iab.entity.model.request.EntityFormRequest;
 import com.milesight.iab.entity.model.request.EntityHistoryQuery;
 import com.milesight.iab.entity.model.request.EntityQuery;
 import com.milesight.iab.entity.model.request.ServiceCallRequest;
@@ -21,6 +22,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 /**
  * @author loong
@@ -61,6 +64,12 @@ public class EntityController {
     public ResponseBody<EntityMetaResponse> getEntityMeta(@PathVariable("entityId") Long entityId) {
         EntityMetaResponse entityMetaResponse = entityService.getEntityMeta(entityId);
         return ResponseBuilder.success(entityMetaResponse);
+    }
+
+    @PostMapping("/form")
+    public ResponseBody<Map<String, Object>> getEntityForm(@RequestBody EntityFormRequest entityFormRequest) {
+        Map<String, Object> entityFormResponse = entityService.getEntityForm(entityFormRequest);
+        return ResponseBuilder.success(entityFormResponse);
     }
 
     @PostMapping("/property/update")

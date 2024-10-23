@@ -43,6 +43,7 @@ public class UserService {
         userPO.setPassword(new BCryptPasswordEncoder().encode(password));
         userPO.setPreference(null);
         userPO.setCreatedAt(System.currentTimeMillis());
+        userPO.setUpdatedAt(System.currentTimeMillis());
         userRepository.save(userPO);
     }
 

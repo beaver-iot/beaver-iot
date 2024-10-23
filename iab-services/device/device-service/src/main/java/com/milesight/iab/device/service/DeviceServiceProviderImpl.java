@@ -1,12 +1,8 @@
 package com.milesight.iab.device.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.milesight.iab.base.utils.snowflake.SnowflakeUtil;
 import com.milesight.iab.context.api.DeviceServiceProvider;
 import com.milesight.iab.context.api.EntityServiceProvider;
-import com.milesight.iab.context.api.IntegrationServiceProvider;
-import com.milesight.iab.context.integration.builder.DeviceBuilder;
 import com.milesight.iab.context.integration.model.Device;
 import com.milesight.iab.context.integration.model.event.DeviceEvent;
 import com.milesight.iab.device.po.DevicePO;
@@ -16,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,24 +29,6 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
     @Autowired
     EventBus eventBus;
 
-    private boolean shouldPOUpdate(DevicePO devicePO, Device device) {
-        boolean additionalDataNotChanged = false;
-        try {
-            additionalDataNotChanged = new ObjectMapper()
-                    .writeValueAsString(device.getAdditional())
-                    .equals(devicePO.getAdditionalData());
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-
-        return !(
-                devicePO.getIdentifier().equals(device.getIdentifier())
-                && devicePO.getName().equals(device.getName())
-                && devicePO.getKey().equals(device.getKey())
-                && additionalDataNotChanged
-                );
-    }
-
     @Override
     public void save(Device device) {
         DevicePO devicePO;
@@ -68,8 +45,6 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
                 devicePO = new DevicePO();
                 devicePO.setId(device.getId());
                 shouldCreate = true;
-            } else {
-                shouldUpdate = shouldPOUpdate(devicePO, device);
             }
         } else {
             devicePO = deviceRepository
@@ -81,28 +56,22 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
                 devicePO = new DevicePO();
                 devicePO.setId(SnowflakeUtil.nextId());
                 shouldCreate = true;
-            } else {
-                shouldUpdate = shouldPOUpdate(devicePO, device);
             }
         }
 
         // set device data
         devicePO.setName(device.getName());
-        devicePO.setIdentifier(device.getIdentifier());
-        devicePO.setKey(device.getKey());
-        try {
-            devicePO.setAdditionalData(new ObjectMapper().writeValueAsString(device.getAdditional()));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+        devicePO.setAdditionalData(device.getAdditional());
 
         // create or update
         if (shouldCreate) {
             // integration would not be updated
             devicePO.setIntegration(device.getIntegrationId());
+            devicePO.setIdentifier(device.getIdentifier());
+            devicePO.setKey(device.getKey());
             devicePO = deviceRepository.save(devicePO);
             eventBus.publish(DeviceEvent.of(DeviceEvent.EventType.CREATED, device));
-        } else if (shouldUpdate) {
+        } else {
             devicePO = deviceRepository.save(devicePO);
             eventBus.publish(DeviceEvent.of(DeviceEvent.EventType.UPDATED, device));
         }
@@ -117,7 +86,7 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
         Device device = findById(id);
         Assert.notNull(device, "Delete failed. Cannot find device " + id.toString());
 
-        // TODO: entityServiceProvider.deleteByDeviceId(id);
+        entityServiceProvider.deleteByTargetId(id.toString());
 
         deviceRepository.deleteById(id);
 
@@ -129,6 +98,16 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
         return deviceRepository
                 .findOne(f -> f
                         .eq(DevicePO.Fields.id, id)
+                )
+                .map(deviceServiceHelper::convertPO)
+                .orElse(null);
+    }
+
+    @Override
+    public Device findByKey(String deviceKey) {
+        return deviceRepository
+                .findOne(f -> f
+                        .eq(DevicePO.Fields.key, deviceKey)
                 )
                 .map(deviceServiceHelper::convertPO)
                 .orElse(null);

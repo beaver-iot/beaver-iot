@@ -37,7 +37,7 @@ public class DashboardNotifyService {
                 return;
             }
             String userId = exchangePayload.getContext(SecurityUserContext.USER_ID).toString();
-            WebSocketEvent webSocketEvent = WebSocketEvent.of(WebSocketEvent.EventType.EXCHANGE, exchangePayload.getAllPayloads());
+            WebSocketEvent webSocketEvent = WebSocketEvent.of(WebSocketEvent.EventType.EXCHANGE, exchangePayload);
             WebSocketContext.sendMessage(userId, objectMapper.writeValueAsString(webSocketEvent));
         } catch (Exception e) {
             log.error("onDashboardNotify error:{}", e.getMessage(), e);

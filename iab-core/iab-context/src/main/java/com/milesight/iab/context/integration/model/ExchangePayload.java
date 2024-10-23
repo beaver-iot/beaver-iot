@@ -1,12 +1,9 @@
 package com.milesight.iab.context.integration.model;
 
 
+import com.milesight.iab.context.integration.enums.EntityType;
 import com.milesight.iab.eventbus.api.IdentityKey;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -99,6 +96,16 @@ public class ExchangePayload extends HashMap<String,Object> implements ExchangeP
                 .filter(entry -> CollectionUtils.contains(keys.iterator(), entry.getKey()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         return new ExchangePayload(filteredMap);
+    }
+
+    @NonNull
+    public List<Entity> getEntities() {
+        return new ArrayList<>();
+    }
+
+    @NonNull
+    public ExchangePayload getPayloadsByEntityType(EntityType entityType) {
+        return null;
     }
 
 }
