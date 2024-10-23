@@ -50,7 +50,7 @@ public class UserService {
         SecurityUserContext.SecurityUser securityUser = SecurityUserContext.getSecurityUser();
         UserInfoResponse userInfoResponse = new UserInfoResponse();
         if (securityUser != null) {
-            userInfoResponse.setUserId(securityUser.getPayload().get("userId").toString());
+            userInfoResponse.setUserId(securityUser.getPayload().get(SecurityUserContext.USER_ID).toString());
             userInfoResponse.setNickname(securityUser.getPayload().get("nickname").toString());
             userInfoResponse.setEmail(securityUser.getPayload().get("email").toString());
         }

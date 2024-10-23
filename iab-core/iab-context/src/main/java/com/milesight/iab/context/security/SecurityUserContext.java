@@ -10,6 +10,8 @@ import java.util.Map;
  */
 public class SecurityUserContext {
 
+    public static final String USER_ID = "userId";
+
     private static final ThreadLocal<SecurityUser> securityUserThreadLocal = new ThreadLocal<>();
 
     public static SecurityUser getSecurityUser() {
@@ -27,9 +29,16 @@ public class SecurityUserContext {
     @Builder
     @Getter
     public static class SecurityUser {
-        private String accessToken;
         private Map<String, Object> header;
         private Map<String, Object> payload;
+    }
+
+    public static String getUserId() {
+        SecurityUser securityUser = getSecurityUser();
+        if (securityUser == null) {
+            return null;
+        }
+        return getSecurityUser().getPayload().get(USER_ID).toString();
     }
 
 }
