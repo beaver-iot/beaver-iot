@@ -21,6 +21,14 @@ public class ExchangeEvent implements Event<ExchangePayload> {
     }
 
     @Override
+    public String toString() {
+        return "ExchangeEvent{" +
+                "exchangePayload=" + exchangePayload +
+                ", eventType='" + eventType + '\'' +
+                '}';
+    }
+
+    @Override
     public String getEventType() {
         return eventType;
     }

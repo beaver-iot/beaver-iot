@@ -1,9 +1,11 @@
 package com.milesight.iab.eventbus;
 
+import com.milesight.iab.base.constants.StringConstant;
 import com.milesight.iab.eventbus.support.KeyPatternMatcher;
 import lombok.Data;
 import org.springframework.util.StringUtils;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -21,15 +23,15 @@ public class ListenerCacheKey {
         this.eventType = eventType;
     }
 
-    public boolean expressionMatch(String requestPayloadKey, String requestEventType) {
-        return matchEventType(eventType, requestEventType) && KeyPatternMatcher.match(payloadKey.trim(), requestPayloadKey.trim());
+    public String[] matchMultiKeys(String payloadMultiKeys) {
+        return Arrays.stream(payloadMultiKeys.split(StringConstant.COMMA)).filter(key->KeyPatternMatcher.match(payloadKey.trim(), key.trim())).toArray(String[]::new);
     }
 
-    private boolean matchEventType(String eventTypeConfig, String requestEventType) {
-        if (!StringUtils.hasText(eventTypeConfig)) {
+    public boolean matchEventType(String payloadEventType) {
+        if (!StringUtils.hasText(eventType)) {
             return true;
         }
-        return eventTypeConfig.equals(requestEventType);
+        return eventType.equals(payloadEventType);
     }
 
     @Override

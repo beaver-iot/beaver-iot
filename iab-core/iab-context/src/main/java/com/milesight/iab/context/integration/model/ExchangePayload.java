@@ -2,9 +2,15 @@ package com.milesight.iab.context.integration.model;
 
 
 import com.milesight.iab.eventbus.api.IdentityKey;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author leon
@@ -25,12 +31,7 @@ public class ExchangePayload extends HashMap<String,Object> implements ExchangeP
 
     @Override
     public String getKey() {
-        if(this.size() == 1){
-            return this.keySet().iterator().next();
-        }else {
-            //todo： group key
-            return null;
-        }
+        return keySet().stream().collect(Collectors.joining(","));
     }
 
     public Map<String, Object> getContext() {
@@ -86,6 +87,18 @@ public class ExchangePayload extends HashMap<String,Object> implements ExchangeP
 
     public static <T extends ExchangePayloadAccessor> ExchangePayload createFrom(T payload){
         return new ExchangePayload(payload.getAllPayloads());
+    }
+
+    public static <T extends ExchangePayloadAccessor> ExchangePayload createFrom(T payload, List<String> keys){
+        if(ObjectUtils.isEmpty(payload) || ObjectUtils.isEmpty(keys)){
+            return new ExchangePayload(payload.getAllPayloads());
+        }
+
+        Map<String, Object> filteredMap = payload.getAllPayloads().entrySet()
+                .stream()
+                .filter(entry -> CollectionUtils.contains(keys.iterator(), entry.getKey()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        return new ExchangePayload(filteredMap);
     }
 
 }

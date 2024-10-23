@@ -10,6 +10,6 @@ import java.lang.reflect.InvocationTargetException;
  */
 public interface EventInvoker<T extends Event<? extends IdentityKey>> {
 
-    Object invoke(T event) throws InvocationTargetException, IllegalAccessException ;
+    Object invoke(T event, String[] matchMultiKeys) throws InvocationTargetException, IllegalAccessException ;
 
 }

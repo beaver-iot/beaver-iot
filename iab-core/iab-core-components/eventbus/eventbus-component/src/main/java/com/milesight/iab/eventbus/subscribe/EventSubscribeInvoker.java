@@ -6,6 +6,7 @@ import com.milesight.iab.eventbus.ListenerCacheKey;
 import com.milesight.iab.eventbus.ListenerParameterResolver;
 import com.milesight.iab.eventbus.api.Event;
 import com.milesight.iab.eventbus.api.IdentityKey;
+import jakarta.annotation.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -14,22 +15,22 @@ import java.lang.reflect.Method;
  * @author leon
  */
 public class EventSubscribeInvoker<T extends Event<? extends IdentityKey>> implements EventInvoker<T> {
-    private Object bean;
-    private Method executeMethod;
-    private ListenerCacheKey listenerCacheKey;
-    private ListenerParameterResolver parameterResolver;
+    private final Class<?> parameterTypes;
+    private final Object bean;
+    private final Method executeMethod;
+    private final ListenerParameterResolver parameterResolver;
 
-    public EventSubscribeInvoker(Object bean, Method executeMethod,ListenerCacheKey listenerCacheKey,ListenerParameterResolver parameterResolver) {
+    public EventSubscribeInvoker(Object bean, Method executeMethod,  @Nullable Class<?> parameterTypes, ListenerParameterResolver parameterResolver) {
         this.bean = bean;
         this.executeMethod = executeMethod;
-        this.listenerCacheKey = listenerCacheKey;
+        this.parameterTypes = parameterTypes;
         this.parameterResolver = parameterResolver;
     }
 
     @Override
-    public Object invoke(T event) throws InvocationTargetException, IllegalAccessException {
+    public Object invoke(T event, String[] matchMultiKeys) throws InvocationTargetException, IllegalAccessException {
 
-        T resolveEvent = parameterResolver.resolveEvent(event);
+        T resolveEvent = parameterResolver.resolveEvent(parameterTypes, event, matchMultiKeys);
 
         return executeMethod.invoke(bean, resolveEvent);
     }
@@ -38,7 +39,6 @@ public class EventSubscribeInvoker<T extends Event<? extends IdentityKey>> imple
     public String toString() {
         return "EventSubscribeInvoker{" +
                 "executeMethod=" + executeMethod.toGenericString() +
-                ", listenerCacheKey=" + listenerCacheKey +
                 '}';
     };
 }

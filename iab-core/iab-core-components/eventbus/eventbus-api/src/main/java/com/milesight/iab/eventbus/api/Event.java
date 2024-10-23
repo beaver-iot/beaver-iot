@@ -16,4 +16,5 @@ public interface Event<T extends IdentityKey> {
     void setEventType(String eventType);
 
     T getPayload();
+
 }

@@ -23,8 +23,9 @@ public class DemoIntegrationEntities extends ExchangePayload {
     @Entity(type = EntityType.SERVICE, syncCall = false)
     private DemoGroupSettingEntities connect;
 
+    @Data
     @Entities
-    public class DemoGroupSettingEntities {
+    public static class DemoGroupSettingEntities {
         @Entity
         private String accessKey;
         @Entity

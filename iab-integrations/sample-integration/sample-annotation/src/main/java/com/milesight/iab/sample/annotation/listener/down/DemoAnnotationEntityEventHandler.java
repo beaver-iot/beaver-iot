@@ -25,17 +25,17 @@ public class DemoAnnotationEntityEventHandler {
     }
 
 
-    @EventHandler(payloadKey="msc-integration.device.demoSN.changeStatus", eventType= ExchangeEvent.EventType.UP)
+    @EventHandler(payloadKey="msc-integration.device.demoSN.changeStatus", eventType= ExchangeEvent.EventType.DOWN)
     public DemoDeviceEntities handleDeviceService(Event<DemoIntegrationEntities> event) {
         DemoIntegrationEntities payload = event.getPayload();
         DemoIntegrationEntities.DemoGroupSettingEntities connect = payload.getConnect();
-        log.debug("DemoAnnotationEntityEventHandler handleDeviceService:{}",event);
+        log.debug("DemoAnnotationEntityEventHandler handleDeviceService:{}",event.getPayload());
         return null;
     }
 
     @EventHandler(payloadKey="${integration.name}.device.demoSN.demo.groupProperties", eventType= ExchangeEvent.EventType.UP)
     public DemoDeviceEntities handleDeviceServices(Event<ExchangePayload> event) {
-        log.debug("DemoAnnotationEntityEventHandler handleDeviceServices:{}",event);
+        log.debug("DemoAnnotationEntityEventHandler handleDeviceServices:{}",event.getPayload());
         return null;
     }
 

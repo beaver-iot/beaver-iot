@@ -17,7 +17,7 @@ public class DashboardWebSocketEventSubscribe {
     //支持表达式
     @EventSubscribe(payloadKeyExpression ="*.device.*")
     public void subscribeProperty(Event<ExchangePayload> event) {
-        log.info("DashboardWebSocketEventSubscribe subscribeProperty:{}", event.getPayload().getAllPayloads());
+        log.info("DashboardWebSocketEventSubscribe subscribeProperty:{}", event);
     }
 
 

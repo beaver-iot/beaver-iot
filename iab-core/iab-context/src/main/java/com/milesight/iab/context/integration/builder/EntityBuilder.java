@@ -41,8 +41,8 @@ public class EntityBuilder extends BaseEntityBuilder<EntityBuilder>{
         this.integration = integration;
     }
 
-    public EntityBuilder(String integrationName) {
-        this.integration = Integration.of(integrationName, null);
+    public EntityBuilder(String integrationId) {
+        this.integration = Integration.of(integrationId, null);
     }
 
     public EntityBuilder(Device device) {

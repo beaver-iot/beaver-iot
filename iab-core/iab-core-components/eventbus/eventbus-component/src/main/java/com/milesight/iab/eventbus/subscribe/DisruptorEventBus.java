@@ -2,7 +2,6 @@ package com.milesight.iab.eventbus.subscribe;
 
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.dsl.Disruptor;
-import com.lmax.disruptor.util.DaemonThreadFactory;
 import com.milesight.iab.eventbus.EventBus;
 import com.milesight.iab.eventbus.ListenerCacheKey;
 import com.milesight.iab.eventbus.ListenerParameterResolver;
@@ -16,6 +15,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -33,11 +33,8 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
 
     private final Map<Class<T>, Map<ListenerCacheKey,List<EventSubscribeInvoker>>> subscriberCache = new ConcurrentHashMap<>();
     private final Map<Class<?>, Disruptor<Event<?>>> disruptorCache = new ConcurrentHashMap<>();
-
     private DisruptorOptions disruptorOptions;
-
     private EventHandlerDispatcher eventHandlerDispatcher;
-
     private ListenerParameterResolver parameterResolver;
     private ApplicationContext applicationContext;
 
@@ -109,7 +106,9 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
 
     public void registerSubscriber(EventSubscribe eventSubscribe, Object bean, Method executeMethod){
 
-        Class<T> eventClass = parameterResolver.resolveEventType(executeMethod);
+        Class<?> parameterTypes = parameterResolver.resolveParameterTypes(executeMethod);
+
+        Class<T> eventClass = parameterResolver.resolveActualEventType(executeMethod);
 
         ListenerCacheKey listenerCacheKey = new ListenerCacheKey(eventSubscribe.payloadKeyExpression(), eventSubscribe.eventType());
 
@@ -120,30 +119,33 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
             return invokerMap;
         });
 
-        subscriberCache.get(eventClass).computeIfAbsent(listenerCacheKey, k -> new ArrayList<>()).add(new EventSubscribeInvoker(bean, executeMethod, listenerCacheKey,parameterResolver));
+        subscriberCache.get(eventClass).computeIfAbsent(listenerCacheKey, k -> new ArrayList<>()).add(new EventSubscribeInvoker(bean, executeMethod, parameterTypes, parameterResolver));
     }
 
     public void fireSubscriber(){
         subscriberCache.forEach((k,v) -> {
-            List<Consumer<T>> allConsumers = v.entrySet().stream().map(entry -> {
-                ListenerCacheKey cacheKey = entry.getKey();
-                List<EventSubscribeInvoker> invokers = entry.getValue();
-                return (Consumer<T>) o -> {
-                    if(!cacheKey.expressionMatch(o.getPayloadKey(),o.getEventType())){
-                       return;
-                    }
-                    invokers.forEach(invoker -> {
-                        try {
-                            invoker.invoke(o);
-                        } catch (Exception e) {
-                            log.error("EventSubscribe method invoke error, method: {}" ,invoker, e);
-                        }
-                    });
-                };
-            }).toList();
-
+            List<Consumer<T>> allConsumers = v.entrySet().stream().map(entry -> createConsumer(entry.getKey(), entry.getValue())).toList();
             subscribe(k, allConsumers.toArray(new Consumer[0]));
         });
+    }
+
+    private Consumer<T> createConsumer(ListenerCacheKey cacheKey, List<EventSubscribeInvoker> invokers) {
+        return event -> {
+            if(!cacheKey.matchEventType(event.getEventType())){
+                return;
+            }
+            String[] matchMultiKeys = cacheKey.matchMultiKeys(event.getPayloadKey());
+            if(ObjectUtils.isEmpty(matchMultiKeys)){
+                return;
+            }
+            invokers.forEach(invoker -> {
+                try {
+                    invoker.invoke(event, matchMultiKeys);
+                } catch (Exception e) {
+                    log.error("EventSubscribe method invoke error, method: {}" ,invoker, e);
+                }
+            });
+        };
     }
 
     @Override

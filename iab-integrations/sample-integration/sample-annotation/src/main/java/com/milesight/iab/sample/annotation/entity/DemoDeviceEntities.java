@@ -15,8 +15,8 @@ import lombok.Data;
  * @author leon
  */
 @Data
-@DeviceTemplateEntities(name="demoDevice")
-//@DeviceEntities(name="demoDevice", additional = {@KeyValue(key = "sn", value = "demoSN")}, identifier = "demoSN")
+//@DeviceTemplateEntities(name="demoDevice")
+@DeviceEntities(name="demoDevice", additional = {@KeyValue(key = "sn", value = "demoSN")}, identifier = "demoSN")
 public class DemoDeviceEntities extends ExchangePayload {
 //    msc-integration.device.demoSN.temperature
 //    msc-integration.device.*.temperature
