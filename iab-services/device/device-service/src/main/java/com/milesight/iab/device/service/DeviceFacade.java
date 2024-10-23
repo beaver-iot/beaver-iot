@@ -18,7 +18,11 @@ public class DeviceFacade implements IDeviceFacade {
     DeviceRepository deviceRepository;
 
     private DeviceNameDTO convertDevicePO(DevicePO devicePO) {
-        return DeviceNameDTO.builder().id(devicePO.getId()).name(devicePO.getName()).build();
+        return DeviceNameDTO.builder()
+                .id(devicePO.getId())
+                .name(devicePO.getName())
+                .integrationId(devicePO.getIntegration())
+                .build();
     }
 
     @Override
