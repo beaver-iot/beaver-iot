@@ -1,4 +1,4 @@
-package com.milesight.iab.data.jpa.support;
+package com.milesight.iab.data.support;
 
 import com.milesight.iab.base.utils.JsonUtils;
 import jakarta.persistence.AttributeConverter;
