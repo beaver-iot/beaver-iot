@@ -1,5 +1,6 @@
 package com.milesight.iab.context.integration.entity.annotation;
 
+import com.milesight.iab.context.integration.builder.AttributeBuilder;
 import com.milesight.iab.context.integration.builder.DeviceBuilder;
 import com.milesight.iab.context.integration.builder.EntityBuilder;
 import com.milesight.iab.context.integration.entity.EntityLoader;
@@ -40,9 +41,7 @@ public class AnnotationEntityLoader implements EntityLoader {
             if (clazz.isAnnotationPresent(DeviceEntities.class)) {
                 // parse DeviceEntities annotation
                 DeviceEntities deviceEntitiesAnno = clazz.getAnnotation(DeviceEntities.class);
-                DeviceBuilder deviceBuilder = new DeviceBuilder().name(deviceEntitiesAnno.name())
-                        .identifier(deviceEntitiesAnno.identifier())
-                        .additional(resolveKeyValue(deviceEntitiesAnno.additional()));
+                DeviceBuilder deviceBuilder = new DeviceBuilder().name(deviceEntitiesAnno.name()).identifier(deviceEntitiesAnno.identifier()).additional(resolveKeyValue(deviceEntitiesAnno.additional()));
                 List<com.milesight.iab.context.integration.model.Entity> entities = parserEntities(clazz, propertyResolver);
                 deviceBuilder.entities(entities);
                 integration.addInitialDevice(deviceBuilder.build());
@@ -63,11 +62,7 @@ public class AnnotationEntityLoader implements EntityLoader {
                 EntityValueType valueType = EntityValueType.of(field.getType());
                 String name = resolvePlaceholders(entityAnnotation.name(), field, propertyResolver);
                 String identifier = resolvePlaceholders(entityAnnotation.identifier(), field, propertyResolver);
-                EntityBuilder entityBuilder = new EntityBuilder()
-                        .identifier(resolvePlaceholders(entityAnnotation.identifier(), field, propertyResolver))
-                        .type(entityAnnotation.type())
-                        .attributes(resolveKeyValue(entityAnnotation.attributes()))
-                        .valueType(valueType);
+                EntityBuilder entityBuilder = new EntityBuilder().identifier(resolvePlaceholders(entityAnnotation.identifier(), field, propertyResolver)).type(entityAnnotation.type()).attributes(resolveAttributes(entityAnnotation.attributes())).valueType(valueType);
                 switch (entityAnnotation.type()) {
                     case EVENT:
                         entityBuilder.event(name);
@@ -95,6 +90,15 @@ public class AnnotationEntityLoader implements EntityLoader {
             }
         });
         return entities;
+    }
+
+    private Map<String, Object> resolveAttributes(Attribute[] attributes) {
+        if (ObjectUtils.isEmpty(attributes)) {
+            return Map.of();
+        }
+        Attribute attribute = attributes[0];
+        Class<? extends Enum> enumClass = ObjectUtils.isEmpty(attribute.enumClass()) ? null : attribute.enumClass()[0];
+        return new AttributeBuilder().unit(attribute.unit()).max(attribute.max()).min(attribute.min()).fractionDigits(attribute.fractionDigits()).maxLength(attribute.maxLength()).minLength(attribute.minLength()).format(attribute.format()).enums(enumClass).build();
     }
 
     private Map<String, Object> resolveKeyValue(KeyValue[] keyValues) {

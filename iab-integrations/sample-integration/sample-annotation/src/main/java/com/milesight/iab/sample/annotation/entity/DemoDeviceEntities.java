@@ -1,12 +1,9 @@
 package com.milesight.iab.sample.annotation.entity;
 
 
-import com.milesight.iab.context.integration.entity.annotation.DeviceTemplateEntities;
+import com.milesight.iab.context.integration.entity.annotation.*;
 import com.milesight.iab.context.integration.model.ExchangePayload;
 import com.milesight.iab.eventbus.api.IdentityKey;
-import com.milesight.iab.context.integration.entity.annotation.DeviceEntities;
-import com.milesight.iab.context.integration.entity.annotation.Entity;
-import com.milesight.iab.context.integration.entity.annotation.KeyValue;
 import com.milesight.iab.context.integration.enums.AccessMod;
 import com.milesight.iab.context.integration.enums.EntityType;
 import com.milesight.iab.context.integration.model.ExchangePayloadAccessor;
@@ -34,7 +31,7 @@ public class DemoDeviceEntities extends ExchangePayload {
     private String humidity;
 
     //枚举类型
-    @Entity(attributes = {@KeyValue(key = "enums", value = "{1: 'ON', 2: 'OFF'}")})
+    @Entity(attributes = {@Attribute(unit = "enums")})
     private Integer status;
 
     //服务类型

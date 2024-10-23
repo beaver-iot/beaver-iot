@@ -29,6 +29,12 @@
             <artifactId>data-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.milesight.iab</groupId>
+            <artifactId>iab-base</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

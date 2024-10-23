@@ -24,6 +24,7 @@ public class DemoAnnotationEntityEventHandler {
         return new DemoDeviceEntities();
     }
 
+
     @EventHandler(payloadKey="msc-integration.device.demoSN.changeStatus", eventType= ExchangeEvent.EventType.UP)
     public DemoDeviceEntities handleDeviceService(Event<DemoIntegrationEntities> event) {
         DemoIntegrationEntities payload = event.getPayload();

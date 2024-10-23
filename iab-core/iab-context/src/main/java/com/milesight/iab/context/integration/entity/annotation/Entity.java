@@ -25,6 +25,6 @@ public @interface Entity {
 
     EntityType type() default EntityType.PROPERTY;
 
-    KeyValue[] attributes() default {};
+    Attribute[] attributes() default {};
 
 }

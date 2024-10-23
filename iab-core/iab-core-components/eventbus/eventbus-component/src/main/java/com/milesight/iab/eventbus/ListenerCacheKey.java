@@ -1,5 +1,6 @@
 package com.milesight.iab.eventbus;
 
+import com.milesight.iab.eventbus.support.KeyPatternMatcher;
 import lombok.Data;
 import org.springframework.util.StringUtils;
 
@@ -21,47 +22,7 @@ public class ListenerCacheKey {
     }
 
     public boolean expressionMatch(String requestPayloadKey, String requestEventType) {
-        return matchEventType(eventType, requestEventType) && matchPayloadKeyExpression(payloadKey.trim(), requestPayloadKey.trim());
-    }
-
-    private boolean matchPayloadKeyExpression(String payloadKeyPattern, String payloadKey) {
-        if(payloadKeyPattern.equals(payloadKey)){
-            return true;
-        }
-        return matchPattern(payloadKeyPattern, payloadKey);
-    }
-
-    private boolean matchPattern(String pattern, String str) {
-        return matchPattern(pattern, str, 0, 0);
-    }
-
-    private boolean matchPattern(String pattern, String str, int pIndex, int sIndex) {
-        // If the pattern has been processed, check if the string has also been processed
-        if (pIndex == pattern.length()) {
-            return sIndex == str.length();
-        }
-        // If the string is processed but the pattern is not, check to see if only * is left in the pattern
-        if (sIndex == str.length()) {
-            return allStars(pattern, pIndex);
-        }
-
-        if (pattern.charAt(pIndex) == '*' || pattern.charAt(pIndex) == str.charAt(sIndex)) {
-            if (pattern.charAt(pIndex) == '*') {
-                return matchPattern(pattern, str, pIndex + 1, sIndex) || matchPattern(pattern, str, pIndex, sIndex + 1);
-            } else {
-                return matchPattern(pattern, str, pIndex + 1, sIndex + 1);
-            }
-        }
-        return false;
-    }
-
-    private boolean allStars(String pattern, int pIndex) {
-        for (int i = pIndex; i < pattern.length(); i++) {
-            if (pattern.charAt(i) != '*') {
-                return false;
-            }
-        }
-        return true;
+        return matchEventType(eventType, requestEventType) && KeyPatternMatcher.match(payloadKey.trim(), requestPayloadKey.trim());
     }
 
     private boolean matchEventType(String eventTypeConfig, String requestEventType) {

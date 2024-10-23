@@ -49,7 +49,6 @@ public class EventBusAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean
     public Executor eventBusTaskExecutor(DisruptorOptions disruptorOptions) {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(disruptorOptions.getCorePoolSize());

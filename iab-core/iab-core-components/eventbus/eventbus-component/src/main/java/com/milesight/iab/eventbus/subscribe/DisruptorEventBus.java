@@ -12,6 +12,9 @@ import com.milesight.iab.eventbus.api.IdentityKey;
 import com.milesight.iab.eventbus.configuration.DisruptorOptions;
 import com.milesight.iab.eventbus.handler.EventHandlerDispatcher;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.Assert;
 
 import java.lang.reflect.Method;
@@ -26,7 +29,7 @@ import java.util.function.Consumer;
  * @author leon
  */
 @Slf4j
-public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implements EventBus<T> {
+public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implements EventBus<T>, ApplicationContextAware {
 
     private final Map<Class<T>, Map<ListenerCacheKey,List<EventSubscribeInvoker>>> subscriberCache = new ConcurrentHashMap<>();
     private final Map<Class<?>, Disruptor<Event<?>>> disruptorCache = new ConcurrentHashMap<>();
@@ -36,6 +39,7 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
     private EventHandlerDispatcher eventHandlerDispatcher;
 
     private ListenerParameterResolver parameterResolver;
+    private ApplicationContext applicationContext;
 
     public DisruptorEventBus(DisruptorOptions disruptorOptions,EventHandlerDispatcher eventHandlerDispatcher, ListenerParameterResolver parameterResolver) {
         this.disruptorOptions  = disruptorOptions;
@@ -90,7 +94,7 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
     @Override
     public void subscribe(Class<T> target, Consumer<T>... listener) {
 
-        ExecutorService executor = new ThreadPoolExecutor(0, disruptorOptions.getMaxPoolSize(), 60L, TimeUnit.SECONDS, new SynchronousQueue<>(), DaemonThreadFactory.INSTANCE);
+        Executor executor = (Executor) applicationContext.getBean(disruptorOptions.getEventBusTaskExecutor());
 
         subscribe(target, executor, listener);
     }
@@ -142,4 +146,8 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
         });
     }
 
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
 }
