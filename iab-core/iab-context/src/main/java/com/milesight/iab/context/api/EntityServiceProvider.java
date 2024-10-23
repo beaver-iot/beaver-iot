@@ -22,9 +22,9 @@ public interface EntityServiceProvider {
 
     long countIntegrationEntitiesByIntegration(String integrationId);
 
-    void saveExchange(ExchangePayload exchangePayloadList);
+    void saveExchange(ExchangePayload exchangePayload);
 
-    void saveExchangeHistory(ExchangePayload exchangePayloadList);
+    void saveExchangeHistory(ExchangePayload exchangePayload);
 
     Object findExchangeValueByKey(String key);
 

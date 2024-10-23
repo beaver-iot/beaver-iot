@@ -269,8 +269,8 @@ public class EntityService implements EntityServiceProvider {
     }
 
     @Override
-    public void saveExchange(ExchangePayload exchangePayloadList) {
-        Map<String, Object> payloads = exchangePayloadList.getAllPayloads();
+    public void saveExchange(ExchangePayload exchangePayload) {
+        Map<String, Object> payloads = exchangePayload.getAllPayloads();
         if (payloads == null || payloads.isEmpty()) {
             return;
         }
@@ -317,12 +317,12 @@ public class EntityService implements EntityServiceProvider {
         });
         entityLatestRepository.saveAll(entityLatestPOList);
 
-        eventBus.publish(ExchangeEvent.of(ExchangeEvent.EventType.DOWN, exchangePayloadList));
+        eventBus.publish(ExchangeEvent.of(ExchangeEvent.EventType.DOWN, exchangePayload));
     }
 
     @Override
-    public void saveExchangeHistory(ExchangePayload exchangePayloadList) {
-        Map<String, Object> payloads = exchangePayloadList.getAllPayloads();
+    public void saveExchangeHistory(ExchangePayload exchangePayload) {
+        Map<String, Object> payloads = exchangePayload.getAllPayloads();
         if (payloads == null || payloads.isEmpty()) {
             return;
         }
@@ -354,7 +354,7 @@ public class EntityService implements EntityServiceProvider {
             } else {
                 throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
             }
-            entityHistoryPO.setTimestamp(exchangePayloadList.getTimestamp());
+            entityHistoryPO.setTimestamp(exchangePayload.getTimestamp());
             entityHistoryPO.setCreatedAt(System.currentTimeMillis());
             String createdBy = SecurityUserContext.getUserId();
             entityHistoryPO.setCreatedBy(createdBy);
@@ -362,7 +362,7 @@ public class EntityService implements EntityServiceProvider {
         });
         entityHistoryRepository.saveAll(entityHistoryPOList);
 
-        eventBus.publish(ExchangeEvent.of(ExchangeEvent.EventType.DOWN, exchangePayloadList));
+        eventBus.publish(ExchangeEvent.of(ExchangeEvent.EventType.DOWN, exchangePayload));
     }
 
     @Override
