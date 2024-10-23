@@ -9,7 +9,15 @@ import java.io.Serializable;
  * @author leon
  */
 @Getter
-public record WebSocketEvent(String eventType, Object payload) implements Serializable {
+public class WebSocketEvent implements Serializable {
+
+    private final Object payload;
+    private final String eventType;
+
+    public WebSocketEvent(String eventType, Object payload) {
+        this.eventType = eventType;
+        this.payload = payload;
+    }
 
     public static WebSocketEvent of(String eventType, Object payload) {
         return new WebSocketEvent(eventType, payload);
