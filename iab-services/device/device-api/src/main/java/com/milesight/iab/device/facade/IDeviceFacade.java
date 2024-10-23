@@ -10,4 +10,8 @@ public interface IDeviceFacade {
     List<DeviceNameDTO> getDeviceNameByIntegrations(List<String> integrationIds);
 
     List<DeviceNameDTO> getDeviceNameByIds(List<Long> deviceIds);
+
+    List<DeviceNameDTO> getDeviceNameByKey(List<String> deviceKeys);
+
+    DeviceNameDTO getDeviceNameByKey(String deviceKey);
 }
