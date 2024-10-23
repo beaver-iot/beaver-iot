@@ -22,6 +22,11 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.milesight.iab</groupId>
+            <artifactId>iab-context</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>
