@@ -51,6 +51,7 @@ public class DashboardService {
         dashboardPO.setId(SnowflakeUtil.nextId());
         dashboardPO.setName(name);
         dashboardPO.setCreatedAt(System.currentTimeMillis());
+        dashboardPO.setUpdatedAt(System.currentTimeMillis());
         dashboardRepository.save(dashboardPO);
     }
 
@@ -93,6 +94,7 @@ public class DashboardService {
         dashboardWidgetPO.setDashboardId(dashboardId);
         dashboardWidgetPO.setData(createWidgetRequest.getData());
         dashboardWidgetPO.setCreatedAt(System.currentTimeMillis());
+        dashboardWidgetPO.setUpdatedAt(System.currentTimeMillis());
         dashboardWidgetRepository.save(dashboardWidgetPO);
     }
 

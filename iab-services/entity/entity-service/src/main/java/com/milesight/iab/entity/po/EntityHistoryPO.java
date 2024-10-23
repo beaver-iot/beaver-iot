@@ -27,5 +27,7 @@ public class EntityHistoryPO {
     private Long timestamp;
     private Long createdAt;
     private String createdBy;
+    private Long updatedAt;
+    private String updatedBy;
 
 }

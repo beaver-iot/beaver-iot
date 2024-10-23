@@ -19,6 +19,7 @@ import com.milesight.iab.device.dto.DeviceNameDTO;
 import com.milesight.iab.device.facade.IDeviceFacade;
 import com.milesight.iab.entity.enums.AggregateType;
 import com.milesight.iab.entity.enums.AttachTargetType;
+import com.milesight.iab.entity.model.dto.EntityHistoryUnionQuery;
 import com.milesight.iab.entity.model.request.EntityAggregateQuery;
 import com.milesight.iab.entity.model.request.EntityHistoryQuery;
 import com.milesight.iab.entity.model.request.EntityQuery;
@@ -50,6 +51,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -106,6 +108,7 @@ public class EntityService implements EntityServiceProvider {
                 attachTargetId = entity.getIntegrationId();
             }
             Long entityId = entity.getId();
+            boolean isCreate = entityId == null;
             if (entityId == null) {
                 entityId = SnowflakeUtil.nextId();
             }
@@ -121,7 +124,10 @@ public class EntityService implements EntityServiceProvider {
             entityPO.setAttachTargetId(attachTargetId);
             entityPO.setValueAttribute(objectMapper.writeValueAsString(entity.getAttributes()));
             entityPO.setValueType(entity.getValueType());
-            entityPO.setCreatedAt(System.currentTimeMillis());
+            if (isCreate) {
+                entityPO.setCreatedAt(System.currentTimeMillis());
+            }
+            entityPO.setUpdatedAt(System.currentTimeMillis());
             return entityPO;
         } catch (Exception e) {
             log.error("save entity error:{}", e.getMessage(), e);
@@ -131,11 +137,16 @@ public class EntityService implements EntityServiceProvider {
 
     @Override
     public List<Entity> findByTargetId(String targetId) {
-        List<EntityPO> entityPOList = entityRepository.findAll(filter -> filter.eq(EntityPO.Fields.attachTargetId, targetId));
+        return findByTargetIds(Collections.singletonList(targetId));
+    }
+
+    @Override
+    public List<Entity> findByTargetIds(List<String> targetIds) {
+        List<EntityPO> entityPOList = entityRepository.findAll(filter -> filter.in(EntityPO.Fields.attachTargetId, targetIds));
         if (entityPOList == null || entityPOList.isEmpty()) {
             return new ArrayList<>();
         }
-        List<DeviceNameDTO> deviceNameDTOList = deviceFacade.getDeviceNameByIds(Collections.singletonList(Long.valueOf(targetId)));
+        List<DeviceNameDTO> deviceNameDTOList = deviceFacade.getDeviceNameByIds(targetIds.stream().map(Long::valueOf).collect(Collectors.toList()));
         Map<String, String> deviceKeyMap = new HashMap<>();
         Map<String, Integration> deviceIntegrationMap = new HashMap<>();
         if (deviceNameDTOList != null && !deviceNameDTOList.isEmpty()) {
@@ -244,9 +255,9 @@ public class EntityService implements EntityServiceProvider {
     }
 
     @Override
-    public long countAllEntitiesByIntegration(String integrationId) {
+    public long countAllEntitiesByIntegrationId(String integrationId) {
         long allEntityCount = 0L;
-        long integrationEntityCount = countIntegrationEntitiesByIntegration(integrationId);
+        long integrationEntityCount = countIntegrationEntitiesByIntegrationId(integrationId);
         allEntityCount += integrationEntityCount;
         List<Device> integrationDevices = deviceServiceProvider.findAll(integrationId);
         if (integrationDevices != null && !integrationDevices.isEmpty()) {
@@ -260,12 +271,27 @@ public class EntityService implements EntityServiceProvider {
     }
 
     @Override
-    public long countIntegrationEntitiesByIntegration(String integrationId) {
+    public Map<String, Long> countAllEntitiesByIntegrationIds(List<String> integrationIds) {
+        //TODO
+        return Collections.emptyMap();
+    }
+
+    @Override
+    public long countIntegrationEntitiesByIntegrationId(String integrationId) {
         List<EntityPO> integrationEntityPOList = entityRepository.findAll(filter -> filter.eq(EntityPO.Fields.attachTarget, AttachTargetType.INTEGRATION).eq(EntityPO.Fields.attachTargetId, integrationId));
         if (integrationEntityPOList == null || integrationEntityPOList.isEmpty()) {
             return 0L;
         }
         return integrationEntityPOList.size();
+    }
+
+    @Override
+    public Map<String, Long> countIntegrationEntitiesByIntegrationIds(List<String> integrationIds) {
+        List<EntityPO> integrationEntityPOList = entityRepository.findAll(filter -> filter.eq(EntityPO.Fields.attachTarget, AttachTargetType.INTEGRATION).in(EntityPO.Fields.attachTargetId, integrationIds));
+        if (integrationEntityPOList == null || integrationEntityPOList.isEmpty()){
+            return Collections.emptyMap();
+        }
+        return integrationEntityPOList.stream().collect(Collectors.groupingBy(EntityPO::getAttachTargetId, Collectors.counting()));
     }
 
     @Override
@@ -332,14 +358,35 @@ public class EntityService implements EntityServiceProvider {
             return;
         }
         Map<String, Long> entityIdMap = entityPOList.stream().collect(Collectors.toMap(EntityPO::getKey, EntityPO::getId));
+        List<EntityHistoryUnionQuery> entityHistoryUnionQueryList = payloads.keySet().stream().map(o -> {
+            Long entityId = entityIdMap.get(o);
+            if (entityId == null) {
+                return null;
+            }
+            EntityHistoryUnionQuery entityHistoryUnionQuery = new EntityHistoryUnionQuery();
+            entityHistoryUnionQuery.setEntityId(entityId);
+            entityHistoryUnionQuery.setTimestamp(exchangePayload.getTimestamp());
+            return entityHistoryUnionQuery;
+        }).filter(Objects::nonNull).toList();
+        List<EntityHistoryPO> existEntityHistoryPOList = entityHistoryRepository.findByUnionUnique(entityHistoryUnionQueryList);
+        Map<String, Long> existUnionIdMap = new HashMap<>();
+        if (existEntityHistoryPOList != null && !existEntityHistoryPOList.isEmpty()) {
+            existUnionIdMap.putAll(existEntityHistoryPOList.stream().collect(Collectors.toMap(entityHistoryPO -> entityHistoryPO.getEntityId() + ":" + entityHistoryPO.getTimestamp(), EntityHistoryPO::getId)));
+        }
         List<EntityHistoryPO> entityHistoryPOList = new ArrayList<>();
         payloads.forEach((entityKey, payload) -> {
             Long entityId = entityIdMap.get(entityKey);
             if (entityId == null) {
                 return;
             }
+            String unionId = entityId + ":" + exchangePayload.getTimestamp();
+            Long historyId = existUnionIdMap.get(unionId);
+            boolean isCreate = historyId == null;
+            if (historyId == null) {
+                historyId = SnowflakeUtil.nextId();
+            }
             EntityHistoryPO entityHistoryPO = new EntityHistoryPO();
-            entityHistoryPO.setId(SnowflakeUtil.nextId());
+            entityHistoryPO.setId(historyId);
             entityHistoryPO.setEntityId(entityId);
             if (payload instanceof Boolean) {
                 entityHistoryPO.setValueBoolean((Boolean) payload);
@@ -355,9 +402,13 @@ public class EntityService implements EntityServiceProvider {
                 throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
             }
             entityHistoryPO.setTimestamp(exchangePayload.getTimestamp());
-            entityHistoryPO.setCreatedAt(System.currentTimeMillis());
-            String createdBy = SecurityUserContext.getUserId();
-            entityHistoryPO.setCreatedBy(createdBy);
+            String operatorId = SecurityUserContext.getUserId();
+            if (isCreate) {
+                entityHistoryPO.setCreatedAt(System.currentTimeMillis());
+                entityHistoryPO.setCreatedBy(operatorId);
+            }
+            entityHistoryPO.setUpdatedAt(System.currentTimeMillis());
+            entityHistoryPO.setUpdatedBy(operatorId);
             entityHistoryPOList.add(entityHistoryPO);
         });
         entityHistoryRepository.saveAll(entityHistoryPOList);
