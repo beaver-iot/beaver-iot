@@ -73,8 +73,10 @@ public class BaseDeviceBuilder<T extends BaseDeviceBuilder> {
         device.setAdditional(additional);
         device.setIdentifier(identifier);
         device.setEntities(entities);
-        device.setIntegrationId(integration.getId());
-        device.initializeProperties(integration.getId());
+        if(integration != null){
+            device.setIntegrationId(integration.getId());
+            device.initializeProperties(integration.getId());
+        }
         device.setId(id);
         return device;
     }

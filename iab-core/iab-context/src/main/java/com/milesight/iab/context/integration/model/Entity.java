@@ -23,9 +23,7 @@ import java.util.Map;
 public class Entity implements IdentityKey {
 
     private Long id;
-    @JsonIgnore
     private String deviceKey;
-    @JsonIgnore
     private String integrationId;
     private String name;
     private String identifier;

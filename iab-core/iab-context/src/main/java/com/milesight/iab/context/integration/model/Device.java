@@ -20,8 +20,6 @@ import java.util.Map;
 public class Device implements IdentityKey {
 
     private Long id;
-
-    @JsonIgnore
     private String integrationId;
     private String name;
     private Map<String,Object> additional;

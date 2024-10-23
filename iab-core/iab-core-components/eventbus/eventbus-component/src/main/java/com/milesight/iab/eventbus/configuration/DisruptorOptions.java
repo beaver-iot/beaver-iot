@@ -22,11 +22,16 @@ public class DisruptorOptions {
      */
     private int ringBufferSize = 4096;
 
-    private int maxPoolSize = Integer.MAX_VALUE;
+    private int corePoolSize = 16;
 
-    private String eventBusTaskExecutor = "applicationTaskExecutor";
+    private int maxPoolSize = 50;
+
+    private int queueCapacity = 10000;
+
+    private String eventBusTaskExecutor = "eventBusTaskExecutor";
 
     public static DisruptorOptions defaultOptions() {
         return new DisruptorOptions();
     }
+
 }

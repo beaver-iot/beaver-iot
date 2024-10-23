@@ -49,7 +49,7 @@ public class AnnotationEventBusRegister implements ApplicationContextAware, Smar
                 bean = applicationContext.getBean(beanDefinitionName);
             }
 
-            registerEventSubscribe(bean, beanDefinitionName);
+            registerEventSubscriber(bean, beanDefinitionName);
 
             registerEventHandler(bean, beanDefinitionName);
         }
@@ -82,7 +82,7 @@ public class AnnotationEventBusRegister implements ApplicationContextAware, Smar
         }
     }
 
-    protected void registerEventSubscribe(Object bean, String beanDefinitionName) {
+    protected void registerEventSubscriber(Object bean, String beanDefinitionName) {
         Map<Method, EventSubscribe> annotatedMethods = null;
         try {
             annotatedMethods = MethodIntrospector.selectMethods(bean.getClass(),
