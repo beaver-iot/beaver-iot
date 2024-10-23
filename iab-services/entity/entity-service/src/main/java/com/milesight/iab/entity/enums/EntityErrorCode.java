@@ -19,19 +19,19 @@ public enum EntityErrorCode implements ErrorCodeSpec {
     private final String errorMessage;
     private final String detailMessage;
 
-    EntityErrorCode(){
+    EntityErrorCode() {
         this.errorCode = name().toLowerCase();
         this.errorMessage = null;
         this.detailMessage = null;
     }
 
-    EntityErrorCode(String errorMessage){
+    EntityErrorCode(String errorMessage) {
         this.errorCode = name().toLowerCase();
         this.errorMessage = errorMessage;
         this.detailMessage = null;
     }
 
-    EntityErrorCode(String errorMessage, String detailMessage){
+    EntityErrorCode(String errorMessage, String detailMessage) {
         this.errorCode = name().toLowerCase();
         this.errorMessage = errorMessage;
         this.detailMessage = detailMessage;

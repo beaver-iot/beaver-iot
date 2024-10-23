@@ -12,6 +12,6 @@ import java.util.Map;
 public class UpdatePropertyEntityRequest {
 
     private Long entityId;
-    private Map<String,Object> exchange;
+    private Map<String, Object> exchange;
 
 }

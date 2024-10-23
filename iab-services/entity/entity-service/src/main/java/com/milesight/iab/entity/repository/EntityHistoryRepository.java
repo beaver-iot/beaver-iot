@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
  * @date 2024/10/16 15:32
  */
 @Repository
-public interface EntityHistoryRepository extends BaseRepository<EntityHistoryPO,Long> {
+public interface EntityHistoryRepository extends BaseRepository<EntityHistoryPO, Long> {
 }

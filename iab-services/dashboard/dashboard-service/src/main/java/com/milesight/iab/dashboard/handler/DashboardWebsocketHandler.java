@@ -50,7 +50,7 @@ public class DashboardWebsocketHandler extends AbstractWebSocketHandler {
     public void exception(ChannelHandlerContext ctx, Throwable cause) throws Exception {
     }
 
-    private String getToken(FullHttpRequest request){
+    private String getToken(FullHttpRequest request) {
         String authorizationValue = request.headers().get("Authorization");
 
         if (authorizationValue != null && authorizationValue.startsWith("Bearer ")) {

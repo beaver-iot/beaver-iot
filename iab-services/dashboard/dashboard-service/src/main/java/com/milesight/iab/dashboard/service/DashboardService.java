@@ -44,7 +44,7 @@ public class DashboardService {
     public void createDashboard(CreateDashboardRequest createDashboardRequest) {
         String name = createDashboardRequest.getName();
         DashboardPO dashboardPO = dashboardRepository.findUniqueOne(filterable -> filterable.eq(DashboardPO.Fields.name, name));
-        if(dashboardPO != null){
+        if (dashboardPO != null) {
             throw ServiceException.with(DashboardErrorCode.DASHBOARD_NAME_EXIST).build();
         }
         dashboardPO = new DashboardPO();
@@ -57,7 +57,7 @@ public class DashboardService {
     public void updateDashboard(Long dashboardId, UpdateDashboardRequest updateDashboardRequest) {
         String name = updateDashboardRequest.getName();
         DashboardPO otherDashboardPO = dashboardRepository.findUniqueOne(filterable -> filterable.eq(DashboardPO.Fields.name, name));
-        if(otherDashboardPO != null && !Objects.equals(otherDashboardPO.getId(), dashboardId)){
+        if (otherDashboardPO != null && !Objects.equals(otherDashboardPO.getId(), dashboardId)) {
             throw ServiceException.with(DashboardErrorCode.DASHBOARD_NAME_EXIST).build();
         }
         DashboardPO dashboardPO = dashboardRepository.findById(dashboardId).orElseThrow(() -> ServiceException.with(ErrorCode.DATA_NO_FOUND).detailMessage("dashboard not exist").build());
@@ -74,13 +74,13 @@ public class DashboardService {
 
     public List<DashboardResponse> getDashboards() {
         List<DashboardPO> dashboardPOList = dashboardRepository.findAll();
-        if(dashboardPOList == null || dashboardPOList.isEmpty()){
+        if (dashboardPOList == null || dashboardPOList.isEmpty()) {
             return new ArrayList<>();
         }
         List<DashboardResponse> dashboardResponseList = DashboardConvert.INSTANCE.convertResponseList(dashboardPOList);
         List<Long> dashboardIdList = dashboardResponseList.stream().map(DashboardResponse::getDashboardId).toList();
         List<DashboardWidgetResponse> dashboardWidgetResponseList = getWidgetsByDashBoards(dashboardIdList);
-        Map<Long, List<DashboardWidgetResponse> > dashboardWidgetMap = dashboardWidgetResponseList.stream().filter(dashboardWidgetResponse -> dashboardWidgetResponse.getDashboardId() != null).collect(Collectors.groupingBy(DashboardWidgetResponse::getDashboardId));
+        Map<Long, List<DashboardWidgetResponse>> dashboardWidgetMap = dashboardWidgetResponseList.stream().filter(dashboardWidgetResponse -> dashboardWidgetResponse.getDashboardId() != null).collect(Collectors.groupingBy(DashboardWidgetResponse::getDashboardId));
         dashboardResponseList.forEach(dashboardResponse -> dashboardResponse.setWidgets(dashboardWidgetMap.get(dashboardResponse.getDashboardId())));
         return dashboardResponseList;
     }
@@ -98,7 +98,7 @@ public class DashboardService {
 
     public void updateWidget(Long dashboardId, Long widgetId, UpdateWidgetRequest updateWidgetRequest) {
         DashboardWidgetPO dashboardWidgetPO = dashboardWidgetRepository.findById(widgetId).orElseThrow(() -> ServiceException.with(ErrorCode.DATA_NO_FOUND).detailMessage("widget not exist").build());
-        if(!Objects.equals(dashboardWidgetPO.getDashboardId(), dashboardId)){
+        if (!Objects.equals(dashboardWidgetPO.getDashboardId(), dashboardId)) {
             throw ServiceException.with(ErrorCode.DATA_NO_FOUND).detailMessage("widget not exist").build();
         }
         dashboardWidgetPO.setData(updateWidgetRequest.getData());
@@ -108,7 +108,7 @@ public class DashboardService {
 
     public void deleteWidget(Long dashboardId, Long widgetId) {
         DashboardWidgetPO dashboardWidgetPO = dashboardWidgetRepository.findById(widgetId).orElseThrow(() -> ServiceException.with(ErrorCode.DATA_NO_FOUND).detailMessage("widget not exist").build());
-        if(!Objects.equals(dashboardWidgetPO.getDashboardId(), dashboardId)){
+        if (!Objects.equals(dashboardWidgetPO.getDashboardId(), dashboardId)) {
             throw ServiceException.with(ErrorCode.DATA_NO_FOUND).detailMessage("widget not exist").build();
         }
         dashboardWidgetRepository.deleteById(widgetId);
@@ -121,7 +121,7 @@ public class DashboardService {
 
     private List<DashboardWidgetResponse> getWidgetsByDashBoards(List<Long> dashboardIds) {
         List<DashboardWidgetPO> dashboardWidgetPOList = dashboardWidgetRepository.findAll(filter -> filter.in(DashboardWidgetPO.Fields.dashboardId, dashboardIds));
-        if(dashboardWidgetPOList == null || dashboardWidgetPOList.isEmpty()){
+        if (dashboardWidgetPOList == null || dashboardWidgetPOList.isEmpty()) {
             return new ArrayList<>();
         }
         return DashboardWidgetConvert.INSTANCE.convertResponseList(dashboardWidgetPOList);
