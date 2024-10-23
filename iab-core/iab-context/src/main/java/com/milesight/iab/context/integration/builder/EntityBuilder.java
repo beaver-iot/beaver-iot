@@ -67,9 +67,9 @@ public class EntityBuilder extends BaseEntityBuilder<EntityBuilder>{
         Entity entity = newInstance();
         entity.setChildren(children);
         if(integration != null){
-            entity.initializeProperties(integration);
+            entity.initializeProperties(integration.getId());
         }else if(device != null){
-            entity.initializeProperties(device.getIntegration(), device);
+            entity.initializeProperties(device.getIntegrationId(), device.getKey());
         }
         return entity;
     }

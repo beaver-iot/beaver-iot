@@ -22,7 +22,7 @@ public class Device implements IdentityKey {
     private Long id;
 
     @JsonIgnore
-    private Integration integration;
+    private String integrationId;
     private String name;
     private Map<String,Object> additional;
     private String identifier;
@@ -39,18 +39,18 @@ public class Device implements IdentityKey {
 
     @Override
     public String getKey() {
-        return IntegrationConstants.formatIntegrationDeviceKey(integration.getName(), identifier);
+        return IntegrationConstants.formatIntegrationDeviceKey(integrationId, identifier);
     }
 
-    public void initializeProperties(Integration integration) {
-        if(integration == null){
+    public void initializeProperties(String integrationId) {
+        if(integrationId == null){
             return;
         }
-        this.setIntegration(integration);
+        this.setIntegrationId(integrationId);
         List<Entity> entitiesList = getEntities();
         if(!CollectionUtils.isEmpty(entitiesList)){
             for (Entity entity : entitiesList) {
-                entity.initializeProperties(integration, this);
+                entity.initializeProperties(integrationId, getKey());
             }
         }
     }

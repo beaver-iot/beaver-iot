@@ -24,9 +24,9 @@ public class Entity implements IdentityKey {
 
     private Long id;
     @JsonIgnore
-    private Device device;
+    private String deviceKey;
     @JsonIgnore
-    private Integration integration;
+    private String integrationId;
     private String name;
     private String identifier;
     private AccessMod accessMod;
@@ -44,32 +44,32 @@ public class Entity implements IdentityKey {
     @Override
     public String getKey() {
         String fullIdentifier = getFullIdentifier();
-        if(device != null){
-            return IntegrationConstants.formatIntegrationDeviceEntityKey(integration.getName(), device.getIdentifier(), fullIdentifier);
+        if(StringUtils.hasText(deviceKey)){
+            return IntegrationConstants.formatIntegrationDeviceEntityKey(deviceKey, fullIdentifier);
         }else{
-            return IntegrationConstants.formatIntegrationEntityKey(integration.getName(), fullIdentifier);
+            return IntegrationConstants.formatIntegrationEntityKey(integrationId, fullIdentifier);
         }
     }
 
-    public void initializeProperties(Integration integration, Device device){
-        Assert.notNull(integration, "Integration must not be null");
-        Assert.notNull(device, "Device must not be null");
-        this.setIntegration(integration);
-        this.setDevice(device);
+    public void initializeProperties(String integrationId, String deviceKey){
+        Assert.notNull(integrationId, "Integration must not be null");
+        Assert.notNull(deviceKey, "Device must not be null");
+        this.setIntegrationId(integrationId);
+        this.setDeviceKey(deviceKey);
         if(!CollectionUtils.isEmpty(children)){
             children.forEach(entity -> {
-                entity.setDevice(device);
-                entity.setIntegration(integration);
+                entity.setDeviceKey(deviceKey);
+                entity.setIntegrationId(integrationId);
             });
         }
     }
 
-    public void initializeProperties(Integration integration){
-        Assert.notNull(integration, "Integration must not be null");
-        this.setIntegration(integration);
+    public void initializeProperties(String integrationId){
+        Assert.notNull(integrationId, "Integration must not be null");
+        this.setIntegrationId(integrationId);
         if(!CollectionUtils.isEmpty(children)){
             children.forEach(entity -> {
-                entity.setIntegration(integration);
+                entity.setIntegrationId(integrationId);
             });
         }
     }

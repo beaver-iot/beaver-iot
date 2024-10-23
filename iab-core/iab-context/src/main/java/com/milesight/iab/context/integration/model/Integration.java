@@ -60,11 +60,11 @@ public class Integration {
 
     public void initializeProperties() {
         if(!CollectionUtils.isEmpty(initialDevices)){
-            initialDevices.forEach(device -> device.initializeProperties(this));
+            initialDevices.forEach(device -> device.initializeProperties(this.getId()));
         }
 
         if(!CollectionUtils.isEmpty(initialEntities)){
-            initialEntities.forEach(entity -> entity.initializeProperties(this));
+            initialEntities.forEach(entity -> entity.initializeProperties(this.getId()));
         }
     }
 
