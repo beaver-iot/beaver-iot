@@ -56,17 +56,17 @@ public class IntegrationBuilder {
 
     protected Integration integration;
 
-    public DeviceBuilder initialDevice(String name, String identifier) {
-        DeviceBuilder deviceBuilder = new DeviceBuilder(this);
+    public DeviceBuilder.IntegrationDeviceBuilder initialDevice(String name, String identifier) {
+        DeviceBuilder.IntegrationDeviceBuilder deviceBuilder = new DeviceBuilder.IntegrationDeviceBuilder(this);
         return deviceBuilder.name(name).identifier(identifier);
     }
 
-    public DeviceBuilder initialDevice() {
-        return new DeviceBuilder(this);
+    public DeviceBuilder.IntegrationDeviceBuilder initialDevice() {
+        return new DeviceBuilder.IntegrationDeviceBuilder(this);
     }
 
-    public DeviceBuilder initialDevice(String name, String identifier, Map<String, Object> additional) {
-        DeviceBuilder deviceBuilder = new DeviceBuilder(this);
+    public DeviceBuilder.IntegrationDeviceBuilder initialDevice(String name, String identifier, Map<String, Object> additional) {
+        DeviceBuilder.IntegrationDeviceBuilder deviceBuilder = new DeviceBuilder.IntegrationDeviceBuilder(this);
         return deviceBuilder.name(name).identifier(identifier).additional(additional);
     }
 
