@@ -1,0 +1,11 @@
+
+integration:
+   msc-integration:
+      name: msc-integration
+      description: "MSC Integration"
+      enabled: true
+      #添加设备
+      entity-identifier-add-device: addDevice
+      #删除设备
+      entity-identifier-delete-device: deleteDevice
+

@@ -1,9 +1,13 @@
 package com.milesight.iab.context.integration.model;
 
 
+import com.milesight.iab.context.integration.enums.EntityType;
 import com.milesight.iab.eventbus.api.IdentityKey;
+import lombok.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -86,6 +90,16 @@ public class ExchangePayload extends HashMap<String,Object> implements ExchangeP
 
     public static <T extends ExchangePayloadAccessor> ExchangePayload createFrom(T payload){
         return new ExchangePayload(payload.getAllPayloads());
+    }
+
+    @NonNull
+    public List<Entity> getEntities() {
+        return new ArrayList<>();
+    }
+
+    @NonNull
+    public ExchangePayload getPayloadsByEntityType(EntityType entityType) {
+        return null;
     }
 
 }
