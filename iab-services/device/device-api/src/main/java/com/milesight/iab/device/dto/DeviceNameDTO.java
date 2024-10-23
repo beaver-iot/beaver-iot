@@ -7,6 +7,6 @@ import lombok.Data;
 @Builder
 public class DeviceNameDTO {
     private Long id;
-    private String integration;
+    private String integrationId;
     private String name;
 }
