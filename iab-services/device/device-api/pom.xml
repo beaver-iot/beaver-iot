@@ -24,7 +24,7 @@
         </dependency>
         <dependency>
             <groupId>com.milesight.iab</groupId>
-            <artifactId>iab-base</artifactId>
+            <artifactId>iab-context</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
