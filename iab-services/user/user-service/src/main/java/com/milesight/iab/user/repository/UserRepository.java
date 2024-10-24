@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
  * @author loong
  * @date 2024/10/14 10:55
  */
-@Repository
+//@Repository
 public interface UserRepository extends BaseRepository<UserPO, Long> {
 }

@@ -45,13 +45,13 @@ public class AnnotationEntityLoader implements EntityLoader {
                 DeviceEntities deviceEntitiesAnno = clazz.getAnnotation(DeviceEntities.class);
                 DeviceBuilder deviceBuilder = new DeviceBuilder().name(deviceEntitiesAnno.name()).identifier(deviceEntitiesAnno.identifier()).additional(resolveKeyValue(deviceEntitiesAnno.additional()));
                 String deviceKey = IntegrationConstants.formatIntegrationDeviceKey(integration.getId(), deviceEntitiesAnno.identifier());
-                List<com.milesight.iab.context.integration.model.Entity> entities = parserEntities(integration,deviceKey, null, clazz, propertyResolver);
+                List<com.milesight.iab.context.integration.model.Entity> entities = parserEntities(integration, deviceKey, null, clazz, propertyResolver);
                 deviceBuilder.entities(entities);
                 integration.addInitialDevice(deviceBuilder.build());
 
             } else if (clazz.isAnnotationPresent(IntegrationEntities.class)) {
                 // parse IntegrationEntities annotation
-                List<com.milesight.iab.context.integration.model.Entity> entities = parserEntities(integration,null, null, clazz, propertyResolver);
+                List<com.milesight.iab.context.integration.model.Entity> entities = parserEntities(integration, null, null, clazz, propertyResolver);
                 integration.addInitialEntities(entities);
             }
         });

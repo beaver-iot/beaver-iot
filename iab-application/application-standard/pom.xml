@@ -53,6 +53,12 @@
             <scope>runtime</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <optional>true</optional>
+        </dependency>
+
         <!-- core jar -->
         <dependency>
             <groupId>com.milesight.iab</groupId>
@@ -72,6 +78,38 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- service -->
+        <dependency>
+            <groupId>com.milesight.iab</groupId>
+            <artifactId>device-service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.milesight.iab</groupId>
+            <artifactId>integration</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.milesight.iab</groupId>
+            <artifactId>dashboard-service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.milesight.iab</groupId>
+            <artifactId>authentication-service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.milesight.iab</groupId>
+            <artifactId>user-service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.milesight.iab</groupId>
+            <artifactId>entity-service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- sample test -->
         <dependency>
             <groupId>com.milesight.iab</groupId>
@@ -88,11 +126,7 @@
             <artifactId>sample-complex</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.milesight.iab</groupId>
-            <artifactId>device-service</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+
 
     </dependencies>
 

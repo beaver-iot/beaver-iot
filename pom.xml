@@ -69,4 +69,35 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <repositories>
+        <repository>
+            <id>snapshots</id>
+            <name>nexus-snapshots</name>
+            <url>https://nexus.milesight.com/repository/maven-public/</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>snapshots</id>
+            <name>nexus-snapshots</name>
+            <url>https://nexus.milesight.com/repository/maven-public/</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
 </project>
