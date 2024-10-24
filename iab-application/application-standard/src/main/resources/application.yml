@@ -11,10 +11,12 @@ spring:
     properties:
       jakarta.persistence.query.timeout: "${JAVAX_PERSISTENCE_QUERY_TIMEOUT:30000}" # General timeout for JDBC queries
       hibernate:
+        type:
+          wrapper_array_handling: ALLOW
         nameing:
           physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
   datasource:
-    url: "${SPRING_DATASOURCE_URL:jdbc:postgresql://192.168.43.48:5432/iab}"
+    url: "${SPRING_DATASOURCE_URL:jdbc:postgresql://192.168.45.115:5432/postgres}"
     username: "${SPRING_DATASOURCE_USERNAME:postgres}"
     password: "${SPRING_DATASOURCE_PASSWORD:postgres}"
     driverClassName: "${SPRING_DRIVER_CLASS_NAME:org.postgresql.Driver}"

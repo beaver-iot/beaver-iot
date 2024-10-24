@@ -1,5 +1,6 @@
 package com.milesight.iab.entity.repository;
 
+import com.milesight.iab.data.api.BaseRepository;
 import com.milesight.iab.data.jpa.repository.BaseJpaRepository;
 import com.milesight.iab.entity.po.EntityLatestPO;
 

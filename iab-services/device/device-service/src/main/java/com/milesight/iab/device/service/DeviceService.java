@@ -23,6 +23,7 @@ import com.milesight.iab.eventbus.EventBus;
 import com.milesight.iab.rule.RuleEngineExecutor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
@@ -40,12 +41,14 @@ public class DeviceService {
     @Autowired
     DeviceRepository deviceRepository;
 
+    @Lazy
     @Autowired
     IntegrationServiceProvider integrationServiceProvider;
 
     @Autowired
     RuleEngineExecutor engineExecutor;
 
+    @Lazy
     @Autowired
     DeviceServiceHelper deviceServiceHelper;
 

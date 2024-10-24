@@ -1,5 +1,6 @@
 package com.milesight.iab;
 
+import com.milesight.iab.data.jpa.BaseJpaRepositoryImpl;
 import com.milesight.iab.data.jpa.repository.BaseJpaRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -11,7 +12,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 //@EnableJpaRepositories
 @EnableJpaRepositories(
-        repositoryBaseClass = BaseJpaRepository.class
+        repositoryBaseClass = BaseJpaRepositoryImpl.class
 //        repositoryFactoryBeanClass = CustomJpaRepositoryFactoryBean.class,
 //        basePackages = {
 //                "com.yeastar.cloud.dm.server.security.repository",
