@@ -49,7 +49,9 @@ public class MscDeviceService {
     @EventSubscribe(payloadKeyExpression = "msc-integration.device", eventType = ExchangeEvent.EventType.DOWN)
     public void onDeviceExchangeEvent(ExchangeEvent event) {
         val exchangePayload = event.getPayload();
-        val devices = exchangePayload.getEntities().stream()
+        val devices = exchangePayload.getExchangeEntities()
+                .values()
+                .stream()
                 .map(Entity::getDeviceKey)
                 .distinct()
                 .map(deviceServiceProvider::findByKey)
