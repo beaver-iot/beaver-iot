@@ -21,39 +21,34 @@ public class GenericExchangeFlowExecutor implements ExchangeFlowExecutor {
 
     @Override
     public EventResponse syncExchangeUp(ExchangePayload exchangePayload) {
-        ExchangeEvent event = ExchangeEvent.of(ExchangeEvent.EventType.UP, exchangePayload);
-        initializeEventContext(event, true);
-        return (EventResponse) ruleEngineExecutor.executeWithResponse(RuleNodeNames.innerExchangeUpFlow, event);
+        initializeEventContext(ExchangeEvent.EventType.UP, exchangePayload, true);
+        return (EventResponse) ruleEngineExecutor.executeWithResponse(RuleNodeNames.innerExchangeUpFlow, exchangePayload);
     }
 
     @Override
     public void asyncExchangeUp(ExchangePayload exchangePayload) {
-        ExchangeEvent event = ExchangeEvent.of(ExchangeEvent.EventType.UP, exchangePayload);
-        initializeEventContext(event, false);
-        ruleEngineExecutor.execute(RuleNodeNames.innerExchangeUpFlow, event);
+        initializeEventContext(ExchangeEvent.EventType.UP, exchangePayload,false);
+        ruleEngineExecutor.execute(RuleNodeNames.innerExchangeUpFlow, exchangePayload);
     }
 
     @Override
     public EventResponse syncExchangeDown(ExchangePayload exchangePayload) {
-        ExchangeEvent event = ExchangeEvent.of(ExchangeEvent.EventType.DOWN, exchangePayload);
-        initializeEventContext(event, true);
-        return (EventResponse) ruleEngineExecutor.executeWithResponse(RuleNodeNames.innerExchangeDownFlow, event);
+        initializeEventContext(ExchangeEvent.EventType.DOWN, exchangePayload, true);
+        return (EventResponse) ruleEngineExecutor.executeWithResponse(RuleNodeNames.innerExchangeDownFlow, exchangePayload);
     }
 
     @Override
     public void asyncExchangeDown(ExchangePayload exchangePayload) {
-        ExchangeEvent event = ExchangeEvent.of(ExchangeEvent.EventType.DOWN, exchangePayload);
-        initializeEventContext(event, false);
-        ruleEngineExecutor.execute(RuleNodeNames.innerExchangeDownFlow, event);
+        initializeEventContext(ExchangeEvent.EventType.DOWN, exchangePayload, false);
+        ruleEngineExecutor.execute(RuleNodeNames.innerExchangeDownFlow, exchangePayload);
     }
 
-    private void initializeEventContext(ExchangeEvent message, boolean syncCall) {
-        ExchangePayload payload = message.getPayload();
+    private void initializeEventContext(String eventType, ExchangePayload payload, boolean syncCall) {
         if(syncCall){
             payload.putContext(EventContextAccessor.EXCHANGE_KEY_SYNC_CALL, true);
         }else{
             payload.putContext(EventContextAccessor.EXCHANGE_KEY_SYNC_CALL, false);
         }
-        payload.putContext(EventContextAccessor.EXCHANGE_KEY_EVENT_TYPE, message.getEventType());
+        payload.putContext(EventContextAccessor.EXCHANGE_KEY_EVENT_TYPE, eventType);
     }
 }

@@ -5,6 +5,7 @@ import com.milesight.iab.context.api.ExchangeFlowExecutor;
 import com.milesight.iab.context.integration.model.ExchangePayload;
 import com.milesight.iab.context.integration.model.event.ExchangeEvent;
 import com.milesight.iab.eventbus.EventBus;
+import com.milesight.iab.eventbus.api.EventResponse;
 import com.milesight.iab.sample.complex.entity.DemoMscSettingEntities;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 public class DemoMscCustomController {
 
     private EntityServiceProvider entityServiceProvider;
+    @Autowired
     private ExchangeFlowExecutor exchangeFlowExecutor;
     @Autowired
     private EventBus eventBus;
@@ -61,6 +63,12 @@ public class DemoMscCustomController {
         Object test = eventBus.handle(ExchangeEvent.of(ExchangeEvent.EventType.DOWN, ExchangePayload.create(key, "test")));
 //        camelContext.getRouteController().stopRoute(endpoint);
         return test;
+    }
+
+    @PostMapping("/api/v1/flow-test")
+    public Object eventHandleTest(@RequestBody ExchangePayload payload) throws Exception {
+        EventResponse eventResponse = exchangeFlowExecutor.syncExchangeDown(payload);
+        return eventResponse;
     }
 
     private ExchangePayload toExchangePayload(MscExchangePayload mscExchangePayload) {

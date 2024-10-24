@@ -40,14 +40,12 @@ public class GenericExchangeValidator implements PredicateNode<ExchangePayload> 
         Map<String,Entity> entityMap = new HashMap<>();
 
         boolean isValid = allPayloads.keySet().stream().allMatch(k -> {
-            String exchangeKey = exchange.getKey();
-            Entity entity = entityServiceProvider.findByKey(exchangeKey);
-            entityMap.put(exchangeKey, entity);
+            Entity entity = entityServiceProvider.findByKey(k);
+            entityMap.put(k, entity);
             return validateEntity(entity);
         });
 
         if(!isValid){
-            log.warn("ExchangeValidator matches failed, entity is invalid");
             return false;
         }
 
