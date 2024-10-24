@@ -10,11 +10,8 @@ spring:
     show-sql: true
     properties:
       jakarta.persistence.query.timeout: "${JAVAX_PERSISTENCE_QUERY_TIMEOUT:30000}" # General timeout for JDBC queries
-      hibernate:
-        type:
-          wrapper_array_handling: ALLOW
-        nameing:
-          physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+      hibernate.type.wrapper_array_handling: ALLOW
+      hibernate.nameing.physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
   datasource:
     url: "${SPRING_DATASOURCE_URL:jdbc:postgresql://192.168.45.115:5432/postgres}"
     username: "${SPRING_DATASOURCE_USERNAME:postgres}"
@@ -25,15 +22,19 @@ spring:
     contexts: init,dev,prod,test
     change-log: 'classpath*:db/postgres/changelog.yaml'
 
+#eventbus:
+#  disruptor:
+#    core-pool-size: 16
+#    max-pool-size: 50
+#    ring-buffer-size: 4096
 camel:
   springboot:
     routes-include-pattern: classpath:routes/*.yaml
+websocket:
+  enabled: true
+  port: ${WEBSOCKET_PORT:9201}
+  context-path: ${WEBSOCKET_CONTEXT_PATH:/websocket}
 
 logging:
   level:
     com.milesight.iab: debug
-
-websocket:
-  enabled: true
-  port: ${WEBSOCKET_PORT:8081}
-  context-path: ${WEBSOCKET_CONTEXT_PATH:/websocket}
