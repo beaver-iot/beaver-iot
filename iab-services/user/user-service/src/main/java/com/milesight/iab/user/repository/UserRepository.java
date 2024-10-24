@@ -1,9 +1,7 @@
 package com.milesight.iab.user.repository;
 
-import com.milesight.iab.data.api.BaseRepository;
 import com.milesight.iab.data.jpa.repository.BaseJpaRepository;
 import com.milesight.iab.user.po.UserPO;
-import org.springframework.stereotype.Repository;
 
 /**
  * @author loong

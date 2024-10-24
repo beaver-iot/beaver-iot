@@ -20,6 +20,7 @@ import com.milesight.iab.dashboard.repository.DashboardWidgetTemplateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +44,9 @@ public class DashboardService {
 
     public void createDashboard(CreateDashboardRequest createDashboardRequest) {
         String name = createDashboardRequest.getName();
+        if (!StringUtils.hasText(name)) {
+            throw ServiceException.with(ErrorCode.PARAMETER_SYNTAX_ERROR).detailMessage("name is empty").build();
+        }
         DashboardPO dashboardPO = dashboardRepository.findUniqueOne(filterable -> filterable.eq(DashboardPO.Fields.name, name));
         if (dashboardPO != null) {
             throw ServiceException.with(DashboardErrorCode.DASHBOARD_NAME_EXIST).build();
@@ -57,6 +61,9 @@ public class DashboardService {
 
     public void updateDashboard(Long dashboardId, UpdateDashboardRequest updateDashboardRequest) {
         String name = updateDashboardRequest.getName();
+        if (!StringUtils.hasText(name)) {
+            throw ServiceException.with(ErrorCode.PARAMETER_SYNTAX_ERROR).detailMessage("name is empty").build();
+        }
         DashboardPO otherDashboardPO = dashboardRepository.findUniqueOne(filterable -> filterable.eq(DashboardPO.Fields.name, name));
         if (otherDashboardPO != null && !Objects.equals(otherDashboardPO.getId(), dashboardId)) {
             throw ServiceException.with(DashboardErrorCode.DASHBOARD_NAME_EXIST).build();

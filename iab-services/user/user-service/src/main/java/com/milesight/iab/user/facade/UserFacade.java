@@ -6,6 +6,7 @@ import com.milesight.iab.user.po.UserPO;
 import com.milesight.iab.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 /**
  * @author loong
@@ -19,6 +20,9 @@ public class UserFacade implements IUserFacade {
 
     @Override
     public UserDTO getUserByEmail(String email) {
+        if (!StringUtils.hasText(email)) {
+            return null;
+        }
         UserPO userPO = userService.getUserByEmail(email);
         return UserConverter.INSTANCE.convertDTO(userPO);
     }

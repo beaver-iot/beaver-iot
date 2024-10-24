@@ -144,11 +144,17 @@ public class EntityService implements EntityServiceProvider {
 
     @Override
     public List<Entity> findByTargetId(String targetId) {
+        if (!StringUtils.hasText(targetId)) {
+            return new ArrayList<>();
+        }
         return findByTargetIds(Collections.singletonList(targetId));
     }
 
     @Override
     public List<Entity> findByTargetIds(List<String> targetIds) {
+        if (targetIds == null || targetIds.isEmpty()) {
+            return new ArrayList<>();
+        }
         List<EntityPO> entityPOList = entityRepository.findAll(filter -> filter.in(EntityPO.Fields.attachTargetId, targetIds));
         if (entityPOList == null || entityPOList.isEmpty()) {
             return new ArrayList<>();
@@ -224,6 +230,9 @@ public class EntityService implements EntityServiceProvider {
 
     @Override
     public void save(Entity entity) {
+        if (entity == null) {
+            return;
+        }
         Map<String, Long> deviceKeyMap = new HashMap<>();
         if (StringUtils.hasText(entity.getDeviceKey())) {
             DeviceNameDTO deviceNameDTO = deviceFacade.getDeviceNameByKey(entity.getDeviceKey());
@@ -258,11 +267,17 @@ public class EntityService implements EntityServiceProvider {
 
     @Override
     public void deleteByTargetId(String targetId) {
+        if (!StringUtils.hasText(targetId)) {
+            return;
+        }
         entityRepository.deleteByTargetId(targetId);
     }
 
     @Override
     public long countAllEntitiesByIntegrationId(String integrationId) {
+        if (!StringUtils.hasText(integrationId)) {
+            return 0L;
+        }
         long allEntityCount = 0L;
         long integrationEntityCount = countIntegrationEntitiesByIntegrationId(integrationId);
         allEntityCount += integrationEntityCount;
@@ -279,6 +294,9 @@ public class EntityService implements EntityServiceProvider {
 
     @Override
     public Map<String, Long> countAllEntitiesByIntegrationIds(List<String> integrationIds) {
+        if (integrationIds == null || integrationIds.isEmpty()) {
+            return new HashMap<>();
+        }
         Map<String, Long> allEntityCountMap = new HashMap<>();
         allEntityCountMap.putAll(countIntegrationEntitiesByIntegrationIds(integrationIds));
         List<DeviceNameDTO> integrationDevices = deviceFacade.getDeviceNameByIntegrations(integrationIds);
@@ -294,6 +312,9 @@ public class EntityService implements EntityServiceProvider {
 
     @Override
     public long countIntegrationEntitiesByIntegrationId(String integrationId) {
+        if (!StringUtils.hasText(integrationId)) {
+            return 0L;
+        }
         List<EntityPO> integrationEntityPOList = entityRepository.findAll(filter -> filter.eq(EntityPO.Fields.attachTarget, AttachTargetType.INTEGRATION).eq(EntityPO.Fields.attachTargetId, integrationId));
         if (integrationEntityPOList == null || integrationEntityPOList.isEmpty()) {
             return 0L;
@@ -303,6 +324,9 @@ public class EntityService implements EntityServiceProvider {
 
     @Override
     public Map<String, Long> countIntegrationEntitiesByIntegrationIds(List<String> integrationIds) {
+        if (integrationIds == null || integrationIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
         List<EntityPO> integrationEntityPOList = entityRepository.findAll(filter -> filter.eq(EntityPO.Fields.attachTarget, AttachTargetType.INTEGRATION).in(EntityPO.Fields.attachTargetId, integrationIds));
         if (integrationEntityPOList == null || integrationEntityPOList.isEmpty()) {
             return Collections.emptyMap();
@@ -312,6 +336,9 @@ public class EntityService implements EntityServiceProvider {
 
     @Override
     public void saveExchange(ExchangePayload exchangePayload) {
+        if (exchangePayload == null) {
+            return;
+        }
         Map<String, Object> payloads = exchangePayload.getAllPayloads();
         if (payloads == null || payloads.isEmpty()) {
             return;
@@ -364,6 +391,9 @@ public class EntityService implements EntityServiceProvider {
 
     @Override
     public void saveExchangeHistory(ExchangePayload exchangePayload) {
+        if (exchangePayload == null) {
+            return;
+        }
         Map<String, Object> payloads = exchangePayload.getAllPayloads();
         if (payloads == null || payloads.isEmpty()) {
             return;
@@ -434,6 +464,9 @@ public class EntityService implements EntityServiceProvider {
 
     @Override
     public Object findExchangeValueByKey(String key) {
+        if (!StringUtils.hasText(key)) {
+            return null;
+        }
         EntityPO entityPO = getByKey(key);
         if (entityPO == null) {
             return null;
@@ -460,6 +493,9 @@ public class EntityService implements EntityServiceProvider {
 
     @Override
     public <T> T findExchangeByKey(String key, Class<T> entitiesClazz) {
+        if (!StringUtils.hasText(key)) {
+            return null;
+        }
         Object value = findExchangeValueByKey(key);
         try {
             T instance = entitiesClazz.getDeclaredConstructor().newInstance();
@@ -707,6 +743,13 @@ public class EntityService implements EntityServiceProvider {
 
     public Map<String, Object> getEntityForm(EntityFormRequest entityFormRequest) {
         List<String> entityIds = entityFormRequest.getEntityIdList();
+        if (entityIds == null || entityIds.isEmpty()) {
+            throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).detailMessage("entityIdList is empty").build();
+        }
+        List<EntityPO> entityPOList = entityRepository.findAll(filter -> filter.in(EntityPO.Fields.id, entityIds));
+        if (entityPOList == null || entityPOList.isEmpty()) {
+            throw ServiceException.with(ErrorCode.DATA_NO_FOUND).detailMessage("entity not found").build();
+        }
         //TODO
         return null;
     }
