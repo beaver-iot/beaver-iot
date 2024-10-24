@@ -14,7 +14,6 @@ import com.milesight.iab.context.integration.model.Device;
 import com.milesight.iab.context.integration.model.Entity;
 import com.milesight.iab.context.integration.model.ExchangePayload;
 import com.milesight.iab.context.integration.model.event.ExchangeEvent;
-import com.milesight.iab.eventbus.annotations.EventHandler;
 import com.milesight.iab.eventbus.annotations.EventSubscribe;
 import com.milesight.iab.eventbus.api.Event;
 import com.milesight.iab.integration.msc.constant.MscIntegrationConstants;
@@ -56,7 +55,7 @@ public class MscDeviceService {
                 .map(deviceServiceProvider::findByKey)
                 .filter(Objects::nonNull)
                 .toList();
-        if (devices.isEmpty() || devices.size() > 1) {
+        if (devices.size() != 1) {
             log.warn("Invalid device number: {}", devices.size());
             return;
         }
@@ -90,7 +89,7 @@ public class MscDeviceService {
     }
 
     @SneakyThrows
-    @EventHandler(payloadKey = "msc-integration.integration.add-device", eventType = ExchangeEvent.EventType.DOWN)
+    @EventSubscribe(payloadKeyExpression = "msc-integration.integration.add-device", eventType = ExchangeEvent.EventType.DOWN, async = false)
     public void onAddDevice(Event<MscServiceEntities.AddDevice> event) {
         val deviceName = (String) event.getPayload().getContext().getOrDefault("name", "Device Name");
         if (mscClientProvider == null || mscClientProvider.getMscClient() == null) {
@@ -171,7 +170,7 @@ public class MscDeviceService {
     }
 
     @SneakyThrows
-    @EventHandler(payloadKey = "msc-integration.integration.delete-device", eventType = ExchangeEvent.EventType.DOWN)
+    @EventSubscribe(payloadKeyExpression = "msc-integration.integration.delete-device", eventType = ExchangeEvent.EventType.DOWN, async = false)
     public void onDeleteDevice(Event<MscServiceEntities.DeleteDevice> event) {
         if (mscClientProvider == null || mscClientProvider.getMscClient() == null) {
             log.warn("MscClient not initiated.");

@@ -3,7 +3,7 @@ package com.milesight.iab.integration.msc.service;
 import com.milesight.iab.context.api.EntityServiceProvider;
 import com.milesight.iab.context.integration.model.ExchangePayload;
 import com.milesight.iab.context.integration.model.event.ExchangeEvent;
-import com.milesight.iab.eventbus.annotations.EventHandler;
+import com.milesight.iab.eventbus.annotations.EventSubscribe;
 import com.milesight.iab.eventbus.api.Event;
 import com.milesight.iab.integration.msc.constant.MscIntegrationConstants;
 import com.milesight.iab.integration.msc.entity.MscConnectionPropertiesEntities;
@@ -30,7 +30,7 @@ public class MscConnectionService implements IMscClientProvider {
     @Getter
     private MscClient mscClient;
 
-    @EventHandler(payloadKey = "msc-integration.integration.openapi", eventType = ExchangeEvent.EventType.UP)
+    @EventSubscribe(payloadKeyExpression = "msc-integration.integration.openapi", eventType = ExchangeEvent.EventType.UP, async = false)
     public void onOpenapiPropertiesUpdate(Event<MscConnectionPropertiesEntities.Openapi> event) {
         if (isConfigChanged(event)) {
             val openapiSettings = event.getPayload();
