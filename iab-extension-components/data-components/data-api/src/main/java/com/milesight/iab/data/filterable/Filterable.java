@@ -67,12 +67,12 @@ public interface Filterable {
 
     Filterable in(String name, Object... value);
 
-    Filterable in(boolean condition, String name, Object... value);
+    Filterable in(boolean condition, String name, Object[] value);
 
 
-    Filterable notIn(String name, Object... value);
+    Filterable notIn(String name, Object[] value);
 
-    Filterable notIn(boolean condition, String name, Object... value);
+    Filterable notIn(boolean condition, String name, Object[] value);
 
     /**
      * You can specify query column names, value values and operators (to facilitate dynamic construction of the framework)
