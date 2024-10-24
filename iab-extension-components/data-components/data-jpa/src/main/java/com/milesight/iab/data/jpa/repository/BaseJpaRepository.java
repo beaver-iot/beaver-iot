@@ -21,7 +21,7 @@ import java.util.function.Consumer;
  * @author leon
  */
 @NoRepositoryBean
-public interface BaseJpaRepository<T,ID extends Serializable> extends JpaRepository<T,ID>, BaseRepository<T,ID> , JpaSpecificationExecutor {
+public interface BaseJpaRepository<T,ID extends Serializable> extends JpaRepository<T,ID>, BaseRepository<T,ID>, JpaSpecificationExecutor<T> {
 
     @Override
     T getOne(ID id);

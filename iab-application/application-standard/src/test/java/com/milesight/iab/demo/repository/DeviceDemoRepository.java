@@ -1,5 +1,6 @@
 package com.milesight.iab.demo.repository;
 
+import com.milesight.iab.data.api.BaseRepository;
 import com.milesight.iab.data.jpa.repository.BaseJpaRepository;
 import com.milesight.iab.demo.entity.DeviceDemoEntity;
 import jakarta.persistence.criteria.CriteriaBuilder;

@@ -7,6 +7,7 @@ import com.milesight.iab.device.facade.IDeviceFacade;
 import com.milesight.iab.device.po.DevicePO;
 import com.milesight.iab.device.repository.DeviceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ public class DeviceFacade implements IDeviceFacade {
     @Autowired
     DeviceRepository deviceRepository;
 
+    @Lazy
     @Autowired
     IntegrationServiceProvider integrationServiceProvider;
 

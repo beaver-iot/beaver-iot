@@ -13,6 +13,7 @@ import com.milesight.iab.user.util.SignUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 /**
  * @author loong
@@ -28,7 +29,7 @@ public class UserService {
         String email = userRegisterRequest.getEmail();
         String nickname = userRegisterRequest.getNickname();
         String password = userRegisterRequest.getPassword();
-        if (email == null || nickname == null || password == null) {
+        if (!StringUtils.hasText(email) || !StringUtils.hasText(nickname) || !StringUtils.hasText(password)) {
             throw ServiceException.with(ErrorCode.PARAMETER_SYNTAX_ERROR).detailMessage("email and nickname and password must be not null").build();
         }
         UserPO userPO = getUserByEmail(email);

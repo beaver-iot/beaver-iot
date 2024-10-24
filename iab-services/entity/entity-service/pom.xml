@@ -26,23 +26,28 @@
         <dependency>
             <groupId>com.milesight.iab</groupId>
             <artifactId>iab-context</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.milesight.iab</groupId>
             <artifactId>data-api</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.milesight.iab</groupId>
             <artifactId>entity-api</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.milesight.iab</groupId>
             <artifactId>device-api</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.milesight.iab</groupId>
+            <artifactId>data-jpa</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

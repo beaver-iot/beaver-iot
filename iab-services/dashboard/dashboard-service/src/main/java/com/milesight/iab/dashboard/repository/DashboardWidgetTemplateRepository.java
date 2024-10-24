@@ -1,13 +1,11 @@
 package com.milesight.iab.dashboard.repository;
 
 import com.milesight.iab.dashboard.po.DashboardWidgetTemplatePO;
-import com.milesight.iab.data.api.BaseRepository;
-import org.springframework.stereotype.Repository;
+import com.milesight.iab.data.jpa.repository.BaseJpaRepository;
 
 /**
  * @author loong
  * @date 2024/10/17 16:39
  */
-@Repository
-public interface DashboardWidgetTemplateRepository extends BaseRepository<DashboardWidgetTemplatePO, Long> {
+public interface DashboardWidgetTemplateRepository extends BaseJpaRepository<DashboardWidgetTemplatePO, Long> {
 }
