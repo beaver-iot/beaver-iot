@@ -16,5 +16,4 @@ public @interface EventSubscribe {
 
     String payloadKeyExpression() ;
 
-    boolean async() default true;
 }

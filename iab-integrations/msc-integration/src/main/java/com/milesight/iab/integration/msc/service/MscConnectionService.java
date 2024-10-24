@@ -30,7 +30,7 @@ public class MscConnectionService implements IMscClientProvider {
     @Getter
     private MscClient mscClient;
 
-    @EventSubscribe(payloadKeyExpression = "msc-integration.integration.openapi", eventType = ExchangeEvent.EventType.UP, async = false)
+    @EventSubscribe(payloadKeyExpression = "msc-integration.integration.openapi", eventType = ExchangeEvent.EventType.UP)
     public void onOpenapiPropertiesUpdate(Event<MscConnectionPropertiesEntities.Openapi> event) {
         if (isConfigChanged(event)) {
             val openapiSettings = event.getPayload();

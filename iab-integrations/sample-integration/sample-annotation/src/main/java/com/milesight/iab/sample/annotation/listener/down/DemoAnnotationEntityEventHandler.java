@@ -19,13 +19,13 @@ import org.springframework.stereotype.Component;
 public class DemoAnnotationEntityEventHandler {
 
     //仅支持精确匹配
-    @EventSubscribe(payloadKeyExpression="anno-integration.integration.connect.*", eventType= ExchangeEvent.EventType.DOWN, async = false)
+    @EventSubscribe(payloadKeyExpression="anno-integration.integration.connect.*", eventType= ExchangeEvent.EventType.DOWN)
     public EventResponse handleService(Event<DemoDeviceEntities> event) {
         log.debug("DemoAnnotationEntityEventHandler handleService:{}",event);
         return EventResponse.of("a1",new DemoDeviceEntities());
     }
 
-    @EventSubscribe(payloadKeyExpression="anno-integration.integration.connect.accessKey", eventType= ExchangeEvent.EventType.DOWN, async = false)
+    @EventSubscribe(payloadKeyExpression="anno-integration.integration.connect.accessKey", eventType= ExchangeEvent.EventType.DOWN)
     public EventResponse handleService2(ExchangeEvent event) {
         log.debug("DemoAnnotationEntityEventHandler handleService:{}",event);
         return EventResponse.of("a2","b");

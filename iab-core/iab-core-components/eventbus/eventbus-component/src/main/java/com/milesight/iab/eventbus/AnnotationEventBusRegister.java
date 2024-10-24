@@ -48,7 +48,6 @@ public class AnnotationEventBusRegister implements ApplicationContextAware, Smar
             }
 
             registerEventSubscribe(bean, beanDefinitionName);
-
         }
 
         // fire subscriber at last
@@ -76,13 +75,9 @@ public class AnnotationEventBusRegister implements ApplicationContextAware, Smar
             Method executeMethod = methodEntry.getKey();
             EventSubscribe eventSubscribe = methodEntry.getValue();
             Class<?> returnType = executeMethod.getReturnType();
-            if(eventSubscribe.async()){
-                Assert.isTrue(returnType == void.class, "EventSubscribe method return type must be void if async is true:" + executeMethod.toGenericString());
-                eventBus.registerAsyncSubscribe(eventSubscribe, bean, executeMethod);
-            }else{
-                Assert.isTrue(returnType == void.class || returnType == EventResponse.class, "EventSubscribe method return type must be void or EventResponse if async is false:" + executeMethod.toGenericString());
-                eventBus.registerSyncSubscribe(eventSubscribe, bean, executeMethod);
-            }
+
+            Assert.isTrue(returnType == void.class || returnType == EventResponse.class, "EventSubscribe method return type must be void or EventResponse:" + executeMethod.toGenericString());
+            eventBus.registerAsyncSubscribe(eventSubscribe, bean, executeMethod);
         }
     }
 
