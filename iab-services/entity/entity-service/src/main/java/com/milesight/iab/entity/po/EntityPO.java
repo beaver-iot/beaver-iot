@@ -1,10 +1,14 @@
 package com.milesight.iab.entity.po;
 
 import com.milesight.iab.context.integration.enums.AccessMod;
+import com.milesight.iab.context.integration.enums.AttachTargetType;
 import com.milesight.iab.context.integration.enums.EntityType;
 import com.milesight.iab.context.integration.enums.EntityValueType;
-import com.milesight.iab.entity.enums.AttachTargetType;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
 

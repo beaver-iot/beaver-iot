@@ -3,6 +3,7 @@ package com.milesight.iab.device.service;
 import com.milesight.iab.context.api.EntityServiceProvider;
 import com.milesight.iab.context.api.IntegrationServiceProvider;
 import com.milesight.iab.context.integration.builder.DeviceBuilder;
+import com.milesight.iab.context.integration.enums.AttachTargetType;
 import com.milesight.iab.context.integration.model.Device;
 import com.milesight.iab.context.integration.model.Entity;
 import com.milesight.iab.device.po.DevicePO;
@@ -31,7 +32,7 @@ public class DeviceServiceHelper {
 
     public List<Device> convertPO(List<DevicePO> devicePOList) {
         List<String> deviceIds = devicePOList.stream().map((devicePO -> devicePO.getId().toString())).collect(Collectors.toList());
-        List<Entity> entities = entityServiceProvider.findByTargetIds(deviceIds);
+        List<Entity> entities = entityServiceProvider.findByTargetIds(AttachTargetType.DEVICE, deviceIds);
         Map<String, List<Entity>> deviceEntityMap = new HashMap<>();
         entities.forEach((entity -> {
             String deviceKey = entity.getDeviceKey();

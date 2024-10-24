@@ -18,7 +18,7 @@ import com.milesight.iab.context.security.SecurityUserContext;
 import com.milesight.iab.device.dto.DeviceNameDTO;
 import com.milesight.iab.device.facade.IDeviceFacade;
 import com.milesight.iab.entity.enums.AggregateType;
-import com.milesight.iab.entity.enums.AttachTargetType;
+import com.milesight.iab.context.integration.enums.AttachTargetType;
 import com.milesight.iab.entity.model.dto.EntityHistoryUnionQuery;
 import com.milesight.iab.entity.model.request.EntityAggregateQuery;
 import com.milesight.iab.entity.model.request.EntityFormRequest;
@@ -114,6 +114,7 @@ public class EntityService implements EntityServiceProvider {
                 attachTarget = AttachTargetType.INTEGRATION;
                 attachTargetId = entity.getIntegrationId();
             }
+            //TODO
             Long entityId = entity.getId();
             boolean isCreate = entityId == null;
             if (entityId == null) {
@@ -143,15 +144,15 @@ public class EntityService implements EntityServiceProvider {
     }
 
     @Override
-    public List<Entity> findByTargetId(String targetId) {
+    public List<Entity> findByTargetId(AttachTargetType targetType, String targetId) {
         if (!StringUtils.hasText(targetId)) {
             return new ArrayList<>();
         }
-        return findByTargetIds(Collections.singletonList(targetId));
+        return findByTargetIds(targetType, Collections.singletonList(targetId));
     }
 
     @Override
-    public List<Entity> findByTargetIds(List<String> targetIds) {
+    public List<Entity> findByTargetIds(AttachTargetType targetType, List<String> targetIds) {
         if (targetIds == null || targetIds.isEmpty()) {
             return new ArrayList<>();
         }
@@ -159,6 +160,7 @@ public class EntityService implements EntityServiceProvider {
         if (entityPOList == null || entityPOList.isEmpty()) {
             return new ArrayList<>();
         }
+        //TODO
         List<DeviceNameDTO> deviceNameDTOList = deviceFacade.getDeviceNameByIds(targetIds.stream().map(Long::valueOf).collect(Collectors.toList()));
         Map<String, String> deviceKeyMap = new HashMap<>();
         Map<String, Integration> deviceIntegrationMap = new HashMap<>();

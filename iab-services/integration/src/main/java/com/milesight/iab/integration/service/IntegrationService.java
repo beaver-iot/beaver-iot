@@ -5,6 +5,7 @@ import com.milesight.iab.base.exception.ServiceException;
 import com.milesight.iab.context.api.DeviceServiceProvider;
 import com.milesight.iab.context.api.EntityServiceProvider;
 import com.milesight.iab.context.api.IntegrationServiceProvider;
+import com.milesight.iab.context.integration.enums.AttachTargetType;
 import com.milesight.iab.context.integration.model.Entity;
 import com.milesight.iab.context.integration.model.Integration;
 import com.milesight.iab.integration.model.request.SearchIntegrationRequest;
@@ -89,7 +90,7 @@ public class IntegrationService {
         BeanUtils.copyProperties(integrationToSearchResponseData(integration), data);
         data.setDeviceCount(deviceServiceProvider.countByIntegrationId(integrationId));
         data.setEntityCount(entityServiceProvider.countAllEntitiesByIntegrationId(integrationId));
-        data.setIntegrationEntities(entityServiceProvider.findByTargetId(integrationId)
+        data.setIntegrationEntities(entityServiceProvider.findByTargetId(AttachTargetType.INTEGRATION, integrationId)
                 .stream().map((Entity entity) -> IntegrationEntityData
                         .builder()
                         .id(entity.getId())

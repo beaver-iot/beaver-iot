@@ -1,12 +1,10 @@
 package com.milesight.iab.device.service;
 
 import com.milesight.iab.base.enums.ErrorCode;
-import com.milesight.iab.base.exception.ErrorCodeSpec;
 import com.milesight.iab.base.exception.ServiceException;
-import com.milesight.iab.context.api.DeviceServiceProvider;
 import com.milesight.iab.context.api.EntityServiceProvider;
 import com.milesight.iab.context.api.IntegrationServiceProvider;
-import com.milesight.iab.context.integration.model.Device;
+import com.milesight.iab.context.integration.enums.AttachTargetType;
 import com.milesight.iab.context.integration.model.Entity;
 import com.milesight.iab.context.integration.model.ExchangePayload;
 import com.milesight.iab.context.integration.model.Integration;
@@ -24,8 +22,6 @@ import com.milesight.iab.rule.RuleEngineExecutor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -168,7 +164,7 @@ public class DeviceService {
 
         // set entities
         List<DeviceEntityData> deviceEntityDataList = entityServiceProvider
-                .findByTargetId(deviceId.toString())
+                .findByTargetId(AttachTargetType.DEVICE, deviceId.toString())
                 .stream().map((Entity entity) -> DeviceEntityData
                         .builder()
                         .id(entity.getId())
