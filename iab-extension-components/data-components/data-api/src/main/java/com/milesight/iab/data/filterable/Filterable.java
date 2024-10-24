@@ -65,7 +65,7 @@ public interface Filterable {
 
     Filterable isNotNull(boolean condition, String name);
 
-    Filterable in(String name, Object... value);
+    Filterable in(String name, Object[] value);
 
     Filterable in(boolean condition, String name, Object[] value);
 
