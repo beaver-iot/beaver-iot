@@ -60,7 +60,7 @@ public class UserService {
     }
 
     public UserPO getUserByEmail(String email) {
-        return userRepository.findUniqueOne(filter -> filter.eq(UserPO.Fields.email, email));
+        return userRepository.findOne(filter -> filter.eq(UserPO.Fields.email, email)).orElse(null);
     }
 
 }

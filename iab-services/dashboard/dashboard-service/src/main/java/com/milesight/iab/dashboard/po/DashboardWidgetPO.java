@@ -11,7 +11,7 @@ import lombok.experimental.FieldNameConstants;
  * @date 2024/10/14 15:10
  */
 @Data
-@Table(name = "dashboard_widget")
+@Table(name = "t_dashboard_widget")
 @Entity
 @FieldNameConstants
 public class DashboardWidgetPO {

@@ -18,7 +18,7 @@ import com.milesight.iab.eventbus.annotations.EventSubscribe;
 import com.milesight.iab.eventbus.api.Event;
 import com.milesight.iab.integration.msc.constant.MscIntegrationConstants;
 import com.milesight.iab.integration.msc.entity.MscServiceEntities;
-import com.milesight.iab.integration.msc.util.TslUtils;
+import com.milesight.iab.integration.msc.util.MscTslUtils;
 import com.milesight.msc.sdk.error.MscSdkException;
 import lombok.*;
 import lombok.extern.slf4j.*;
@@ -69,7 +69,7 @@ public class MscDeviceService {
         val objectMapper = mscClientProvider.getMscClient().getObjectMapper();
         val servicePayload = exchangePayload.getPayloadsByEntityType(EntityType.SERVICE);
         val deviceId = (String) device.getAdditional().get(DEVICE_ID_KEY);
-        val serviceGroups = TslUtils.exchangePayloadMapToGroupedJsonNode(objectMapper, servicePayload);
+        val serviceGroups = MscTslUtils.convertExchangePayloadMapToGroupedJsonNode(objectMapper, servicePayload);
         serviceGroups.forEach((serviceId, serviceProperties) ->
                 mscClientProvider.getMscClient().device().callService(deviceId, TslServiceCallRequest.builder()
                         .serviceId(serviceId)
@@ -83,13 +83,13 @@ public class MscDeviceService {
         val propertiesPayload = exchangePayload.getPayloadsByEntityType(EntityType.PROPERTY);
         val deviceId = (String) device.getAdditional().get(DEVICE_ID_KEY);
         mscClientProvider.getMscClient().device().updateProperties(deviceId, TslPropertyDataUpdateRequest.builder()
-                        .properties(TslUtils.exchangePayloadMapToJsonNode(objectMapper, propertiesPayload))
+                        .properties(MscTslUtils.convertExchangePayloadMapToGroupedJsonNode(objectMapper, propertiesPayload))
                         .build())
                 .execute();
     }
 
     @SneakyThrows
-    @EventSubscribe(payloadKeyExpression = "msc-integration.integration.add-device", eventType = ExchangeEvent.EventType.DOWN, async = false)
+    @EventSubscribe(payloadKeyExpression = "msc-integration.integration.add-device", eventType = ExchangeEvent.EventType.DOWN)
     public void onAddDevice(Event<MscServiceEntities.AddDevice> event) {
         val deviceName = (String) event.getPayload().getContext().getOrDefault("name", "Device Name");
         if (mscClientProvider == null || mscClientProvider.getMscClient() == null) {
@@ -121,7 +121,7 @@ public class MscDeviceService {
     }
 
     public Device addLocalDevice(String identifier, String deviceName, String deviceId, ThingSpec thingSpec) {
-        val entities = TslUtils.tslToEntities(thingSpec);
+        val entities = MscTslUtils.thingSpecificationToEntities(thingSpec);
         addAdditionalEntities(entities);
 
         val device = new DeviceBuilder(MscIntegrationConstants.INTEGRATION_IDENTIFIER, MscIntegrationConstants.INTEGRATION_IDENTIFIER)
@@ -135,7 +135,7 @@ public class MscDeviceService {
     }
 
     public Device updateLocalDevice(String identifier, String deviceName, String deviceId, ThingSpec thingSpec) {
-        val entities = TslUtils.tslToEntities(thingSpec);
+        val entities = MscTslUtils.thingSpecificationToEntities(thingSpec);
         addAdditionalEntities(entities);
 
         val device = deviceServiceProvider.findByIdentifier(identifier, MscIntegrationConstants.INTEGRATION_IDENTIFIER);
@@ -170,7 +170,7 @@ public class MscDeviceService {
     }
 
     @SneakyThrows
-    @EventSubscribe(payloadKeyExpression = "msc-integration.integration.delete-device", eventType = ExchangeEvent.EventType.DOWN, async = false)
+    @EventSubscribe(payloadKeyExpression = "msc-integration.integration.delete-device", eventType = ExchangeEvent.EventType.DOWN)
     public void onDeleteDevice(Event<MscServiceEntities.DeleteDevice> event) {
         if (mscClientProvider == null || mscClientProvider.getMscClient() == null) {
             log.warn("MscClient not initiated.");

@@ -11,8 +11,12 @@ import com.milesight.iab.context.support.YamlPropertySourceFactory;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.boot.context.properties.bind.BindResult;
 import org.springframework.boot.context.properties.bind.Binder;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.env.StandardEnvironment;
@@ -30,7 +34,7 @@ import java.util.Map;
  * @author leon
  */
 @Slf4j
-public class IntegrationBootstrapManager {
+public class IntegrationBootstrapManager implements SmartInitializingSingleton {
 
     private PropertySourceFactory propertySourceFactory;
     private IntegrationContext integrationContext = new IntegrationContext();
@@ -152,5 +156,9 @@ public class IntegrationBootstrapManager {
         });
     }
 
+    @Override
+    public void afterSingletonsInstantiated() {
+        onStarted();
+    }
 }
 

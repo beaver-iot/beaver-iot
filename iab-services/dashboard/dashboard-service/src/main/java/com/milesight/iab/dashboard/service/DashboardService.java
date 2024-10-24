@@ -47,10 +47,7 @@ public class DashboardService {
         if (!StringUtils.hasText(name)) {
             throw ServiceException.with(ErrorCode.PARAMETER_SYNTAX_ERROR).detailMessage("name is empty").build();
         }
-        DashboardPO dashboardPO = dashboardRepository.findUniqueOne(filterable -> filterable.eq(DashboardPO.Fields.name, name));
-        if (dashboardPO != null) {
-            throw ServiceException.with(DashboardErrorCode.DASHBOARD_NAME_EXIST).build();
-        }
+        DashboardPO dashboardPO = dashboardRepository.findOne(filterable -> filterable.eq(DashboardPO.Fields.name, name)).orElseThrow(()->ServiceException.with(DashboardErrorCode.DASHBOARD_NAME_EXIST).build());
         dashboardPO = new DashboardPO();
         dashboardPO.setId(SnowflakeUtil.nextId());
         dashboardPO.setName(name);
@@ -64,8 +61,8 @@ public class DashboardService {
         if (!StringUtils.hasText(name)) {
             throw ServiceException.with(ErrorCode.PARAMETER_SYNTAX_ERROR).detailMessage("name is empty").build();
         }
-        DashboardPO otherDashboardPO = dashboardRepository.findUniqueOne(filterable -> filterable.eq(DashboardPO.Fields.name, name));
-        if (otherDashboardPO != null && !Objects.equals(otherDashboardPO.getId(), dashboardId)) {
+        DashboardPO otherDashboardPO = dashboardRepository.findOne(filterable -> filterable.eq(DashboardPO.Fields.name, name)).orElseThrow(()->ServiceException.with(DashboardErrorCode.DASHBOARD_NAME_EXIST).build());
+        if (!Objects.equals(otherDashboardPO.getId(), dashboardId)) {
             throw ServiceException.with(DashboardErrorCode.DASHBOARD_NAME_EXIST).build();
         }
         DashboardPO dashboardPO = dashboardRepository.findById(dashboardId).orElseThrow(() -> ServiceException.with(ErrorCode.DATA_NO_FOUND).detailMessage("dashboard not exist").build());

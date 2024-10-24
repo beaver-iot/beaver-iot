@@ -472,7 +472,7 @@ public class EntityService implements EntityServiceProvider {
             return null;
         }
         Long entityId = entityPO.getId();
-        EntityLatestPO entityLatestPO = entityLatestRepository.findUniqueOne(filter -> filter.eq(EntityLatestPO.Fields.entityId, entityId));
+        EntityLatestPO entityLatestPO = entityLatestRepository.findOne(filter -> filter.eq(EntityLatestPO.Fields.entityId, entityId)).orElse(null);
         if (entityLatestPO == null) {
             return null;
         }
@@ -566,6 +566,7 @@ public class EntityService implements EntityServiceProvider {
             response.setDeviceName(deviceName);
             response.setIntegrationName(integrationName);
             response.setEntityId(entityPO.getId().toString());
+            response.setEntityAccessMod(entityPO.getAccessMod());
             response.setEntityKey(entityPO.getKey());
             response.setEntityName(entityPO.getName());
             response.setEntityValueAttribute(entityPO.getValueAttribute());
@@ -712,7 +713,7 @@ public class EntityService implements EntityServiceProvider {
     }
 
     public EntityLatestResponse getEntityStatus(Long entityId) {
-        EntityLatestPO entityLatestPO = entityLatestRepository.findUniqueOne(filter -> filter.eq(EntityLatestPO.Fields.entityId, entityId));
+        EntityLatestPO entityLatestPO = entityLatestRepository.findOne(filter -> filter.eq(EntityLatestPO.Fields.entityId, entityId)).orElseThrow(()->ServiceException.with(ErrorCode.DATA_NO_FOUND).build());
         EntityLatestResponse entityLatestResponse = new EntityLatestResponse();
         if (entityLatestPO.getValueBoolean() != null) {
             entityLatestResponse.setValue(entityLatestPO.getValueBoolean());
@@ -790,7 +791,7 @@ public class EntityService implements EntityServiceProvider {
     }
 
     private EntityPO getByKey(String entityKey) {
-        return entityRepository.findUniqueOne(filter -> filter.eq(EntityPO.Fields.key, entityKey));
+        return entityRepository.findOne(filter -> filter.eq(EntityPO.Fields.key, entityKey)).orElse(null);
     }
 
     private List<EntityPO> getByKeys(List<String> entityKeys) {

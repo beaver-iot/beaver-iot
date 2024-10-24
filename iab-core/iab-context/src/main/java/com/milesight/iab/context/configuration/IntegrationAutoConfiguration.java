@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class IntegrationAutoConfiguration {
 
-    @Bean(initMethod = "onStarted", destroyMethod = "onDestroy")
+    @Bean( destroyMethod = "onDestroy")
     @ConditionalOnMissingBean
     public IntegrationBootstrapManager integrationBootstrapManager(ObjectProvider<EntityLoader> entityLoaders, ObjectProvider<IntegrationBootstrap> integrationBootstraps, IntegrationServiceProvider integrationStorageProvider){
         return new IntegrationBootstrapManager(entityLoaders, integrationBootstraps, integrationStorageProvider);

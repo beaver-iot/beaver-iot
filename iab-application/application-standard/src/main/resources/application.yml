@@ -34,7 +34,13 @@ websocket:
   enabled: true
   port: ${WEBSOCKET_PORT:9201}
   context-path: ${WEBSOCKET_CONTEXT_PATH:/websocket}
+oauth2:
+  permit-urls:
+    - "/oauth2/token"
+    - "/user/register"
+    - "/public/**"
 
 logging:
   level:
+    org.springframework.security: debug
     com.milesight.iab: debug

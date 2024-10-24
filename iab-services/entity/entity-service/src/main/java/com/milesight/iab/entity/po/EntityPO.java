@@ -13,7 +13,7 @@ import lombok.experimental.FieldNameConstants;
  * @date 2024/10/16 14:25
  */
 @Data
-@Table(name = "entity")
+@Table(name = "t_entity")
 @Entity
 @FieldNameConstants
 public class EntityPO {

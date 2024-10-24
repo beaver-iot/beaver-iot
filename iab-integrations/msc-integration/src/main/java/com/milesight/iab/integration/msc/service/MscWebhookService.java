@@ -9,7 +9,6 @@ import com.milesight.iab.eventbus.api.Event;
 import com.milesight.iab.integration.msc.constant.MscIntegrationConstants;
 import com.milesight.iab.integration.msc.entity.MscConnectionPropertiesEntities;
 import com.milesight.iab.integration.msc.model.WebhookPayload;
-import com.milesight.iab.integration.msc.util.TslUtils;
 import com.milesight.msc.sdk.utils.HMacUtils;
 import com.milesight.msc.sdk.utils.TimeUtils;
 import lombok.*;
