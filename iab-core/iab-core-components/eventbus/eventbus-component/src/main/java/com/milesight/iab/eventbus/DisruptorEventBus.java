@@ -9,6 +9,7 @@ import com.milesight.iab.eventbus.api.Event;
 import com.milesight.iab.eventbus.api.EventResponse;
 import com.milesight.iab.eventbus.api.IdentityKey;
 import com.milesight.iab.eventbus.configuration.DisruptorOptions;
+import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -28,7 +29,6 @@ import java.util.function.Consumer;
 @Slf4j
 public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implements EventBus<T>, ApplicationContextAware {
 
-    private Map<ListenerCacheKey, List<EventSubscribeInvoker>> syncSubscribeCache = new ConcurrentHashMap<>();
     private final Map<Class<T>, Map<ListenerCacheKey,List<EventSubscribeInvoker>>> asyncSubscribeCache = new ConcurrentHashMap<>();
     private final Map<Class<?>, Disruptor<Event<?>>> disruptorCache = new ConcurrentHashMap<>();
     private DisruptorOptions disruptorOptions;
@@ -82,7 +82,14 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
 
         Map<String, Object> eventResponse = new HashMap<>();
 
-        for (Map.Entry<ListenerCacheKey, List<EventSubscribeInvoker>> listenerCacheKeyListEntry : syncSubscribeCache.entrySet()) {
+        Map<ListenerCacheKey, List<EventSubscribeInvoker>> listenerCacheKeyListMap = asyncSubscribeCache.get(event.getClass());
+
+        if(listenerCacheKeyListMap == null){
+            log.warn("no subscribe handler for event: {}", event.getEventType());
+            return null;
+        }
+
+        for (Map.Entry<ListenerCacheKey, List<EventSubscribeInvoker>> listenerCacheKeyListEntry : listenerCacheKeyListMap.entrySet()) {
             createConsumer(listenerCacheKeyListEntry.getKey(), listenerCacheKeyListEntry.getValue(),eventResponse).accept(event);
         }
 
@@ -120,25 +127,14 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
         asyncSubscribeCache.get(eventClass).computeIfAbsent(listenerCacheKey, k -> new ArrayList<>()).add(new EventSubscribeInvoker(bean, executeMethod, parameterTypes, parameterResolver));
     }
 
-    public void registerSyncSubscribe(EventSubscribe eventSubscribe, Object bean, Method executeMethod){
-
-        Class<?> parameterTypes = parameterResolver.resolveParameterTypes(executeMethod);
-
-        ListenerCacheKey listenerCacheKey = new ListenerCacheKey(eventSubscribe.payloadKeyExpression(), eventSubscribe.eventType());
-
-        log.debug("registerSyncSubscribe: {}, subscriber expression: {}" , executeMethod, listenerCacheKey);
-
-        syncSubscribeCache.computeIfAbsent(listenerCacheKey, k -> new ArrayList<>()).add(new EventSubscribeInvoker(bean, executeMethod, parameterTypes, parameterResolver));
-    }
-
     public void fireAsyncSubscribe(){
         asyncSubscribeCache.forEach((k, v) -> {
-            List<Consumer<T>> allConsumers = v.entrySet().stream().map(entry -> createConsumer(entry.getKey(), entry.getValue(), Map.of())).toList();
+            List<Consumer<T>> allConsumers = v.entrySet().stream().map(entry -> createConsumer(entry.getKey(), entry.getValue(), null)).toList();
             subscribe(k, allConsumers.toArray(new Consumer[0]));
         });
     }
 
-    private Consumer<T> createConsumer(ListenerCacheKey cacheKey, List<EventSubscribeInvoker> invokers, Map<String,Object> eventResponses) {
+    private Consumer<T> createConsumer(ListenerCacheKey cacheKey, List<EventSubscribeInvoker> invokers, @Nullable Map<String,Object> eventResponses) {
         return event -> {
             if(!cacheKey.matchEventType(event.getEventType())){
                 return;
@@ -152,7 +148,7 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
                     Object invoke = invoker.invoke(event, matchMultiKeys);
                     if(invoke != null && invoke instanceof EventResponse){
                         EventResponse eventResponse = (EventResponse) invoke;
-                        if(eventResponse != null){
+                        if(eventResponse != null && eventResponses != null){
                             eventResponses.put(eventResponse.getKey(), eventResponse.getValue());
                         }
                     }

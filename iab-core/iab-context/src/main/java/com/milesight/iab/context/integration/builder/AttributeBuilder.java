@@ -26,6 +26,9 @@ public class AttributeBuilder {
     private Map<String, Object> attributes = new HashMap<>();
 
     public AttributeBuilder unit(String unit) {
+        if(ObjectUtils.isEmpty(unit)) {
+            return this;
+        }
         attributes.put(ATTRIBUTE_UNIT, unit);
         return this;
     }
