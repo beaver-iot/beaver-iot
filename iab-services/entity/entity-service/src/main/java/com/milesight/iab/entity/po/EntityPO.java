@@ -4,9 +4,7 @@ import com.milesight.iab.context.integration.enums.AccessMod;
 import com.milesight.iab.context.integration.enums.EntityType;
 import com.milesight.iab.context.integration.enums.EntityValueType;
 import com.milesight.iab.entity.enums.AttachTargetType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
 
@@ -24,13 +22,17 @@ public class EntityPO {
     private Long id;
     private String key;
     private String name;
+    @Enumerated(EnumType.STRING)
     private EntityType type;
+    @Enumerated(EnumType.STRING)
     private AccessMod accessMod;
     private Boolean syncCall;
     private String parent;
+    @Enumerated(EnumType.STRING)
     private AttachTargetType attachTarget;
     private String attachTargetId;
     private String valueAttribute;
+    @Enumerated(EnumType.STRING)
     private EntityValueType valueType;
     private Long createdAt;
     private Long updatedAt;
