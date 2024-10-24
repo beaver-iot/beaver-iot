@@ -69,7 +69,7 @@ public class MscDeviceService {
         val objectMapper = mscClientProvider.getMscClient().getObjectMapper();
         val servicePayload = exchangePayload.getPayloadsByEntityType(EntityType.SERVICE);
         val deviceId = (String) device.getAdditional().get(DEVICE_ID_KEY);
-        val serviceGroups = MscTslUtils.exchangePayloadMapToGroupedJsonNode(objectMapper, servicePayload);
+        val serviceGroups = MscTslUtils.convertExchangePayloadMapToGroupedJsonNode(objectMapper, servicePayload);
         serviceGroups.forEach((serviceId, serviceProperties) ->
                 mscClientProvider.getMscClient().device().callService(deviceId, TslServiceCallRequest.builder()
                         .serviceId(serviceId)
@@ -83,7 +83,7 @@ public class MscDeviceService {
         val propertiesPayload = exchangePayload.getPayloadsByEntityType(EntityType.PROPERTY);
         val deviceId = (String) device.getAdditional().get(DEVICE_ID_KEY);
         mscClientProvider.getMscClient().device().updateProperties(deviceId, TslPropertyDataUpdateRequest.builder()
-                        .properties(MscTslUtils.exchangePayloadMapToJsonNode(objectMapper, propertiesPayload))
+                        .properties(MscTslUtils.convertExchangePayloadMapToGroupedJsonNode(objectMapper, propertiesPayload))
                         .build())
                 .execute();
     }

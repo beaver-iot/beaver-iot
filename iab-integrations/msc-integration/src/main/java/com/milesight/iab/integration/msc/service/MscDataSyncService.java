@@ -103,13 +103,13 @@ public class MscDataSyncService {
             return;
         }
         if (periodSeconds == 0) {
-            val mscConnectionProperties = entityServiceProvider.findExchangeByKey(
-                    MscIntegrationConstants.INTEGRATION_IDENTIFIER, MscConnectionPropertiesEntities.class);
-            if (mscConnectionProperties == null) {
+            val scheduledDataFetchSettings = entityServiceProvider.findExchangeByKey(
+                    MscConnectionPropertiesEntities.getKey(MscConnectionPropertiesEntities.Fields.scheduledDataFetch),
+                    MscConnectionPropertiesEntities.ScheduledDataFetch.class);
+            if (scheduledDataFetchSettings == null) {
                 periodSeconds = -1;
                 return;
             }
-            val scheduledDataFetchSettings = mscConnectionProperties.getScheduledDataFetch();
             if (!Boolean.TRUE.equals(scheduledDataFetchSettings.getEnabled())
                     || scheduledDataFetchSettings.getPeriod() == null
                     || scheduledDataFetchSettings.getPeriod() == 0) {
@@ -303,13 +303,11 @@ public class MscDataSyncService {
     }
 
     public void saveHistoryData(String deviceKey, JsonNode properties, long timestampMs) {
-        val keyValues = MscTslUtils.jsonNodeToKeyValues(properties);
-        val content = new HashMap<String, Object>();
-        keyValues.forEach((groupKey, group) -> {
-            val prefix = String.format("%s.%s", deviceKey, groupKey);
-            group.forEach((key, value) -> content.put(key.isEmpty() ? prefix : String.format("%s.%s", prefix, key), value));
-        });
-        val payload = ExchangePayload.create(content);
+        // todo support event and service
+        val payload = MscTslUtils.convertJsonNodeToExchangePayload(deviceKey, properties);
+        if (payload == null || payload.isEmpty()) {
+            return;
+        }
         payload.setTimestamp(timestampMs);
         entityServiceProvider.saveExchangeHistory(payload);
     }
