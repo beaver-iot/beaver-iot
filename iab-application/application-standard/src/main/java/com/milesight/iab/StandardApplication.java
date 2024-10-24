@@ -10,15 +10,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  * @author leon
  */
 
-//@EnableJpaRepositories
-@EnableJpaRepositories(
-        repositoryBaseClass = BaseJpaRepositoryImpl.class
-//        repositoryFactoryBeanClass = CustomJpaRepositoryFactoryBean.class,
-//        basePackages = {
-//                "com.yeastar.cloud.dm.server.security.repository",
-//                "com.yeastar.cloud.dm.server.repository"
-//        }
-        )
+@EnableJpaRepositories(repositoryBaseClass = BaseJpaRepositoryImpl.class )
 @SpringBootApplication
 public class StandardApplication {
 
