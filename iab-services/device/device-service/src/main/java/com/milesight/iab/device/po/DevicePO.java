@@ -13,7 +13,7 @@ import java.util.Map;
 @Data
 @Entity
 @FieldNameConstants
-@Table(name = "device")
+@Table(name = "t_device")
 public class DevicePO {
 
     @Id

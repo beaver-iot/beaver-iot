@@ -44,7 +44,7 @@ public class DeviceFacade implements IDeviceFacade {
     @Override
     public List<DeviceNameDTO> getDeviceNameByIntegrations(List<String> integrationIds) {
         return deviceRepository
-                .findAll(f -> f.in(DevicePO.Fields.integration, integrationIds))
+                .findAll(f -> f.in(DevicePO.Fields.integration, integrationIds.toArray()))
                 .stream()
                 .map(this::convertDevicePO)
                 .collect(Collectors.toList());
@@ -60,7 +60,7 @@ public class DeviceFacade implements IDeviceFacade {
 
     @Override
     public List<DeviceNameDTO> getDeviceNameByKey(List<String> deviceKeys) {
-        return deviceRepository.findAll(f -> f.in(DevicePO.Fields.key, deviceKeys))
+        return deviceRepository.findAll(f -> f.in(DevicePO.Fields.key, deviceKeys.toArray()))
                 .stream()
                 .map(this::convertDevicePO)
                 .collect(Collectors.toList());

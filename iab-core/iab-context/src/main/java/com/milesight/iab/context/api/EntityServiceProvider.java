@@ -1,5 +1,6 @@
 package com.milesight.iab.context.api;
 
+import com.milesight.iab.context.integration.enums.AttachTargetType;
 import com.milesight.iab.context.integration.model.Entity;
 import com.milesight.iab.context.integration.model.ExchangePayload;
 
@@ -12,9 +13,9 @@ import java.util.Map;
  */
 public interface EntityServiceProvider {
 
-    List<Entity> findByTargetId(String targetId);
+    List<Entity> findByTargetId(AttachTargetType targetType, String targetId);
 
-    List<Entity> findByTargetIds(List<String> targetIds);
+    List<Entity> findByTargetIds(AttachTargetType targetType, List<String> targetIds);
 
     void save(Entity entity);
 

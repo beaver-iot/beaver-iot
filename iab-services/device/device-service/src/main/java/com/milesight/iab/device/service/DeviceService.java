@@ -3,8 +3,8 @@ package com.milesight.iab.device.service;
 import com.milesight.iab.base.enums.ErrorCode;
 import com.milesight.iab.base.exception.ServiceException;
 import com.milesight.iab.context.api.EntityServiceProvider;
-import com.milesight.iab.context.api.ExchangeFlowExecutor;
 import com.milesight.iab.context.api.IntegrationServiceProvider;
+import com.milesight.iab.context.integration.enums.AttachTargetType;
 import com.milesight.iab.context.integration.model.Entity;
 import com.milesight.iab.context.integration.model.ExchangePayload;
 import com.milesight.iab.context.integration.model.Integration;
@@ -18,6 +18,7 @@ import com.milesight.iab.device.model.response.DeviceResponseData;
 import com.milesight.iab.device.po.DevicePO;
 import com.milesight.iab.device.repository.DeviceRepository;
 import com.milesight.iab.eventbus.EventBus;
+import com.milesight.iab.rule.RuleEngineExecutor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -41,7 +42,7 @@ public class DeviceService {
     IntegrationServiceProvider integrationServiceProvider;
 
     @Autowired
-    ExchangeFlowExecutor exchangeFlowExecutor;
+    RuleEngineExecutor engineExecutor;
 
     @Lazy
     @Autowired
@@ -58,7 +59,7 @@ public class DeviceService {
         Integration integrationConfig = integrationServiceProvider.getIntegration(integrationIdentifier);
         if (integrationConfig == null) {
             throw ServiceException
-                    .with("INTEGRATION_NOT_FOUND", "integration" + integrationIdentifier + " not found!")
+                    .with("INTEGRATION_NOT_FOUND", "integration " + integrationIdentifier + " not found!")
                     .status(HttpStatus.BAD_REQUEST.value())
                     .build();
         }
@@ -74,7 +75,7 @@ public class DeviceService {
         String addDeviceEntityId = integrationConfig.getEntityIdentifierAddDevice();
         if (addDeviceEntityId == null) {
             throw ServiceException
-                    .with("INTEGRATION_NO_ADD_DEVICE", "integration" + integrationIdentifier + " cannot add device!")
+                    .with("INTEGRATION_NO_ADD_DEVICE", "integration " + integrationIdentifier + " cannot add device!")
                     .status(HttpStatus.BAD_REQUEST.value())
                     .build();
         }
@@ -84,7 +85,7 @@ public class DeviceService {
         payload.putContext("deviceName", createDeviceRequest.getName());
 
         // Must return a device
-        exchangeFlowExecutor.syncExchangeDown(payload);
+        engineExecutor.exchangeDown(payload);
     }
 
     private DeviceResponseData convertPOToResponseData(DevicePO devicePO) {
@@ -148,7 +149,7 @@ public class DeviceService {
             return payload;
         }).forEach((ExchangePayload payload) -> {
             // call service for deleting
-            exchangeFlowExecutor.syncExchangeDown(payload);
+            engineExecutor.exchangeDown(payload);
         });
     }
 
@@ -163,7 +164,7 @@ public class DeviceService {
 
         // set entities
         List<DeviceEntityData> deviceEntityDataList = entityServiceProvider
-                .findByTargetId(deviceId.toString())
+                .findByTargetId(AttachTargetType.DEVICE, deviceId.toString())
                 .stream().map((Entity entity) -> DeviceEntityData
                         .builder()
                         .id(entity.getId())

@@ -1,7 +1,7 @@
 --liquibase formatted sql
 
 --changeset loong:user_v1.0.0_20241024_095400
-CREATE TABLE `user`
+CREATE TABLE `t_user`
 (
     id         BIGINT PRIMARY KEY,
     email      VARCHAR(255),

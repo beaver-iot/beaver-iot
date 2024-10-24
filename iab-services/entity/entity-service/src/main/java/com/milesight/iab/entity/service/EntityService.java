@@ -18,7 +18,7 @@ import com.milesight.iab.context.security.SecurityUserContext;
 import com.milesight.iab.device.dto.DeviceNameDTO;
 import com.milesight.iab.device.facade.IDeviceFacade;
 import com.milesight.iab.entity.enums.AggregateType;
-import com.milesight.iab.entity.enums.AttachTargetType;
+import com.milesight.iab.context.integration.enums.AttachTargetType;
 import com.milesight.iab.entity.model.dto.EntityHistoryUnionQuery;
 import com.milesight.iab.entity.model.request.EntityAggregateQuery;
 import com.milesight.iab.entity.model.request.EntityFormRequest;
@@ -110,6 +110,7 @@ public class EntityService implements EntityServiceProvider {
                 attachTarget = AttachTargetType.INTEGRATION;
                 attachTargetId = entity.getIntegrationId();
             }
+            //TODO
             Long entityId = entity.getId();
             boolean isCreate = entityId == null;
             if (entityId == null) {
@@ -139,22 +140,23 @@ public class EntityService implements EntityServiceProvider {
     }
 
     @Override
-    public List<Entity> findByTargetId(String targetId) {
+    public List<Entity> findByTargetId(AttachTargetType targetType, String targetId) {
         if (!StringUtils.hasText(targetId)) {
             return new ArrayList<>();
         }
-        return findByTargetIds(Collections.singletonList(targetId));
+        return findByTargetIds(targetType, Collections.singletonList(targetId));
     }
 
     @Override
-    public List<Entity> findByTargetIds(List<String> targetIds) {
+    public List<Entity> findByTargetIds(AttachTargetType targetType, List<String> targetIds) {
         if (targetIds == null || targetIds.isEmpty()) {
             return new ArrayList<>();
         }
-        List<EntityPO> entityPOList = entityRepository.findAll(filter -> filter.in(EntityPO.Fields.attachTargetId, targetIds));
+        List<EntityPO> entityPOList = entityRepository.findAll(filter -> filter.in(EntityPO.Fields.attachTargetId, targetIds.toArray()));
         if (entityPOList == null || entityPOList.isEmpty()) {
             return new ArrayList<>();
         }
+        //TODO
         List<DeviceNameDTO> deviceNameDTOList = deviceFacade.getDeviceNameByIds(targetIds.stream().map(Long::valueOf).collect(Collectors.toList()));
         Map<String, String> deviceKeyMap = new HashMap<>();
         Map<String, Integration> deviceIntegrationMap = new HashMap<>();
@@ -280,7 +282,7 @@ public class EntityService implements EntityServiceProvider {
         List<Device> integrationDevices = deviceServiceProvider.findAll(integrationId);
         if (integrationDevices != null && !integrationDevices.isEmpty()) {
             List<String> deviceIds = integrationDevices.stream().map(t -> String.valueOf(t.getId())).toList();
-            List<EntityPO> deviceEntityPOList = entityRepository.findAll(filter -> filter.eq(EntityPO.Fields.attachTarget, AttachTargetType.DEVICE).in(EntityPO.Fields.attachTargetId, deviceIds));
+            List<EntityPO> deviceEntityPOList = entityRepository.findAll(filter -> filter.eq(EntityPO.Fields.attachTarget, AttachTargetType.DEVICE).in(EntityPO.Fields.attachTargetId, deviceIds.toArray()));
             if (deviceEntityPOList != null && !deviceEntityPOList.isEmpty()) {
                 allEntityCount += deviceEntityPOList.size();
             }
@@ -298,7 +300,7 @@ public class EntityService implements EntityServiceProvider {
         List<DeviceNameDTO> integrationDevices = deviceFacade.getDeviceNameByIntegrations(integrationIds);
         if (integrationDevices != null && !integrationDevices.isEmpty()) {
             List<String> deviceIds = integrationDevices.stream().map(DeviceNameDTO::getId).map(String::valueOf).toList();
-            List<EntityPO> deviceEntityPOList = entityRepository.findAll(filter -> filter.eq(EntityPO.Fields.attachTarget, AttachTargetType.DEVICE).in(EntityPO.Fields.attachTargetId, deviceIds));
+            List<EntityPO> deviceEntityPOList = entityRepository.findAll(filter -> filter.eq(EntityPO.Fields.attachTarget, AttachTargetType.DEVICE).in(EntityPO.Fields.attachTargetId, deviceIds.toArray()));
             if (deviceEntityPOList != null && !deviceEntityPOList.isEmpty()) {
                 allEntityCountMap.putAll(deviceEntityPOList.stream().collect(Collectors.groupingBy(EntityPO::getAttachTargetId, Collectors.counting())));
             }
@@ -323,7 +325,7 @@ public class EntityService implements EntityServiceProvider {
         if (integrationIds == null || integrationIds.isEmpty()) {
             return Collections.emptyMap();
         }
-        List<EntityPO> integrationEntityPOList = entityRepository.findAll(filter -> filter.eq(EntityPO.Fields.attachTarget, AttachTargetType.INTEGRATION).in(EntityPO.Fields.attachTargetId, integrationIds));
+        List<EntityPO> integrationEntityPOList = entityRepository.findAll(filter -> filter.eq(EntityPO.Fields.attachTarget, AttachTargetType.INTEGRATION).in(EntityPO.Fields.attachTargetId, integrationIds.toArray()));
         if (integrationEntityPOList == null || integrationEntityPOList.isEmpty()) {
             return Collections.emptyMap();
         }
@@ -346,7 +348,7 @@ public class EntityService implements EntityServiceProvider {
         }
         Map<String, Long> entityIdMap = entityPOList.stream().collect(Collectors.toMap(EntityPO::getKey, EntityPO::getId));
         List<Long> entityIds = entityPOList.stream().map(EntityPO::getId).toList();
-        List<EntityLatestPO> nowEntityLatestPOList = entityLatestRepository.findAll(filter -> filter.in(EntityLatestPO.Fields.entityId, entityIds));
+        List<EntityLatestPO> nowEntityLatestPOList = entityLatestRepository.findAll(filter -> filter.in(EntityLatestPO.Fields.entityId, entityIds.toArray()));
         Map<Long, Long> entityIdDataMap = new HashMap<>();
         if (nowEntityLatestPOList != null && !nowEntityLatestPOList.isEmpty()) {
             entityIdDataMap.putAll(nowEntityLatestPOList.stream().collect(Collectors.toMap(EntityLatestPO::getEntityId, EntityLatestPO::getId)));
@@ -464,7 +466,7 @@ public class EntityService implements EntityServiceProvider {
             return null;
         }
         Long entityId = entityPO.getId();
-        EntityLatestPO entityLatestPO = entityLatestRepository.findUniqueOne(filter -> filter.eq(EntityLatestPO.Fields.entityId, entityId));
+        EntityLatestPO entityLatestPO = entityLatestRepository.findOne(filter -> filter.eq(EntityLatestPO.Fields.entityId, entityId)).orElse(null);
         if (entityLatestPO == null) {
             return null;
         }
@@ -541,7 +543,7 @@ public class EntityService implements EntityServiceProvider {
         }
         Page<EntityPO> entityPOList = entityRepository.findAll(f -> f.eq(EntityPO.Fields.type, entityQuery.getEntityType())
                         .or(f1 -> f1.like(EntityPO.Fields.name, entityQuery.getKeyword())
-                                .in(EntityPO.Fields.attachTargetId, attachTargetIds)),
+                                .in(EntityPO.Fields.attachTargetId, attachTargetIds.toArray())),
                 entityQuery.toPageable());
         if (entityPOList == null || entityPOList.getContent().isEmpty()) {
             return Page.empty();
@@ -717,7 +719,7 @@ public class EntityService implements EntityServiceProvider {
     }
 
     public EntityLatestResponse getEntityStatus(Long entityId) {
-        EntityLatestPO entityLatestPO = entityLatestRepository.findUniqueOne(filter -> filter.eq(EntityLatestPO.Fields.entityId, entityId));
+        EntityLatestPO entityLatestPO = entityLatestRepository.findOne(filter -> filter.eq(EntityLatestPO.Fields.entityId, entityId)).orElseThrow(()->ServiceException.with(ErrorCode.DATA_NO_FOUND).build());
         EntityLatestResponse entityLatestResponse = new EntityLatestResponse();
         if (entityLatestPO.getValueBoolean() != null) {
             entityLatestResponse.setValue(entityLatestPO.getValueBoolean());
@@ -751,7 +753,7 @@ public class EntityService implements EntityServiceProvider {
         if (entityIds == null || entityIds.isEmpty()) {
             throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).detailMessage("entityIdList is empty").build();
         }
-        List<EntityPO> entityPOList = entityRepository.findAll(filter -> filter.in(EntityPO.Fields.id, entityIds));
+        List<EntityPO> entityPOList = entityRepository.findAll(filter -> filter.in(EntityPO.Fields.id, entityIds.toArray()));
         if (entityPOList == null || entityPOList.isEmpty()) {
             throw ServiceException.with(ErrorCode.DATA_NO_FOUND).detailMessage("entity not found").build();
         }
@@ -795,11 +797,11 @@ public class EntityService implements EntityServiceProvider {
     }
 
     private EntityPO getByKey(String entityKey) {
-        return entityRepository.findUniqueOne(filter -> filter.eq(EntityPO.Fields.key, entityKey));
+        return entityRepository.findOne(filter -> filter.eq(EntityPO.Fields.key, entityKey)).orElse(null);
     }
 
     private List<EntityPO> getByKeys(List<String> entityKeys) {
-        return entityRepository.findAll(filter -> filter.in(EntityPO.Fields.key, entityKeys));
+        return entityRepository.findAll(filter -> filter.in(EntityPO.Fields.key, entityKeys.toArray()));
     }
 
 }

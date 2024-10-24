@@ -5,6 +5,7 @@ import com.milesight.iab.base.exception.ServiceException;
 import com.milesight.iab.context.api.DeviceServiceProvider;
 import com.milesight.iab.context.api.EntityServiceProvider;
 import com.milesight.iab.context.api.IntegrationServiceProvider;
+import com.milesight.iab.context.integration.enums.AttachTargetType;
 import com.milesight.iab.context.integration.model.Entity;
 import com.milesight.iab.context.integration.model.Integration;
 import com.milesight.iab.integration.model.request.SearchIntegrationRequest;
@@ -15,6 +16,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -41,8 +43,12 @@ public class IntegrationService {
     }
 
     public List<SearchIntegrationResponseData> searchIntegration(SearchIntegrationRequest searchDeviceRequest) {
-        List<Integration> integrations = integrationServiceProvider.findActiveIntegrations();
-        List<String> integrationIds = integrations.stream().map(Integration::getId).collect(Collectors.toList());
+        List<Integration> integrations = integrationServiceProvider.findAllIntegrations().stream().toList();
+        if (integrations.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<String> integrationIds = integrations.stream().map(Integration::getId).toList();
         Map<String, Long> integrationDeviceCount = deviceServiceProvider.countByIntegrationIds(integrationIds);
         Map<String, Long> integrationEntityCount = entityServiceProvider.countAllEntitiesByIntegrationIds(integrationIds);
         return integrations
@@ -84,7 +90,7 @@ public class IntegrationService {
         BeanUtils.copyProperties(integrationToSearchResponseData(integration), data);
         data.setDeviceCount(deviceServiceProvider.countByIntegrationId(integrationId));
         data.setEntityCount(entityServiceProvider.countAllEntitiesByIntegrationId(integrationId));
-        data.setIntegrationEntities(entityServiceProvider.findByTargetId(integrationId)
+        data.setIntegrationEntities(entityServiceProvider.findByTargetId(AttachTargetType.INTEGRATION, integrationId)
                 .stream().map((Entity entity) -> IntegrationEntityData
                         .builder()
                         .id(entity.getId())

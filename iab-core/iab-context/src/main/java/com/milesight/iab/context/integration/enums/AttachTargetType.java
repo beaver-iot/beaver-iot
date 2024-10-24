@@ -1,4 +1,4 @@
-package com.milesight.iab.entity.enums;
+package com.milesight.iab.context.integration.enums;
 
 /**
  * @author loong

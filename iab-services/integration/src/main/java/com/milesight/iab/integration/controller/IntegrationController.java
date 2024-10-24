@@ -18,8 +18,8 @@ public class IntegrationController {
     IntegrationService integrationService;
 
     @PostMapping("/search")
-    public ResponseBody<List<SearchIntegrationResponseData>> searchIntegration(@RequestBody SearchIntegrationRequest searchDeviceRequest) {
-        return ResponseBuilder.success(integrationService.searchIntegration(searchDeviceRequest));
+    public ResponseBody<List<SearchIntegrationResponseData>> searchIntegration(@RequestBody SearchIntegrationRequest searchIntegrationRequest) {
+        return ResponseBuilder.success(integrationService.searchIntegration(searchIntegrationRequest));
     }
 
     @GetMapping("/{integrationId}")

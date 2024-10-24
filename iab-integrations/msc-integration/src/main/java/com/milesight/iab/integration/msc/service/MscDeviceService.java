@@ -18,7 +18,7 @@ import com.milesight.iab.eventbus.annotations.EventSubscribe;
 import com.milesight.iab.eventbus.api.Event;
 import com.milesight.iab.integration.msc.constant.MscIntegrationConstants;
 import com.milesight.iab.integration.msc.entity.MscServiceEntities;
-import com.milesight.iab.integration.msc.util.TslUtils;
+import com.milesight.iab.integration.msc.util.MscTslUtils;
 import com.milesight.msc.sdk.error.MscSdkException;
 import lombok.*;
 import lombok.extern.slf4j.*;
@@ -69,7 +69,8 @@ public class MscDeviceService {
         val objectMapper = mscClientProvider.getMscClient().getObjectMapper();
         val servicePayload = exchangePayload.getPayloadsByEntityType(EntityType.SERVICE);
         val deviceId = (String) device.getAdditional().get(DEVICE_ID_KEY);
-        val serviceGroups = TslUtils.exchangePayloadMapToGroupedJsonNode(objectMapper, servicePayload);
+        val serviceGroups = MscTslUtils.convertExchangePayloadMapToGroupedJsonNode(
+                objectMapper, device.getKey(), servicePayload);
         serviceGroups.forEach((serviceId, serviceProperties) ->
                 mscClientProvider.getMscClient().device().callService(deviceId, TslServiceCallRequest.builder()
                         .serviceId(serviceId)
@@ -83,7 +84,8 @@ public class MscDeviceService {
         val propertiesPayload = exchangePayload.getPayloadsByEntityType(EntityType.PROPERTY);
         val deviceId = (String) device.getAdditional().get(DEVICE_ID_KEY);
         mscClientProvider.getMscClient().device().updateProperties(deviceId, TslPropertyDataUpdateRequest.builder()
-                        .properties(TslUtils.exchangePayloadMapToJsonNode(objectMapper, propertiesPayload))
+                        .properties(MscTslUtils.convertExchangePayloadMapToGroupedJsonNode(
+                                objectMapper, device.getKey(), propertiesPayload))
                         .build())
                 .execute();
     }
@@ -121,7 +123,7 @@ public class MscDeviceService {
     }
 
     public Device addLocalDevice(String identifier, String deviceName, String deviceId, ThingSpec thingSpec) {
-        val entities = TslUtils.tslToEntities(thingSpec);
+        val entities = MscTslUtils.thingSpecificationToEntities(thingSpec);
         addAdditionalEntities(entities);
 
         val device = new DeviceBuilder(MscIntegrationConstants.INTEGRATION_IDENTIFIER, MscIntegrationConstants.INTEGRATION_IDENTIFIER)
@@ -135,7 +137,7 @@ public class MscDeviceService {
     }
 
     public Device updateLocalDevice(String identifier, String deviceName, String deviceId, ThingSpec thingSpec) {
-        val entities = TslUtils.tslToEntities(thingSpec);
+        val entities = MscTslUtils.thingSpecificationToEntities(thingSpec);
         addAdditionalEntities(entities);
 
         val device = deviceServiceProvider.findByIdentifier(identifier, MscIntegrationConstants.INTEGRATION_IDENTIFIER);
