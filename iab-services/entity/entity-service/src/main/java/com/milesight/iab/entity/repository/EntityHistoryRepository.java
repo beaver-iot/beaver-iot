@@ -1,11 +1,10 @@
 package com.milesight.iab.entity.repository;
 
-import com.milesight.iab.data.api.BaseRepository;
+import com.milesight.iab.data.jpa.repository.BaseJpaRepository;
 import com.milesight.iab.entity.model.dto.EntityHistoryUnionQuery;
 import com.milesight.iab.entity.po.EntityHistoryPO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
-import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
 import java.util.List;
@@ -15,8 +14,7 @@ import java.util.Map;
  * @author loong
  * @date 2024/10/16 15:32
  */
-@Repository
-public interface EntityHistoryRepository extends BaseRepository<EntityHistoryPO, Long> {
+public interface EntityHistoryRepository extends BaseJpaRepository<EntityHistoryPO, Long> {
 
     default List<EntityHistoryPO> findByUnionUnique(EntityManager entityManager, List<EntityHistoryUnionQuery> queries) {
         String dynamicQuery = generateDynamicQuery(queries);

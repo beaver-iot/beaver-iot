@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Repository
 public interface DeviceRepository extends BaseJpaRepository<DevicePO, Long> {
     public List<DevicePO> findByIdIn(List<Long> ids);
 
