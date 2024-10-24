@@ -37,8 +37,8 @@ websocket:
 oauth2:
   permit-urls:
     - "/oauth2/token"
-    - "**/user/register"
-    - "**/public/**"
+    - "/user/register"
+    - "/public/**"
 
 logging:
   level:
