@@ -1,14 +1,14 @@
 --liquibase formatted sql
 
 --changeset loong:dashboard_v1.0.0_20241024_095400
-CREATE TABLE "dashboard"
+CREATE TABLE "t_dashboard"
 (
     id         BIGINT PRIMARY KEY,
     name       VARCHAR(255),
     created_at BIGINT,
     updated_at BIGINT
 );
-CREATE TABLE "dashboard_widget"
+CREATE TABLE "t_dashboard_widget"
 (
     id           BIGINT PRIMARY KEY,
     dashboard_id BIGINT,
@@ -16,9 +16,9 @@ CREATE TABLE "dashboard_widget"
     created_at   BIGINT,
     updated_at   BIGINT
 );
-CREATE INDEX idx_dashboard_widget_dashboard_id ON "dashboard_widget" (dashboard_id);
+CREATE INDEX idx_dashboard_widget_dashboard_id ON "t_dashboard_widget" (dashboard_id);
 
-CREATE TABLE "dashboard_widget_template"
+CREATE TABLE "t_dashboard_widget_template"
 (
     id         BIGINT PRIMARY KEY,
     name       VARCHAR(255),

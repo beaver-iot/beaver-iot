@@ -69,6 +69,8 @@ public class WebSecurityConfiguration {
     private JdbcTemplate jdbcTemplate;
     @Autowired
     AuthenticationFilter authenticationFilter;
+    @Autowired
+    OAuth2Properties oAuth2Properties;
 
     @Bean
     @Order(1)
@@ -99,9 +101,10 @@ public class WebSecurityConfiguration {
     @Order(2)
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeRequests(authorize -> authorize
-                        .requestMatchers("/oauth2/token","/user/register").permitAll()
-                        .anyRequest().authenticated()
+                .authorizeHttpRequests(authorize -> authorize
+                        .anyRequest().permitAll()
+//                        .requestMatchers(String.join(",", oAuth2Properties.getPermitUrls())).permitAll()
+//                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .formLogin(

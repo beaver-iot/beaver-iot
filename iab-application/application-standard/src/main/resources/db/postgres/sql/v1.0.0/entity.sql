@@ -1,7 +1,7 @@
 --liquibase formatted sql
 
 --changeset loong:entity_v1.0.0_20241024_095400
-CREATE TABLE "entity"
+CREATE TABLE "t_entity"
 (
     id               BIGINT PRIMARY KEY,
     key              VARCHAR(255),
@@ -18,9 +18,9 @@ CREATE TABLE "entity"
     updated_at       BIGINT,
     CONSTRAINT uk_entity_key UNIQUE (key)
 );
-CREATE INDEX idx_entity_attach_target ON "entity" (attach_target_id, attach_target);
+CREATE INDEX idx_entity_attach_target ON "t_entity" (attach_target_id, attach_target);
 
-CREATE TABLE "entity_latest"
+CREATE TABLE "t_entity_latest"
 (
     id            BIGINT PRIMARY KEY,
     entity_id     BIGINT,
@@ -31,9 +31,9 @@ CREATE TABLE "entity_latest"
     value_binary  BYTEA,
     updated_at    BIGINT
 );
-CREATE INDEX idx_entity_latest_entity_id ON "entity_latest" (entity_id);
+CREATE INDEX idx_entity_latest_entity_id ON "t_entity_latest" (entity_id);
 
-CREATE TABLE "entity_history"
+CREATE TABLE "t_entity_history"
 (
     id            BIGINT PRIMARY KEY,
     entity_id     BIGINT,

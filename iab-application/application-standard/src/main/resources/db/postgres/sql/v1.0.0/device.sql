@@ -1,7 +1,7 @@
 --liquibase formatted sql
 
 --changeset simon:device_v1.0.0_20241024_095400
-CREATE TABLE device
+CREATE TABLE t_device
 (
     id              BIGINT       NOT NULL,                                       -- Device ID
     key             VARCHAR(255) NOT NULL,                                       -- Device Key
