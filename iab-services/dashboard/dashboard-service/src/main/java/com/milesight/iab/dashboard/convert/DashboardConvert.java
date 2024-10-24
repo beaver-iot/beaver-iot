@@ -2,7 +2,6 @@ package com.milesight.iab.dashboard.convert;
 
 import com.milesight.iab.dashboard.model.response.DashboardResponse;
 import com.milesight.iab.dashboard.po.DashboardPO;
-import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -21,7 +20,6 @@ public interface DashboardConvert {
     @Mapping(source = "id", target = "dashboardId")
     DashboardResponse convertResponse(DashboardPO dashboardPO);
 
-    @IterableMapping(qualifiedByName = "convertResponse")
     List<DashboardResponse> convertResponseList(List<DashboardPO> dashboardPOList);
 
 }

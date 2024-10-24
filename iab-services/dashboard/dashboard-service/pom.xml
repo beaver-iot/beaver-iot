@@ -40,6 +40,11 @@
             <artifactId>mapstruct-processor</artifactId>
             <version>${mapstruct.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok-mapstruct-binding</artifactId>
+            <version>${lombok-mapstruct.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>com.milesight.iab</groupId>
