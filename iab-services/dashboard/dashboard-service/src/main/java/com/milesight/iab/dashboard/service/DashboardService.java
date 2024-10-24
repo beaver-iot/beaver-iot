@@ -126,7 +126,7 @@ public class DashboardService {
     }
 
     private List<DashboardWidgetResponse> getWidgetsByDashBoards(List<Long> dashboardIds) {
-        List<DashboardWidgetPO> dashboardWidgetPOList = dashboardWidgetRepository.findAll(filter -> filter.in(DashboardWidgetPO.Fields.dashboardId, dashboardIds));
+        List<DashboardWidgetPO> dashboardWidgetPOList = dashboardWidgetRepository.findAll(filter -> filter.in(DashboardWidgetPO.Fields.dashboardId, dashboardIds.toArray()));
         if (dashboardWidgetPOList == null || dashboardWidgetPOList.isEmpty()) {
             return new ArrayList<>();
         }

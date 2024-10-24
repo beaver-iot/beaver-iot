@@ -15,6 +15,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -41,8 +42,12 @@ public class IntegrationService {
     }
 
     public List<SearchIntegrationResponseData> searchIntegration(SearchIntegrationRequest searchDeviceRequest) {
-        List<Integration> integrations = integrationServiceProvider.findActiveIntegrations();
-        List<String> integrationIds = integrations.stream().map(Integration::getId).collect(Collectors.toList());
+        List<Integration> integrations = integrationServiceProvider.findAllIntegrations().stream().toList();
+        if (integrations.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<String> integrationIds = integrations.stream().map(Integration::getId).toList();
         Map<String, Long> integrationDeviceCount = deviceServiceProvider.countByIntegrationIds(integrationIds);
         Map<String, Long> integrationEntityCount = entityServiceProvider.countAllEntitiesByIntegrationIds(integrationIds);
         return integrations
