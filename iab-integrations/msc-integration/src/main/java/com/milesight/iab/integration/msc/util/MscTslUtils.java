@@ -14,10 +14,13 @@ import com.milesight.iab.context.integration.builder.EntityBuilder;
 import com.milesight.iab.context.integration.enums.AccessMod;
 import com.milesight.iab.context.integration.enums.EntityValueType;
 import com.milesight.iab.context.integration.model.Entity;
+import com.milesight.iab.context.integration.model.ExchangePayload;
 import lombok.extern.slf4j.*;
 import lombok.*;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -60,7 +63,7 @@ public class MscTslUtils {
             val children = specs.stream()
                     .filter(spec -> !key.equals(spec.getId()))
                     .toList();
-            val parentDataType = mappingDataTypeToEntityValueType(parent.getDataSpec().getDataType());
+            val parentDataType = convertDataTypeToEntityValueType(parent.getDataSpec().getDataType());
             if (parentDataType == null) {
                 return;
             }
@@ -68,7 +71,7 @@ public class MscTslUtils {
                     .identifier(parent.getId())
                     .property(parent.getName(), AccessMod.valueOf(parent.getAccessMode().name()))
                     .valueType(parentDataType)
-                    .attributes(mappingTslDataSpecToEntityAttributes(parent.getDataSpec()))
+                    .attributes(convertTslDataSpecToEntityAttributes(parent.getDataSpec()))
                     .build();
             entities.add(parentEntity);
 
@@ -94,7 +97,7 @@ public class MscTslUtils {
                                 .identifier(id)
                                 .property(name, accessMod)
                                 .valueType(valueType)
-                                .attributes(mappingTslDataSpecToEntityAttributes(dataSpec))
+                                .attributes(convertTslDataSpecToEntityAttributes(dataSpec))
                                 .build();
                     })
                     .filter(entity -> entity != null && existsIdSet.contains(entity.getIdentifier()))
@@ -116,6 +119,7 @@ public class MscTslUtils {
                 .filter(spec -> spec.getOutputs() != null && !spec.getOutputs().isEmpty())
                 .collect(Collectors.toMap(TslEventSpec::getId, TslEventSpec::getOutputs));
 
+        //noinspection DuplicatedCode
         idToEvent.forEach((key, eventSpec) -> {
             val parentEntity = new EntityBuilder()
                     .identifier(eventSpec.getId())
@@ -147,7 +151,7 @@ public class MscTslUtils {
                                 .identifier(id)
                                 .event(name)
                                 .valueType(valueType)
-                                .attributes(mappingTslDataSpecToEntityAttributes(dataSpec))
+                                .attributes(convertTslDataSpecToEntityAttributes(dataSpec))
                                 .build();
                     })
                     .filter(entity -> entity != null && existsIdSet.contains(entity.getIdentifier()))
@@ -201,7 +205,7 @@ public class MscTslUtils {
                                 .identifier(id)
                                 .event(name)
                                 .valueType(valueType)
-                                .attributes(mappingTslDataSpecToEntityAttributes(dataSpec))
+                                .attributes(convertTslDataSpecToEntityAttributes(dataSpec))
                                 .build();
                     })
                     .filter(entity -> entity != null && existsIdSet.contains(entity.getIdentifier()))
@@ -216,7 +220,7 @@ public class MscTslUtils {
         if (!existsIdSet.contains(id) || !existsIdSet.contains(dataSpec.getParentId())) {
             return null;
         }
-        val valueType = mappingDataTypeToEntityValueType(dataSpec.getDataType());
+        val valueType = convertDataTypeToEntityValueType(dataSpec.getDataType());
         if (valueType == null) {
             // remove invalid item
             existsIdSet.remove(id);
@@ -238,7 +242,7 @@ public class MscTslUtils {
         child.setIdentifier(child.getIdentifier().replace('.', '@'));
     }
 
-    private static Map<String, Object> mappingTslDataSpecToEntityAttributes(TslDataSpec dataSpec) {
+    private static Map<String, Object> convertTslDataSpecToEntityAttributes(TslDataSpec dataSpec) {
         val attributeBuilder = new AttributeBuilder();
         if (dataSpec.getUnitName() != null) {
             attributeBuilder.unit(dataSpec.getUnitName());
@@ -268,7 +272,7 @@ public class MscTslUtils {
         return attributeBuilder.build();
     }
 
-    private static EntityValueType mappingDataTypeToEntityValueType(TslDataSpec.DataTypeEnum dataType) {
+    private static EntityValueType convertDataTypeToEntityValueType(TslDataSpec.DataTypeEnum dataType) {
         switch (dataType) {
             case STRING, ENUM, FILE, IMAGE:
                 return EntityValueType.STRING;
@@ -288,21 +292,60 @@ public class MscTslUtils {
         }
     }
 
-    @Nonnull
-    public static Map<String, Map<String, JsonNode>> jsonNodeToKeyValues(JsonNode jsonNode) {
-        if (jsonNode == null || jsonNode.isEmpty() || jsonNode.isArray()) {
-            return new HashMap<>();
+    @Nullable
+    public static ExchangePayload convertJsonNodeToExchangePayload(String deviceKey, JsonNode jsonNode) {
+        return convertJsonNodeToExchangePayload(deviceKey, jsonNode, true);
+    }
+
+    /**
+     * Convert json node to exchange payload
+     *
+     * @param previousEntityKey  The entity key from parent entity
+     * @param jsonNode           The json data
+     * @param isRoot             If json data is root properties, it should be true, otherwise it should be false
+     * @return exchange payload
+     */
+    @Nullable
+    public static ExchangePayload convertJsonNodeToExchangePayload(String previousEntityKey, JsonNode jsonNode, boolean isRoot) {
+        val result = new HashMap<String, Object>();
+        if (jsonNode == null || jsonNode.isEmpty() || !jsonNode.isObject()) {
+            return null;
         }
-        // todo
-        return new HashMap<>();
+        val entries = new ArrayDeque<JsonEntry>();
+        entries.push(new JsonEntry(previousEntityKey, jsonNode));
+        int level = isRoot ? 0 : 1;
+        while (!entries.isEmpty()) {
+            val parent = entries.pop();
+            val currentLevel = level;
+            jsonNode.fields().forEachRemaining(entry -> {
+                val fieldName = entry.getKey();
+                val value = entry.getValue();
+                val parentEntityKey = parent.parentEntityKey;
+                val entityKeyTemplate = currentLevel < 1 ? "%s.%s" : "%s@%s";
+                val entityKey = String.format(entityKeyTemplate, parentEntityKey, fieldName);
+                if (value == null || value.isNull()) {
+                    log.debug("Null value is ignored: {}", entityKey);
+                } else if (value.isArray()) {
+                    log.debug("Array is not supported yet: {}", entityKey);
+                    // todo support array
+                } else if (value.isObject()) {
+                    entries.push(new JsonEntry(entityKey, value));
+                } else {
+                    result.put(entityKey, value);
+                }
+            });
+            level++;
+        }
+        if (result.isEmpty()) {
+            return null;
+        }
+        return ExchangePayload.create(result);
     }
 
-    public static JsonNode exchangePayloadMapToJsonNode(ObjectMapper objectMapper, Map<String, Object> keyValues) {
-        // todo
-        return objectMapper.createObjectNode();
+    private record JsonEntry(String parentEntityKey, JsonNode value) {
     }
 
-    public static Map<String, JsonNode> exchangePayloadMapToGroupedJsonNode(ObjectMapper objectMapper, Map<String, Object> keyValues) {
+    public static Map<String, JsonNode> convertExchangePayloadMapToGroupedJsonNode(ObjectMapper objectMapper, Map<String, Object> keyValues) {
         // todo
         return new HashMap<>();
     }
