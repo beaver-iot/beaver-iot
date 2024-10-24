@@ -12,7 +12,7 @@ import com.milesight.iab.eventbus.annotations.EventSubscribe;
 import com.milesight.iab.eventbus.api.Event;
 import com.milesight.iab.integration.msc.constant.MscIntegrationConstants;
 import com.milesight.iab.integration.msc.entity.MscConnectionPropertiesEntities;
-import com.milesight.iab.integration.msc.util.TslUtils;
+import com.milesight.iab.integration.msc.util.MscTslUtils;
 import com.milesight.msc.sdk.utils.TimeUtils;
 import lombok.*;
 import lombok.extern.slf4j.*;
@@ -244,19 +244,8 @@ public class MscDataSyncService {
                         log.warn("Add or update local device failed: {}", task.identifier);
                         return false;
                     }
-                    // update last sync time
-                    val timestamp = TimeUtils.currentTimeSeconds();
-                    val lastSyncTimeKey = MscIntegrationConstants.InternalPropertyKey.getLastSyncTimeKey(device.getKey());
-
-                    int lastSyncTime = 0;
-                    val lastSyncTimeObj = entityServiceProvider.findExchangeByKey(lastSyncTimeKey, ExchangePayload.class)
-                            .getPayload(MscIntegrationConstants.InternalPropertyKey.LAST_SYNC_TIME);
-                    if (lastSyncTimeObj instanceof Number t) {
-                        lastSyncTime = t.intValue();
-                    }
-
+                    int lastSyncTime = getAndUpdateLastSyncTime(device);
                     syncPropertiesHistory(device, lastSyncTime);
-                    entityServiceProvider.saveExchange(ExchangePayload.create(lastSyncTimeKey, timestamp));
                 }
                 return true;
             } catch (Exception e) {
@@ -266,6 +255,21 @@ public class MscDataSyncService {
                 markDeviceTaskFinished(task.identifier, lock);
             }
         }, concurrentSyncDeviceDataExecutor);
+    }
+
+    private int getAndUpdateLastSyncTime(Device device) {
+        // update last sync time
+        val timestamp = TimeUtils.currentTimeSeconds();
+        val lastSyncTimeKey = MscIntegrationConstants.InternalPropertyKey.getLastSyncTimeKey(device.getKey());
+
+        int lastSyncTime = 0;
+        val lastSyncTimeObj = entityServiceProvider.findExchangeByKey(lastSyncTimeKey, ExchangePayload.class)
+                .getPayload(MscIntegrationConstants.InternalPropertyKey.LAST_SYNC_TIME);
+        if (lastSyncTimeObj instanceof Number t) {
+            lastSyncTime = t.intValue();
+        }
+        entityServiceProvider.saveExchange(ExchangePayload.create(lastSyncTimeKey, timestamp));
+        return lastSyncTime;
     }
 
     @SneakyThrows
@@ -299,7 +303,7 @@ public class MscDataSyncService {
     }
 
     public void saveHistoryData(String deviceKey, JsonNode properties, long timestampMs) {
-        val keyValues = TslUtils.jsonNodeToKeyValues(properties);
+        val keyValues = MscTslUtils.jsonNodeToKeyValues(properties);
         val content = new HashMap<String, Object>();
         keyValues.forEach((groupKey, group) -> {
             val prefix = String.format("%s.%s", deviceKey, groupKey);
