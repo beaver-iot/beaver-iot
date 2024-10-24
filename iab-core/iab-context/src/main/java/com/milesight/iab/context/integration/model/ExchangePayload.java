@@ -109,7 +109,7 @@ public class ExchangePayload extends HashMap<String,Object> implements ExchangeP
 
     @NonNull
     public ExchangePayload getPayloadsByEntityType(EntityType entityType) {
-        return null;
+        return this;
     }
 
 }

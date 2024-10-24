@@ -2,6 +2,7 @@ package com.milesight.iab.integration.msc.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.milesight.cloud.sdk.client.model.ThingSpec;
 import com.milesight.cloud.sdk.client.model.TslDataSpec;
 import com.milesight.cloud.sdk.client.model.TslEventSpec;
@@ -17,6 +18,7 @@ import com.milesight.iab.context.integration.model.Entity;
 import com.milesight.iab.context.integration.model.ExchangePayload;
 import lombok.extern.slf4j.*;
 import lombok.*;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -26,6 +28,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -345,9 +348,55 @@ public class MscTslUtils {
     private record JsonEntry(String parentEntityKey, JsonNode value) {
     }
 
-    public static Map<String, JsonNode> convertExchangePayloadMapToGroupedJsonNode(ObjectMapper objectMapper, Map<String, Object> keyValues) {
-        // todo
-        return new HashMap<>();
+    public static Map<String, JsonNode> convertExchangePayloadMapToGroupedJsonNode(@NotNull ObjectMapper objectMapper, @NotNull String entityKeyPublicPrefix, @NotNull Map<String, Object> keyValues) {
+        Objects.requireNonNull(objectMapper);
+        Objects.requireNonNull(entityKeyPublicPrefix);
+        Objects.requireNonNull(keyValues);
+
+        val result = new HashMap<String, JsonNode>();
+        keyValues.forEach((key, value) -> {
+            if (!key.startsWith(entityKeyPublicPrefix) || key.equals(entityKeyPublicPrefix)) {
+                log.debug("Ignored invalid key: {}, prefix is {}", key, entityKeyPublicPrefix);
+                return;
+            }
+            val paths  = key.substring(entityKeyPublicPrefix.length()).split("[.|@]");
+            if (paths.length == 0) {
+                log.debug("Ignored invalid key: {}", key);
+                return;
+            }
+            if (value == null) {
+                log.debug("Null value is ignored: {}", key);
+                return;
+            }
+            if (paths.length == 1) {
+                result.computeIfAbsent(paths[0], k -> objectMapper.convertValue(value, JsonNode.class));
+            } else {
+                // todo support array
+                ensureParentAndSetValue(objectMapper, result, key, value, paths);
+            }
+        });
+        return result;
+    }
+
+    private static void ensureParentAndSetValue(@NotNull ObjectMapper objectMapper, HashMap<String, JsonNode> result, String key, Object value, String[] paths) {
+        var parent = result.computeIfAbsent(paths[0], k -> objectMapper.createObjectNode());
+        val lastIndex = paths.length - 1;
+        for (int i = 1; i < lastIndex; i++) {
+            var field = parent.get(paths[i]);
+            if (field == null || !field.isObject()) {
+                if (parent instanceof ObjectNode p) {
+                    field = objectMapper.createObjectNode();
+                    p.set(paths[i], field);
+                    parent = field;
+                } else {
+                    log.debug("Invalid parent node: {} {} {}", key, i, parent);
+                    return;
+                }
+            }
+        }
+        if (parent instanceof ObjectNode p) {
+            p.set(paths[lastIndex], objectMapper.convertValue(value, JsonNode.class));
+        }
     }
 
 }
