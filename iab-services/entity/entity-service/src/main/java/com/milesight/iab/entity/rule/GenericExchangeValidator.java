@@ -59,7 +59,7 @@ public class GenericExchangeValidator implements PredicateNode<ExchangePayload> 
     private boolean validateEntity(Entity entity) {
 
         if(entity == null){
-            log.info("ExchangeValidator matches failed, entity is empty : {}", entity.getKey());
+            log.info("ExchangeValidator matches failed, entity is empty ");
             return false;
         }
         if(!entity.loadActiveIntegration().isPresent()){
