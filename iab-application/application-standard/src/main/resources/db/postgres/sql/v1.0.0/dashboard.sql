@@ -14,9 +14,10 @@ CREATE TABLE "dashboard_widget"
     dashboard_id BIGINT,
     data         TEXT,
     created_at   BIGINT,
-    updated_at   BIGINT,
-    INDEX        idx_dashboard_widget_dashboard_id (dashboard_id)
+    updated_at   BIGINT
 );
+CREATE INDEX idx_dashboard_widget_dashboard_id ON "dashboard_widget" (dashboard_id);
+
 CREATE TABLE "dashboard_widget_template"
 (
     id         BIGINT PRIMARY KEY,

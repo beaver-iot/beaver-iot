@@ -2,6 +2,7 @@ package com.milesight.iab.dashboard.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.milesight.iab.context.integration.model.ExchangePayload;
+import com.milesight.iab.context.integration.model.event.ExchangeEvent;
 import com.milesight.iab.context.integration.model.event.WebSocketEvent;
 import com.milesight.iab.context.security.SecurityUserContext;
 import com.milesight.iab.eventbus.annotations.EventSubscribe;
@@ -20,13 +21,13 @@ public class DashboardNotifyService {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @EventSubscribe(payloadKeyExpression = "*.device.*")
-    public void onDeviceDashboardNotify(ExchangePayload exchangePayload) {
-        doDashboardNotify(exchangePayload);
+    public void onDeviceDashboardNotify(ExchangeEvent exchangeEvent) {
+        doDashboardNotify(exchangeEvent.getPayload());
     }
 
     @EventSubscribe(payloadKeyExpression = "*.integration.*")
-    public void onIntegrationDashboardNotify(ExchangePayload exchangePayload) {
-        doDashboardNotify(exchangePayload);
+    public void onIntegrationDashboardNotify(ExchangeEvent exchangeEvent) {
+        doDashboardNotify(exchangeEvent.getPayload());
     }
 
     private void doDashboardNotify(ExchangePayload exchangePayload) {
