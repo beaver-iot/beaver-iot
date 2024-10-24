@@ -103,13 +103,13 @@ public class MscDataSyncService {
             return;
         }
         if (periodSeconds == 0) {
-            val mscConnectionProperties = entityServiceProvider.findExchangeByKey(
-                    MscIntegrationConstants.INTEGRATION_IDENTIFIER, MscConnectionPropertiesEntities.class);
-            if (mscConnectionProperties == null) {
+            val scheduledDataFetchSettings = entityServiceProvider.findExchangeByKey(
+                    MscConnectionPropertiesEntities.getKey(MscConnectionPropertiesEntities.Fields.scheduledDataFetch),
+                    MscConnectionPropertiesEntities.ScheduledDataFetch.class);
+            if (scheduledDataFetchSettings == null) {
                 periodSeconds = -1;
                 return;
             }
-            val scheduledDataFetchSettings = mscConnectionProperties.getScheduledDataFetch();
             if (!Boolean.TRUE.equals(scheduledDataFetchSettings.getEnabled())
                     || scheduledDataFetchSettings.getPeriod() == null
                     || scheduledDataFetchSettings.getPeriod() == 0) {
