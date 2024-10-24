@@ -1,14 +1,13 @@
 package com.milesight.iab.tmp.controller;
 
-import com.milesight.iab.rule.RuleEngineExecutor;
+import com.milesight.iab.context.api.ExchangeFlowExecutor;
 import com.milesight.iab.context.integration.model.ExchangePayload;
+import com.milesight.iab.eventbus.api.EventResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 /**
  * @author leon
@@ -17,7 +16,7 @@ import java.util.List;
 public class DemoEntityExchangeController  {
 
     @Autowired
-    private RuleEngineExecutor ruleEngineExecutor;
+    private ExchangeFlowExecutor exchangeFlowExecutor;
 
 
     @GetMapping("/api/v1/entity/{id}/dynamic-form")
@@ -27,11 +26,11 @@ public class DemoEntityExchangeController  {
 
     @PostMapping("/api/v1/entity/exchange-down")
     public Object exchangeDown(@RequestBody ExchangePayload message){
-        return  ruleEngineExecutor.exchangeDown(message);
+        return  exchangeFlowExecutor.syncExchangeDown(message);
 
     }
     @PostMapping("/api/v1/entity/exchange-up")
-    public ExchangePayload exchangeUp(@RequestBody ExchangePayload message){
+    public EventResponse exchangeUp(@RequestBody ExchangePayload message){
         return callExchangeUp(message);
     }
 
@@ -47,7 +46,7 @@ public class DemoEntityExchangeController  {
      * @param exchangePayloads
      * @return
      */
-    public ExchangePayload callExchangeUp(ExchangePayload exchangePayloads) {
+    public EventResponse callExchangeUp(ExchangePayload exchangePayloads) {
 
         //Generic RuleEngine sub flow (before exchange down may be need to do some business logic, eg: transform data, etc.):
         // 1. validate exchange and cache EntityMetadata?, filter invalid exchange
@@ -60,7 +59,7 @@ public class DemoEntityExchangeController  {
 
         // 5. business logic: EventSubscribe or EventHandler
 
-        return (ExchangePayload) ruleEngineExecutor.exchangeUp( exchangePayloads);
+        return exchangeFlowExecutor.syncExchangeUp( exchangePayloads);
     }
 
 }

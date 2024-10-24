@@ -21,16 +21,6 @@ public class CamelRuleEngineExecutor implements RuleEngineExecutor {
     }
 
     @Override
-    public Object exchangeUp(Object payload) {
-       return producerTemplate.sendBody(RuleNodeNames.innerExchangeUpFlow, ExchangePattern.InOut, payload);
-    }
-
-    @Override
-    public Object exchangeDown(Object payload) {
-        return producerTemplate.sendBody(RuleNodeNames.innerExchangeDownFlow, ExchangePattern.InOut, payload);
-    }
-
-    @Override
     public void execute(String endpointUri, Object payload) {
         producerTemplate.sendBody(endpointUri, payload);
     }
@@ -38,6 +28,16 @@ public class CamelRuleEngineExecutor implements RuleEngineExecutor {
     @Override
     public void execute(String endPointUri, Exchange exchange) {
         producerTemplate.send(endPointUri, exchange);
+    }
+
+    @Override
+    public Object executeWithResponse(String endPointUri, Object payload) {
+        return producerTemplate.sendBody(endPointUri, ExchangePattern.InOut, payload);
+    }
+
+    @Override
+    public Exchange executeWithResponse(String endPointUri, Exchange exchange) {
+        return producerTemplate.send(endPointUri, exchange);
     }
 
     @Override

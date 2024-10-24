@@ -9,12 +9,17 @@ public interface RuleNodeNames {
     String innerExchangeUpFlow = "direct:innerExchangeUpFlow";
     String innerExchangeDownHandler = "direct:innerExchangeDownHandler";
     String innerExchangeValidator = "innerExchangeValidator";
-    String innerExchangeSplitter = "innerExchangeSplitter";
     String innerSyncCallPredicate = "innerSyncCallPredicate";
     String innerCustomExchangeDownHandlerPredicate = "innerCustomExchangeDownHandlerPredicate";
-    String innerLatestExchangeSaveAction = "innerLatestExchangeSaveAction";
-    String innerHistoryExchangeSaveAction = "innerHistoryExchangeSaveAction";
     String innerEventHandlerAction = "innerEventHandlerAction";
+    String innerExchangeSaveAction = "innerExchangeSaveAction";
     String innerEventSubscribeAction = "innerEventSubscribeAction";
 
+
+    @Deprecated
+    String innerLatestExchangeSaveAction = "innerLatestExchangeSaveAction";
+    @Deprecated
+    String innerHistoryExchangeSaveAction = "innerHistoryExchangeSaveAction";
+    @Deprecated
+    String innerExchangeSplitter = "innerExchangeSplitter";
 }

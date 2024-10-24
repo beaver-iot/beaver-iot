@@ -3,6 +3,7 @@ package com.milesight.iab.context.api;
 import com.milesight.iab.context.integration.model.Entity;
 import com.milesight.iab.context.integration.model.ExchangePayload;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -37,4 +38,7 @@ public interface EntityServiceProvider {
 
     <T> T findExchangeByKey(String key, Class<T> entitiesClazz);
 
+    Entity findByKey(String entityKey);
+
+    Map<String, Entity> findByKeys(String... entityKeys);
 }

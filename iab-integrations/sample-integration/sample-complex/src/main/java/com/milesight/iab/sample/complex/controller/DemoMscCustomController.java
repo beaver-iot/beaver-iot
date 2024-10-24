@@ -1,11 +1,10 @@
 package com.milesight.iab.sample.complex.controller;
 
 import com.milesight.iab.context.api.EntityServiceProvider;
+import com.milesight.iab.context.api.ExchangeFlowExecutor;
 import com.milesight.iab.context.integration.model.ExchangePayload;
 import com.milesight.iab.context.integration.model.event.ExchangeEvent;
 import com.milesight.iab.eventbus.EventBus;
-import com.milesight.iab.rule.RuleEngineExecutor;
-import com.milesight.iab.sample.complex.entity.DemoMscServiceEntities;
 import com.milesight.iab.sample.complex.entity.DemoMscSettingEntities;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class DemoMscCustomController {
 
     private EntityServiceProvider entityServiceProvider;
-    private RuleEngineExecutor ruleEngineExecutor;
+    private ExchangeFlowExecutor exchangeFlowExecutor;
     @Autowired
     private EventBus eventBus;
     @PostMapping("/testConnect")
@@ -41,7 +40,7 @@ public class DemoMscCustomController {
         //2. data transform
         ExchangePayload exchangePayload = toExchangePayload(mscExchangePayload);
         //3. call rule engine
-        ruleEngineExecutor.exchangeUp(exchangePayload);
+        exchangeFlowExecutor.syncExchangeUp(exchangePayload);
 
         return "success";
     }

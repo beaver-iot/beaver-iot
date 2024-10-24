@@ -10,9 +10,10 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface RuleEngineExecutor {
 
-    Object exchangeUp(Object payload);
 
-    Object exchangeDown(Object payload);
+    Object executeWithResponse(String endPointUri, Object payload);
+
+    Exchange executeWithResponse(String endPointUri, Exchange exchange);
 
     void execute(String endpointUri, Object payload);
 

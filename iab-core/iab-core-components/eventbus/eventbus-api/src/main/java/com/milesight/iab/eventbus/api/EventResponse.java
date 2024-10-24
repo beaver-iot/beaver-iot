@@ -2,21 +2,17 @@ package com.milesight.iab.eventbus.api;
 
 import lombok.Getter;
 
+import java.util.LinkedHashMap;
+
 /**
  * @author leon
  */
 @Getter
-public class EventResponse {
-
-    private String key;
-    private Object value;
-
-    private EventResponse(String key, Object value) {
-        this.key = key;
-        this.value = value;
-    }
+public class EventResponse extends LinkedHashMap<String,Object> {
 
     public static EventResponse of(String key, Object value){
-       return new EventResponse(key,value);
+        EventResponse eventResponse = new EventResponse();
+        eventResponse.put(key,value);
+        return eventResponse;
     }
 }

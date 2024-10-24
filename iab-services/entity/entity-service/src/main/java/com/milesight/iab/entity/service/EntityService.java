@@ -6,6 +6,7 @@ import com.milesight.iab.base.exception.ServiceException;
 import com.milesight.iab.base.utils.snowflake.SnowflakeUtil;
 import com.milesight.iab.context.api.DeviceServiceProvider;
 import com.milesight.iab.context.api.EntityServiceProvider;
+import com.milesight.iab.context.api.ExchangeFlowExecutor;
 import com.milesight.iab.context.api.IntegrationServiceProvider;
 import com.milesight.iab.context.integration.enums.AccessMod;
 import com.milesight.iab.context.integration.enums.EntityType;
@@ -13,7 +14,6 @@ import com.milesight.iab.context.integration.model.Device;
 import com.milesight.iab.context.integration.model.Entity;
 import com.milesight.iab.context.integration.model.ExchangePayload;
 import com.milesight.iab.context.integration.model.Integration;
-import com.milesight.iab.context.integration.model.event.ExchangeEvent;
 import com.milesight.iab.context.security.SecurityUserContext;
 import com.milesight.iab.device.dto.DeviceNameDTO;
 import com.milesight.iab.device.facade.IDeviceFacade;
@@ -37,8 +37,6 @@ import com.milesight.iab.entity.po.EntityPO;
 import com.milesight.iab.entity.repository.EntityHistoryRepository;
 import com.milesight.iab.entity.repository.EntityLatestRepository;
 import com.milesight.iab.entity.repository.EntityRepository;
-import com.milesight.iab.eventbus.EventBus;
-import com.milesight.iab.rule.RuleEngineExecutor;
 import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,9 +80,7 @@ public class EntityService implements EntityServiceProvider {
     @Autowired
     DeviceServiceProvider deviceServiceProvider;
     @Autowired
-    RuleEngineExecutor engineExecutor;
-    @Autowired
-    EventBus eventBus;
+    ExchangeFlowExecutor exchangeFlowExecutor;
     @Autowired
     private EntityManager entityManager;
 
@@ -385,8 +381,6 @@ public class EntityService implements EntityServiceProvider {
             entityLatestPOList.add(entityLatestPO);
         });
         entityLatestRepository.saveAll(entityLatestPOList);
-
-        eventBus.publish(ExchangeEvent.of(ExchangeEvent.EventType.DOWN, exchangePayload));
     }
 
     @Override
@@ -458,8 +452,6 @@ public class EntityService implements EntityServiceProvider {
             entityHistoryPOList.add(entityHistoryPO);
         });
         entityHistoryRepository.saveAll(entityHistoryPOList);
-
-        eventBus.publish(ExchangeEvent.of(ExchangeEvent.EventType.DOWN, exchangePayload));
     }
 
     @Override
@@ -513,6 +505,18 @@ public class EntityService implements EntityServiceProvider {
             log.error("findExchangeByKey error:{}", e.getMessage(), e);
             return null;
         }
+    }
+
+    @Override
+    public Entity findByKey(String entityKey) {
+        //todo
+        return null;
+    }
+
+    @Override
+    public Map<String, Entity> findByKeys(String... entityKeys) {
+        //todo
+        return null;
     }
 
     public Page<EntityResponse> search(EntityQuery entityQuery) {
@@ -772,7 +776,7 @@ public class EntityService implements EntityServiceProvider {
         }
         ExchangePayload payload = new ExchangePayload(exchange);
         payload.getContext().put(SecurityUserContext.USER_ID, SecurityUserContext.getUserId());
-        engineExecutor.exchangeDown(payload);
+        exchangeFlowExecutor.asyncExchangeDown(payload);
     }
 
     public void serviceCall(ServiceCallRequest serviceCallRequest) {
@@ -787,7 +791,7 @@ public class EntityService implements EntityServiceProvider {
             return;
         }
         ExchangePayload payload = new ExchangePayload(exchange);
-        engineExecutor.exchangeDown(payload);
+        exchangeFlowExecutor.syncExchangeDown(payload);
     }
 
     private EntityPO getByKey(String entityKey) {

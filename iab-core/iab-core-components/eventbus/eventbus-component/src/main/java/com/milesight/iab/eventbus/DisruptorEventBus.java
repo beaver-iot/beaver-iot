@@ -2,6 +2,7 @@ package com.milesight.iab.eventbus;
 
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.dsl.Disruptor;
+import com.milesight.iab.context.integration.model.EventContextAccessor;
 import com.milesight.iab.eventbus.invoke.EventSubscribeInvoker;
 import com.milesight.iab.eventbus.invoke.ListenerParameterResolver;
 import com.milesight.iab.eventbus.annotations.EventSubscribe;
@@ -17,6 +18,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
+import javax.naming.event.EventContext;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,6 +44,7 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
 
     @Override
     public void publish(T message) {
+
         Disruptor<Event<?>> disruptor = disruptorCache.get(message.getClass());
 
         if(disruptor == null){
@@ -80,7 +83,7 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
     @Override
     public Object handle(T event) {
 
-        Map<String, Object> eventResponse = new HashMap<>();
+        EventResponse eventResponse = new EventResponse();
 
         Map<ListenerCacheKey, List<EventSubscribeInvoker>> listenerCacheKeyListMap = asyncSubscribeCache.get(event.getClass());
 
@@ -134,7 +137,7 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
         });
     }
 
-    private Consumer<T> createConsumer(ListenerCacheKey cacheKey, List<EventSubscribeInvoker> invokers, @Nullable Map<String,Object> eventResponses) {
+    private Consumer<T> createConsumer(ListenerCacheKey cacheKey, List<EventSubscribeInvoker> invokers, @Nullable EventResponse eventResponses) {
         return event -> {
             if(!cacheKey.matchEventType(event.getEventType())){
                 return;
@@ -149,7 +152,7 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
                     if(invoke != null && invoke instanceof EventResponse){
                         EventResponse eventResponse = (EventResponse) invoke;
                         if(eventResponse != null && eventResponses != null){
-                            eventResponses.put(eventResponse.getKey(), eventResponse.getValue());
+                            eventResponses.putAll(eventResponse);
                         }
                     }
                 } catch (Exception e) {

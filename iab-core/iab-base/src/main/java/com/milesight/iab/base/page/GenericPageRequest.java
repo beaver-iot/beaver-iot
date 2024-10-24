@@ -15,9 +15,9 @@ public class GenericPageRequest implements PageSpec {
 
     protected Integer limit;
 
-    protected Integer pageSize;
+    protected Integer pageSize = 10;
 
-    protected Integer pageNumber;
+    protected Integer pageNumber = 1;
     @JsonUnwrapped
     protected Sorts sort;
     /**

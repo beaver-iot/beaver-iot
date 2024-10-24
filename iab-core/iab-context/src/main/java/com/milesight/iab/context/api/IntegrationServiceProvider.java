@@ -26,6 +26,11 @@ public abstract class IntegrationServiceProvider {
         return integrationBootstrapManager.getIntegrationContext().getIntegration(integrationId);
     }
 
+    public Integration getActiveIntegration(String integrationId) {
+        Integration integration = integrationBootstrapManager.getIntegrationContext().getIntegration(integrationId);
+        return integration != null && integration.isEnabled() ? integration : null;
+    }
+
     public Collection<Integration> findAllIntegrations() {
         return integrationBootstrapManager.getIntegrationContext().getAllIntegrations().values();
     }

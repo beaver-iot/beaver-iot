@@ -1,10 +1,13 @@
 package com.milesight.iab.context.integration.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.milesight.iab.context.api.DeviceServiceProvider;
+import com.milesight.iab.context.api.IntegrationServiceProvider;
 import com.milesight.iab.context.constants.IntegrationConstants;
 import com.milesight.iab.context.integration.enums.AccessMod;
 import com.milesight.iab.context.integration.enums.EntityType;
 import com.milesight.iab.context.integration.enums.EntityValueType;
+import com.milesight.iab.context.support.SpringContext;
 import com.milesight.iab.eventbus.api.IdentityKey;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,6 +17,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author leon
@@ -70,6 +74,16 @@ public class Entity implements IdentityKey {
                 entity.setIntegrationId(integrationId);
             });
         }
+    }
+
+    public Optional<Device> loadDevice(){
+        DeviceServiceProvider deviceServiceProvider = SpringContext.getBean(DeviceServiceProvider.class);
+        return StringUtils.hasText(deviceKey) ? Optional.of(deviceServiceProvider.findByKey(deviceKey)) : Optional.empty();
+    }
+
+    public Optional<Integration> loadActiveIntegration(){
+        IntegrationServiceProvider integrationServiceProvider = SpringContext.getBean(IntegrationServiceProvider.class);
+        return Optional.ofNullable(integrationServiceProvider.getActiveIntegration(integrationId));
     }
 
 }
