@@ -15,7 +15,7 @@ import java.util.Map;
  * @author leon
  */
 @Slf4j
-@Component
+//@Component
 @RuleNode(name = RuleNodeNames.innerExchangeSplitter, description = "innerExchangeSplitter")
 public class ExchangeSplitter implements SplitterNode<ExchangePayload> {
 

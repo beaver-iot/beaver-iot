@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
  * @author leon
  */
 @Slf4j
-@Component
+//@Component
 @RuleNode(name = RuleNodeNames.innerExchangeValidator, description = "innerExchangeValidator")
 public class ExchangeValidator implements PredicateNode<ExchangePayload> {
 

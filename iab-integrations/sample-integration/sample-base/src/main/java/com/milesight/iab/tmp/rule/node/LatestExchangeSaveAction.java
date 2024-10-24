@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
  * @author leon
  */
 @Slf4j
-@Component
+//@Component
 @RuleNode(name = RuleNodeNames.innerLatestExchangeSaveAction, description = "innerLatestExchangeSaveAction")
 public class LatestExchangeSaveAction implements ProcessorNode<ExchangePayload> {
     @Override

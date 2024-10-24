@@ -4,11 +4,12 @@ import com.milesight.iab.rule.RuleEngineRouteConfigurer;
 import com.milesight.iab.rule.constants.RuleNodeNames;
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
+import org.springframework.stereotype.Component;
 
 /**
  * @author leon
  */
-public class DemoExchangeRuleEngineRouteConfigurer implements RuleEngineRouteConfigurer {
+public class ExchangeRuleEngineRouteConfigurer implements RuleEngineRouteConfigurer {
     @Override
     public void customizeRoute(CamelContext context) throws Exception {
         context.addRoutes(new RouteBuilder() {

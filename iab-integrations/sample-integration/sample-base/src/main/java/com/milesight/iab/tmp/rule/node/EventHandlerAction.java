@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
  * @author leon
  */
 @Slf4j
-@Component
+//@Component
 @RuleNode(name = RuleNodeNames.innerEventHandlerAction, description = "innerEventHandlerAction")
 public class EventHandlerAction implements ProcessorNode<ExchangePayload> {
     @Override

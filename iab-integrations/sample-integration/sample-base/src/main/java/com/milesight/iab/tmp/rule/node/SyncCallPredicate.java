@@ -12,7 +12,7 @@ import java.util.Random;
  * @author leon
  */
 @Slf4j
-@Component
+//@Component
 @RuleNode(name = "innerSyncCallPredicate", description = "SyncCallPredicate")
 public class SyncCallPredicate implements PredicateNode<ExchangePayload> {
 

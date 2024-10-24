@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 /**
  * @author leon
  */
-@Component
+//@Component
 public class ExchangeRuleEngineRouteConfigurer implements RuleEngineRouteConfigurer {
     @Override
     public void customizeRoute(CamelContext context) throws Exception {

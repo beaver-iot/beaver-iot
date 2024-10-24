@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
  */
 
 @Slf4j
-@Component
+//@Component
 @RuleNode(name = RuleNodeNames.innerHistoryExchangeSaveAction, description = "innerHistoryExchangeSaveAction")
 public class HistoryExchangeSaveAction implements ProcessorNode<ExchangePayload> {
     @Override

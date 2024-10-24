@@ -12,7 +12,7 @@ import java.util.Random;
  * @author leon
  */
 @Slf4j
-@Component
+//@Component
 @RuleNode(name = "innerCustomExchangeDownHandlerPredicate", description = "CustomExchangeDownHandler")
 public class CustomExchangeDownHandlerPredicate implements PredicateNode<ExchangePayload> {
 
