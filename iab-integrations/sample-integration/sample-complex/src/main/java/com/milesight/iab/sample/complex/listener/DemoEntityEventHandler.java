@@ -2,7 +2,8 @@ package com.milesight.iab.sample.complex.listener;
 
 
 import com.milesight.iab.context.integration.model.event.ExchangeEvent;
-import com.milesight.iab.eventbus.annotations.EventHandler;
+import com.milesight.iab.eventbus.annotations.EventSubscribe;
+import com.milesight.iab.eventbus.api.EventResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -14,14 +15,14 @@ import org.springframework.stereotype.Component;
 public class DemoEntityEventHandler {
 
     //connect service
-    @EventHandler(payloadKey="msc-integration.integration.connect", eventType = ExchangeEvent.EventType.DOWN)
-    public String handleConnect(ExchangeEvent event) {
+    @EventSubscribe(payloadKeyExpression="msc-integration.integration.connect", async = false)
+    public EventResponse handleConnect(ExchangeEvent event) {
 
         log.debug("DemoEntityEventHandler handleConnect:{}",event);
-        return "success";
+        return EventResponse.of("msc-integration.integration.connect", "connect success");
     }
 
-    @EventHandler(payloadKey="msc-integration.device.{sn}.connect2.key", eventType = ExchangeEvent.EventType.DOWN)
+    @EventSubscribe(payloadKeyExpression="msc-integration.device.{sn}.connect2.key", eventType = ExchangeEvent.EventType.DOWN)
     public void handleConnect2(ExchangeEvent event) {
         log.debug("DemoEntityEventHandler handleConnect2:{}",event);
     }

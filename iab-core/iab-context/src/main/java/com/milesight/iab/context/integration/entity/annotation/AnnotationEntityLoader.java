@@ -45,19 +45,19 @@ public class AnnotationEntityLoader implements EntityLoader {
                 DeviceEntities deviceEntitiesAnno = clazz.getAnnotation(DeviceEntities.class);
                 DeviceBuilder deviceBuilder = new DeviceBuilder().name(deviceEntitiesAnno.name()).identifier(deviceEntitiesAnno.identifier()).additional(resolveKeyValue(deviceEntitiesAnno.additional()));
                 String deviceKey = IntegrationConstants.formatIntegrationDeviceKey(integration.getId(), deviceEntitiesAnno.identifier());
-                List<com.milesight.iab.context.integration.model.Entity> entities = parserEntities(integration,deviceKey, clazz, propertyResolver);
+                List<com.milesight.iab.context.integration.model.Entity> entities = parserEntities(integration,deviceKey, null, clazz, propertyResolver);
                 deviceBuilder.entities(entities);
                 integration.addInitialDevice(deviceBuilder.build());
 
             } else if (clazz.isAnnotationPresent(IntegrationEntities.class)) {
                 // parse IntegrationEntities annotation
-                List<com.milesight.iab.context.integration.model.Entity> entities = parserEntities(integration,null, clazz, propertyResolver);
+                List<com.milesight.iab.context.integration.model.Entity> entities = parserEntities(integration,null, null, clazz, propertyResolver);
                 integration.addInitialEntities(entities);
             }
         });
     }
 
-    private List<com.milesight.iab.context.integration.model.Entity> parserEntities(Integration integration, @Nullable String deviceKey, Class<?> clazz, EnhancePropertySourcesPropertyResolver propertyResolver) {
+    private List<com.milesight.iab.context.integration.model.Entity> parserEntities(Integration integration, @Nullable String deviceKey, @Nullable String parentIdentifier, Class<?> clazz, EnhancePropertySourcesPropertyResolver propertyResolver) {
         List<com.milesight.iab.context.integration.model.Entity> entities = new ArrayList<>();
         ReflectionUtils.doWithFields(clazz, field -> {
             Entity entityAnnotation = field.getAnnotation(Entity.class);
@@ -80,9 +80,8 @@ public class AnnotationEntityLoader implements EntityLoader {
                         break;
                 }
                 if (valueType == EntityValueType.OBJECT) {
-                    List<com.milesight.iab.context.integration.model.Entity> children = parserEntities(integration, deviceKey, field.getType(), propertyResolver);
+                    List<com.milesight.iab.context.integration.model.Entity> children = parserEntities(integration, deviceKey, identifier, field.getType(), propertyResolver);
                     children.forEach(entity -> {
-                        entity.setParentIdentifier(identifier);
                         entity.setType(entityAnnotation.type());
                         entity.setAccessMod(entityAnnotation.accessMod());
                         entity.setSyncCall(entityAnnotation.syncCall());
@@ -91,8 +90,9 @@ public class AnnotationEntityLoader implements EntityLoader {
                 }
                 com.milesight.iab.context.integration.model.Entity entity = entityBuilder.build();
                 entity.setDeviceKey(deviceKey);
+                entity.setParentIdentifier(parentIdentifier);
                 entities.add(entity);
-                AnnotationEntityCache.INSTANCE.put(field, entity.getKey());
+                AnnotationEntityCache.INSTANCE.cacheEntityMethod(field, entity.getKey());
             }
         });
         return entities;

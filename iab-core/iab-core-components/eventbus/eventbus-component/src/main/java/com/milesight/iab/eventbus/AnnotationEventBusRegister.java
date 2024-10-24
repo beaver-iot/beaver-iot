@@ -1,9 +1,7 @@
 package com.milesight.iab.eventbus;
 
-import com.milesight.iab.eventbus.annotations.EventHandler;
 import com.milesight.iab.eventbus.annotations.EventSubscribe;
-import com.milesight.iab.eventbus.handler.EventHandlerDispatcher;
-import com.milesight.iab.eventbus.subscribe.DisruptorEventBus;
+import com.milesight.iab.eventbus.api.EventResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.SmartInitializingSingleton;
@@ -12,6 +10,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.MethodIntrospector;
 import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.util.Assert;
 
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -23,12 +22,9 @@ import java.util.Map;
 public class AnnotationEventBusRegister implements ApplicationContextAware, SmartInitializingSingleton, DisposableBean {
     private static ApplicationContext applicationContext;
 
-    private EventHandlerDispatcher eventHandlerDispatcher;
-
     private DisruptorEventBus eventBus;
 
-    public AnnotationEventBusRegister(EventHandlerDispatcher eventHandlerDispatcher, DisruptorEventBus eventBus) {
-        this.eventHandlerDispatcher = eventHandlerDispatcher;
+    public AnnotationEventBusRegister(DisruptorEventBus eventBus) {
         this.eventBus = eventBus;
     }
 
@@ -49,13 +45,12 @@ public class AnnotationEventBusRegister implements ApplicationContextAware, Smar
                 bean = applicationContext.getBean(beanDefinitionName);
             }
 
-            registerEventSubscriber(bean, beanDefinitionName);
+            registerEventSubscribe(bean, beanDefinitionName);
 
-            registerEventHandler(bean, beanDefinitionName);
         }
 
         // fire subscriber at last
-        eventBus.fireSubscriber();
+        eventBus.fireAsyncSubscribe();
     }
 
     @Override
@@ -63,26 +58,26 @@ public class AnnotationEventBusRegister implements ApplicationContextAware, Smar
         eventBus.shutdown();
     }
 
-    protected void registerEventHandler(Object bean, String beanDefinitionName) {
-        Map<Method, EventHandler> annotatedMethods = null;
-        try {
-            annotatedMethods = MethodIntrospector.selectMethods(bean.getClass(),
-                    (MethodIntrospector.MetadataLookup<EventHandler>) method -> AnnotatedElementUtils.findMergedAnnotation(method, EventHandler.class));
-        } catch (Throwable ex) {
-            log.error("EventHandler method resolve error for bean[" + beanDefinitionName + "].", ex);
-        }
-        if (annotatedMethods==null || annotatedMethods.isEmpty()) {
-            return;
-        }
+//    protected void registerEventHandler(Object bean, String beanDefinitionName) {
+//        Map<Method, EventHandler> annotatedMethods = null;
+//        try {
+//            annotatedMethods = MethodIntrospector.selectMethods(bean.getClass(),
+//                    (MethodIntrospector.MetadataLookup<EventHandler>) method -> AnnotatedElementUtils.findMergedAnnotation(method, EventHandler.class));
+//        } catch (Throwable ex) {
+//            log.error("EventHandler method resolve error for bean[" + beanDefinitionName + "].", ex);
+//        }
+//        if (annotatedMethods==null || annotatedMethods.isEmpty()) {
+//            return;
+//        }
+//
+//        for (Map.Entry<Method, EventHandler> methodEntry : annotatedMethods.entrySet()) {
+//            Method executeMethod = methodEntry.getKey();
+//            EventHandler eventHandler = methodEntry.getValue();
+//            eventHandlerDispatcher.registerHandler(eventHandler, bean, executeMethod);
+//        }
+//    }
 
-        for (Map.Entry<Method, EventHandler> methodEntry : annotatedMethods.entrySet()) {
-            Method executeMethod = methodEntry.getKey();
-            EventHandler eventHandler = methodEntry.getValue();
-            eventHandlerDispatcher.registerHandler(eventHandler, bean, executeMethod);
-        }
-    }
-
-    protected void registerEventSubscriber(Object bean, String beanDefinitionName) {
+    protected void registerEventSubscribe(Object bean, String beanDefinitionName) {
         Map<Method, EventSubscribe> annotatedMethods = null;
         try {
             annotatedMethods = MethodIntrospector.selectMethods(bean.getClass(),
@@ -97,7 +92,14 @@ public class AnnotationEventBusRegister implements ApplicationContextAware, Smar
         for (Map.Entry<Method, EventSubscribe> methodEntry : annotatedMethods.entrySet()) {
             Method executeMethod = methodEntry.getKey();
             EventSubscribe eventSubscribe = methodEntry.getValue();
-            eventBus.registerSubscriber(eventSubscribe, bean, executeMethod);
+            Class<?> returnType = executeMethod.getReturnType();
+            if(eventSubscribe.async()){
+                Assert.isTrue(returnType == void.class, "EventSubscribe method return type must be void if async is true:" + executeMethod.toGenericString());
+                eventBus.registerAsyncSubscribe(eventSubscribe, bean, executeMethod);
+            }else{
+                Assert.isTrue(returnType == void.class || returnType == EventResponse.class, "EventSubscribe method return type must be void or EventResponse if async is false:" + executeMethod.toGenericString());
+                eventBus.registerSyncSubscribe(eventSubscribe, bean, executeMethod);
+            }
         }
     }
 

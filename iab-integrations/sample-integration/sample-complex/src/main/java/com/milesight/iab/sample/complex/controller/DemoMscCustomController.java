@@ -46,11 +46,15 @@ public class DemoMscCustomController {
         return "success";
     }
 
-    @GetMapping("/api/v1/eventbus2/{key}")
-    public String eventBusTest2(@PathVariable("key") String key) throws Exception {
-        eventBus.publish(ExchangeEvent.of(ExchangeEvent.EventType.DOWN, ExchangePayload.create(key, "test")));
-//        camelContext.getRouteController().stopRoute(endpoint);
+    @PostMapping("/api/v1/myevent/{type}")
+    public String eventBusTest2(@RequestBody ExchangePayload payload) throws Exception {
+        eventBus.publish(ExchangeEvent.of(ExchangeEvent.EventType.DOWN, payload));
         return "success";
+    }
+
+    @PostMapping("/api/v1/handleEvent/{type}")
+    public Object eventBusTest3(@RequestBody ExchangePayload payload) throws Exception {
+        return eventBus.handle(ExchangeEvent.of(ExchangeEvent.EventType.DOWN, payload));
     }
 
     @GetMapping("/api/v1/eventhandler/{key}")

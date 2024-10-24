@@ -3,7 +3,11 @@ package com.milesight.iab.context.integration.model;
 
 import com.milesight.iab.context.integration.enums.EntityType;
 import com.milesight.iab.eventbus.api.IdentityKey;
+import lombok.*;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

@@ -6,6 +6,7 @@ import com.milesight.iab.context.integration.enums.EntityType;
 import com.milesight.iab.context.integration.model.ExchangePayload;
 import com.milesight.iab.sample.annotation.enums.DeviceStatus;
 import lombok.Data;
+import org.apache.camel.Exchange;
 
 /**
  * 注解方式定义集成实体及子实体
@@ -25,7 +26,7 @@ public class DemoIntegrationEntities extends ExchangePayload {
 
     @Data
     @Entities
-    public static class DemoGroupSettingEntities {
+    public static class DemoGroupSettingEntities extends ExchangePayload {
         @Entity
         private String accessKey;
         @Entity

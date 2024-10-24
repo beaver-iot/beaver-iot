@@ -1,15 +1,14 @@
-package com.milesight.iab.eventbus.subscribe;
+package com.milesight.iab.eventbus;
 
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.dsl.Disruptor;
-import com.milesight.iab.eventbus.EventBus;
-import com.milesight.iab.eventbus.ListenerCacheKey;
-import com.milesight.iab.eventbus.ListenerParameterResolver;
+import com.milesight.iab.eventbus.invoke.EventSubscribeInvoker;
+import com.milesight.iab.eventbus.invoke.ListenerParameterResolver;
 import com.milesight.iab.eventbus.annotations.EventSubscribe;
 import com.milesight.iab.eventbus.api.Event;
+import com.milesight.iab.eventbus.api.EventResponse;
 import com.milesight.iab.eventbus.api.IdentityKey;
 import com.milesight.iab.eventbus.configuration.DisruptorOptions;
-import com.milesight.iab.eventbus.handler.EventHandlerDispatcher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -18,11 +17,9 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.*;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 
 /**
@@ -31,16 +28,15 @@ import java.util.function.Consumer;
 @Slf4j
 public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implements EventBus<T>, ApplicationContextAware {
 
-    private final Map<Class<T>, Map<ListenerCacheKey,List<EventSubscribeInvoker>>> subscriberCache = new ConcurrentHashMap<>();
+    private Map<ListenerCacheKey, List<EventSubscribeInvoker>> syncSubscribeCache = new ConcurrentHashMap<>();
+    private final Map<Class<T>, Map<ListenerCacheKey,List<EventSubscribeInvoker>>> asyncSubscribeCache = new ConcurrentHashMap<>();
     private final Map<Class<?>, Disruptor<Event<?>>> disruptorCache = new ConcurrentHashMap<>();
     private DisruptorOptions disruptorOptions;
-    private EventHandlerDispatcher eventHandlerDispatcher;
     private ListenerParameterResolver parameterResolver;
     private ApplicationContext applicationContext;
 
-    public DisruptorEventBus(DisruptorOptions disruptorOptions,EventHandlerDispatcher eventHandlerDispatcher, ListenerParameterResolver parameterResolver) {
+    public DisruptorEventBus(DisruptorOptions disruptorOptions, ListenerParameterResolver parameterResolver) {
         this.disruptorOptions  = disruptorOptions;
-        this.eventHandlerDispatcher = eventHandlerDispatcher;
         this.parameterResolver = parameterResolver;
     }
 
@@ -79,8 +75,15 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
     }
 
     @Override
-    public Object handle(T message) {
-        return eventHandlerDispatcher.handle(message);
+    public Object handle(T event) {
+
+        Map<String, Object> eventResponse = new HashMap<>();
+
+        for (Map.Entry<ListenerCacheKey, List<EventSubscribeInvoker>> listenerCacheKeyListEntry : syncSubscribeCache.entrySet()) {
+            createConsumer(listenerCacheKeyListEntry.getKey(), listenerCacheKeyListEntry.getValue(),eventResponse).accept(event);
+        }
+
+        return eventResponse;
     }
 
     @Override
@@ -96,15 +99,7 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
         subscribe(target, executor, listener);
     }
 
-    private <E> E loadClass(Class<E> clazz) {
-        try {
-            return clazz.newInstance();
-        } catch (Exception e) {
-            throw new RuntimeException("Class load exception",e);
-        }
-    }
-
-    public void registerSubscriber(EventSubscribe eventSubscribe, Object bean, Method executeMethod){
+    public void registerAsyncSubscribe(EventSubscribe eventSubscribe, Object bean, Method executeMethod){
 
         Class<?> parameterTypes = parameterResolver.resolveParameterTypes(executeMethod);
 
@@ -112,24 +107,35 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
 
         ListenerCacheKey listenerCacheKey = new ListenerCacheKey(eventSubscribe.payloadKeyExpression(), eventSubscribe.eventType());
 
-        log.debug("registerSubscriber: {}, subscriber expression: {}" , executeMethod, listenerCacheKey);
+        log.debug("registerAsyncSubscribe: {}, subscriber expression: {}" , executeMethod, listenerCacheKey);
 
-        subscriberCache.computeIfAbsent(eventClass, k -> {
+        asyncSubscribeCache.computeIfAbsent(eventClass, k -> {
             Map<ListenerCacheKey, List<EventSubscribeInvoker>> invokerMap = new ConcurrentHashMap<>();
             return invokerMap;
         });
 
-        subscriberCache.get(eventClass).computeIfAbsent(listenerCacheKey, k -> new ArrayList<>()).add(new EventSubscribeInvoker(bean, executeMethod, parameterTypes, parameterResolver));
+        asyncSubscribeCache.get(eventClass).computeIfAbsent(listenerCacheKey, k -> new ArrayList<>()).add(new EventSubscribeInvoker(bean, executeMethod, parameterTypes, parameterResolver));
     }
 
-    public void fireSubscriber(){
-        subscriberCache.forEach((k,v) -> {
-            List<Consumer<T>> allConsumers = v.entrySet().stream().map(entry -> createConsumer(entry.getKey(), entry.getValue())).toList();
+    public void registerSyncSubscribe(EventSubscribe eventSubscribe, Object bean, Method executeMethod){
+
+        Class<?> parameterTypes = parameterResolver.resolveParameterTypes(executeMethod);
+
+        ListenerCacheKey listenerCacheKey = new ListenerCacheKey(eventSubscribe.payloadKeyExpression(), eventSubscribe.eventType());
+
+        log.debug("registerSyncSubscribe: {}, subscriber expression: {}" , executeMethod, listenerCacheKey);
+
+        syncSubscribeCache.computeIfAbsent(listenerCacheKey, k -> new ArrayList<>()).add(new EventSubscribeInvoker(bean, executeMethod, parameterTypes, parameterResolver));
+    }
+
+    public void fireAsyncSubscribe(){
+        asyncSubscribeCache.forEach((k, v) -> {
+            List<Consumer<T>> allConsumers = v.entrySet().stream().map(entry -> createConsumer(entry.getKey(), entry.getValue(), Map.of())).toList();
             subscribe(k, allConsumers.toArray(new Consumer[0]));
         });
     }
 
-    private Consumer<T> createConsumer(ListenerCacheKey cacheKey, List<EventSubscribeInvoker> invokers) {
+    private Consumer<T> createConsumer(ListenerCacheKey cacheKey, List<EventSubscribeInvoker> invokers, Map<String,Object> eventResponses) {
         return event -> {
             if(!cacheKey.matchEventType(event.getEventType())){
                 return;
@@ -140,7 +146,13 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
             }
             invokers.forEach(invoker -> {
                 try {
-                    invoker.invoke(event, matchMultiKeys);
+                    Object invoke = invoker.invoke(event, matchMultiKeys);
+                    if(invoke != null && invoke instanceof EventResponse){
+                        EventResponse eventResponse = (EventResponse) invoke;
+                        if(eventResponse != null){
+                            eventResponses.put(eventResponse.getKey(), eventResponse.getValue());
+                        }
+                    }
                 } catch (Exception e) {
                     log.error("EventSubscribe method invoke error, method: {}" ,invoker, e);
                 }
@@ -151,5 +163,13 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
+    }
+
+    private <E> E loadClass(Class<E> clazz) {
+        try {
+            return clazz.newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("Class load exception",e);
+        }
     }
 }

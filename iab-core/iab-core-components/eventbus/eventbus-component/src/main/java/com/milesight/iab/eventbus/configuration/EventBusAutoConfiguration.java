@@ -1,11 +1,9 @@
 package com.milesight.iab.eventbus.configuration;
 
 import com.lmax.disruptor.dsl.Disruptor;
-import com.milesight.iab.eventbus.EventBus;
 import com.milesight.iab.eventbus.AnnotationEventBusRegister;
-import com.milesight.iab.eventbus.ListenerParameterResolver;
-import com.milesight.iab.eventbus.handler.EventHandlerDispatcher;
-import com.milesight.iab.eventbus.subscribe.DisruptorEventBus;
+import com.milesight.iab.eventbus.invoke.ListenerParameterResolver;
+import com.milesight.iab.eventbus.DisruptorEventBus;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -26,20 +24,14 @@ public class EventBusAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public AnnotationEventBusRegister disruptorEventBusRegister(EventHandlerDispatcher eventHandlerDispatcher, DisruptorEventBus eventBus){
-        return new AnnotationEventBusRegister(eventHandlerDispatcher, eventBus);
+    public AnnotationEventBusRegister disruptorEventBusRegister(DisruptorEventBus eventBus){
+        return new AnnotationEventBusRegister(eventBus);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public DisruptorEventBus eventBus(DisruptorOptions disruptorOptions, EventHandlerDispatcher eventHandlerDispatcher,ListenerParameterResolver listenerParameterResolver){
-        return new DisruptorEventBus(disruptorOptions, eventHandlerDispatcher,listenerParameterResolver);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public EventHandlerDispatcher eventHandlerDispatcher(ListenerParameterResolver listenerParameterResolver){
-        return new EventHandlerDispatcher(listenerParameterResolver);
+    public DisruptorEventBus eventBus(DisruptorOptions disruptorOptions, ListenerParameterResolver listenerParameterResolver){
+        return new DisruptorEventBus(disruptorOptions, listenerParameterResolver);
     }
 
     @Bean

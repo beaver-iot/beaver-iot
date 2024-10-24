@@ -12,20 +12,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface EventSubscribe {
 
-//    /**
-//     * 订阅的事件类型,默认获取方法入参的第一个参数类型
-//     * @return
-//     */
-//    Class[] value() default {};
-
     String eventType() default "";
 
     String payloadKeyExpression() ;
 
-    /**
-     * 线程执行器，默认采用EventBus的线程池: asyncTaskExecutor
-     * @return
-     */
-//    String executor() default "";
-
+    boolean async() default true;
 }

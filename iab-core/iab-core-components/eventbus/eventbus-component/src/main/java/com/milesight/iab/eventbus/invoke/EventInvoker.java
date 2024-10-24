@@ -1,4 +1,4 @@
-package com.milesight.iab.eventbus;
+package com.milesight.iab.eventbus.invoke;
 
 import com.milesight.iab.eventbus.api.Event;
 import com.milesight.iab.eventbus.api.IdentityKey;

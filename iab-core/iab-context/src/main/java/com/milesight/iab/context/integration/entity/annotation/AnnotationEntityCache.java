@@ -15,17 +15,17 @@ public enum AnnotationEntityCache {
 
     INSTANCE;
 
-    private Map<Method, String> entitiesCache = new ConcurrentHashMap<>();
+    private Map<Method, String> entitiesMethodCache = new ConcurrentHashMap<>();
 
-    public void put(Field filed, String key){
+    public void cacheEntityMethod(Field filed, String key){
         Method getterMethod = getGetterMethod(filed.getDeclaringClass(), filed);
         if(getterMethod != null){
-            entitiesCache.put(getterMethod, key);
+            entitiesMethodCache.put(getterMethod, key);
         }
     }
 
-    public String getEntityKey(Method method){
-        return entitiesCache.get(method);
+    public String getEntityKeyByMethod(Method method){
+        return entitiesMethodCache.get(method);
     }
 
     private Method getGetterMethod(Class<?> clazz, Field field) {

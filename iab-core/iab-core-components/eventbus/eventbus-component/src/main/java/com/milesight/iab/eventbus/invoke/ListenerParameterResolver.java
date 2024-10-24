@@ -1,4 +1,4 @@
-package com.milesight.iab.eventbus;
+package com.milesight.iab.eventbus.invoke;
 
 import com.milesight.iab.base.exception.ConfigurationException;
 import com.milesight.iab.context.integration.entity.annotation.AnnotationEntityCache;
@@ -11,7 +11,6 @@ import lombok.SneakyThrows;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.util.Assert;
-import org.springframework.util.ClassUtils;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -32,11 +31,9 @@ public class ListenerParameterResolver {
             ExchangePayload newPayload = ExchangePayload.createFrom(payload, List.of(matchMultiKeys));
 
             if(parameterTypes != null && ExchangePayload.class.isAssignableFrom(parameterTypes)){
-                ExchangePayload proxy = new ExchangePayloadProxy(newPayload, parameterTypes).proxy();
-                event.setPayload(proxy);
-            }else{
-                event.setPayload(newPayload);
+                newPayload = new ExchangePayloadProxy(newPayload, parameterTypes).proxy();
             }
+            return (T) ExchangeEvent.of(event.getEventType(), newPayload);
         }
         return event;
     }
@@ -104,7 +101,7 @@ public class ListenerParameterResolver {
                 if ("toString".equals(method.getName()) || "equals".equals(method.getName())) {
                     return invocation.proceed();
                 }
-                String cacheEntityKey = AnnotationEntityCache.INSTANCE.getEntityKey(method);
+                String cacheEntityKey = AnnotationEntityCache.INSTANCE.getEntityKeyByMethod(method);
                 if(allPayloads.containsKey(cacheEntityKey)){
                     return allPayloads.get(cacheEntityKey);
                 }
