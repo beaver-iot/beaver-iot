@@ -44,7 +44,10 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
     public void publish(T message) {
         Disruptor<Event<?>> disruptor = disruptorCache.get(message.getClass());
 
-        Assert.notNull(disruptor, "disruptor is null, please subscribe first");
+        if(disruptor == null){
+            log.warn("disruptor is null, please subscribe first");
+            return;
+        }
 
         disruptor.getRingBuffer().publishEvent((event, sequence) -> {
             if(message instanceof Copyable){

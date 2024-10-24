@@ -24,7 +24,7 @@ public class EventBusAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public AnnotationEventBusRegister disruptorEventBusRegister(DisruptorEventBus eventBus){
+    public AnnotationEventBusRegister annotationEventBusRegister(DisruptorEventBus eventBus){
         return new AnnotationEventBusRegister(eventBus);
     }
 
