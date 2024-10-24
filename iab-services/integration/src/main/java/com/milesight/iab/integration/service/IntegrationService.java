@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,13 +37,15 @@ public class IntegrationService {
         data.setName(integration.getName());
         data.setDescription(integration.getDescription());
         data.setAddDeviceServiceKey(integration.getEntityIdentifierAddDevice());
-        data.setDeviceCount(deviceServiceProvider.countAll(integration.getId()));
-//        data.setEntityCount(entityServiceProvider.countAllEntitiesByIntegration(integration.getId()));
         return data;
     }
 
     public List<SearchIntegrationResponseData> searchIntegration(SearchIntegrationRequest searchDeviceRequest) {
-        return integrationServiceProvider.findActiveIntegrations()
+        List<Integration> integrations = integrationServiceProvider.findActiveIntegrations();
+        List<String> integrationIds = integrations.stream().map(Integration::getId).collect(Collectors.toList());
+        Map<String, Long> integrationDeviceCount = deviceServiceProvider.countByIntegrationIds(integrationIds);
+        Map<String, Long> integrationEntityCount = entityServiceProvider.countAllEntitiesByIntegrationIds(integrationIds);
+        return integrations
                 .stream()
                 .filter(integration -> {
             if (searchDeviceRequest.getDeviceAddable() != null) {
@@ -60,7 +63,12 @@ public class IntegrationService {
             }
 
             return true;
-        }).map(this::integrationToSearchResponseData).collect(Collectors.toList());
+        }).map(integration -> {
+            SearchIntegrationResponseData data = this.integrationToSearchResponseData(integration);
+            data.setDeviceCount(integrationDeviceCount.get(integration.getId()));
+            data.setEntityCount(integrationEntityCount.get(integration.getId()));
+            return data;
+        }).collect(Collectors.toList());
     }
 
     public IntegrationDetailData getDetailData(String integrationId) {
@@ -74,7 +82,9 @@ public class IntegrationService {
 
         IntegrationDetailData data = new IntegrationDetailData();
         BeanUtils.copyProperties(integrationToSearchResponseData(integration), data);
-        data.setEntities(entityServiceProvider.findByTargetId(integrationId)
+        data.setDeviceCount(deviceServiceProvider.countByIntegrationId(integrationId));
+        data.setEntityCount(entityServiceProvider.countAllEntitiesByIntegrationId(integrationId));
+        data.setIntegrationEntities(entityServiceProvider.findByTargetId(integrationId)
                 .stream().map((Entity entity) -> IntegrationEntityData
                         .builder()
                         .id(entity.getId())

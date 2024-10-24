@@ -1,18 +1,18 @@
 package com.milesight.iab.device.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.milesight.iab.context.api.EntityServiceProvider;
 import com.milesight.iab.context.api.IntegrationServiceProvider;
 import com.milesight.iab.context.integration.builder.DeviceBuilder;
 import com.milesight.iab.context.integration.model.Device;
+import com.milesight.iab.context.integration.model.Entity;
 import com.milesight.iab.device.po.DevicePO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -24,14 +24,26 @@ public class DeviceServiceHelper {
     EntityServiceProvider entityServiceProvider;
 
     public Device convertPO(DevicePO devicePO) {
-        DeviceBuilder deviceBuilder = new DeviceBuilder(integrationServiceProvider.getIntegration(devicePO.getIntegration()));
+        return this.convertPO(Collections.singletonList(devicePO)).get(0);
+    }
 
-        return deviceBuilder
+    public List<Device> convertPO(List<DevicePO> devicePOList) {
+        List<String> deviceIds = devicePOList.stream().map((devicePO -> devicePO.getId().toString())).collect(Collectors.toList());
+        List<Entity> entities = entityServiceProvider.findByTargetIds(deviceIds);
+        Map<String, List<Entity>> deviceEntityMap = new HashMap<>();
+        entities.forEach((entity -> {
+            String deviceKey = entity.getDeviceKey();
+            Assert.notNull(deviceKey, "Device entity must have device key");
+            deviceEntityMap
+                    .computeIfAbsent(deviceKey, k -> new ArrayList<>())
+                    .add(entity);
+        }));
+        return devicePOList.stream().map((devicePO -> new DeviceBuilder(integrationServiceProvider.getIntegration(devicePO.getIntegration()))
                 .name(devicePO.getName())
                 .identifier(devicePO.getIdentifier())
                 .id(devicePO.getId())
                 .additional(devicePO.getAdditionalData())
-                .entities(entityServiceProvider.findByTargetId(devicePO.getId().toString()))
-                .build();
+                .entities(deviceEntityMap.get(devicePO.getKey()))
+                .build())).collect(Collectors.toList());
     }
 }

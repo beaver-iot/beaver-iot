@@ -12,7 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -133,7 +136,15 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
     }
 
     @Override
-    public Long countAll(String integrationId) {
+    public Map<String, Long> countByIntegrationIds(List<String> integrationIds) {
+        List<Object[]> res = deviceRepository.countByIntegrations(integrationIds);
+        Map<String, Long> result = new HashMap<>();
+        res.forEach((Object[] o) -> result.put((String) o[0], (Long) o[1]));
+        return result;
+    }
+
+    @Override
+    public Long countByIntegrationId(String integrationId) {
         return deviceRepository.count(f -> f.eq(DevicePO.Fields.integration, integrationId));
     }
 }

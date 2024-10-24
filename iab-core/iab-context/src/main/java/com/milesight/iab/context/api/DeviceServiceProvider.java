@@ -3,6 +3,7 @@ package com.milesight.iab.context.api;
 import com.milesight.iab.context.integration.model.Device;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author leon
@@ -20,5 +21,7 @@ public interface DeviceServiceProvider {
 
     List<Device> findAll(String integrationId);
 
-    Long countAll(String integrationId);
+    Map<String, Long> countByIntegrationIds(List<String> integrationIds);
+
+    Long countByIntegrationId(String integrationId);
 }

@@ -10,5 +10,5 @@ import java.util.List;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 public class IntegrationDetailData extends SearchIntegrationResponseData {
-    List<IntegrationEntityData> entities;
+    List<IntegrationEntityData> integrationEntities;
 }
