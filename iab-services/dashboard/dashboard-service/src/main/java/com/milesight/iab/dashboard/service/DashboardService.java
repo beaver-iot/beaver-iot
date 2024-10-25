@@ -47,7 +47,10 @@ public class DashboardService {
         if (!StringUtils.hasText(name)) {
             throw ServiceException.with(ErrorCode.PARAMETER_SYNTAX_ERROR).detailMessage("name is empty").build();
         }
-        DashboardPO dashboardPO = dashboardRepository.findOne(filterable -> filterable.eq(DashboardPO.Fields.name, name)).orElseThrow(() -> ServiceException.with(DashboardErrorCode.DASHBOARD_NAME_EXIST).build());
+        DashboardPO dashboardPO = dashboardRepository.findOne(filterable -> filterable.eq(DashboardPO.Fields.name, name)).orElse(null);
+        if (dashboardPO != null) {
+            throw ServiceException.with(DashboardErrorCode.DASHBOARD_NAME_EXIST).build();
+        }
         dashboardPO = new DashboardPO();
         dashboardPO.setId(SnowflakeUtil.nextId());
         dashboardPO.setName(name);
