@@ -39,7 +39,6 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
         Assert.notNull(device.getIntegrationId(), "Integration must be provided!");
 
         boolean shouldCreate = false;
-        boolean shouldUpdate = false;
 
         // check id
         if (device.getId() != null) {
@@ -66,12 +65,16 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
         devicePO.setName(device.getName());
         devicePO.setAdditionalData(device.getAdditional());
 
+        Long curMillis = System.currentTimeMillis();
+        devicePO.setUpdatedAt(curMillis);
+
         // create or update
         if (shouldCreate) {
             // integration would not be updated
             devicePO.setIntegration(device.getIntegrationId());
             devicePO.setIdentifier(device.getIdentifier());
             devicePO.setKey(device.getKey());
+            devicePO.setCreatedAt(curMillis);
             devicePO = deviceRepository.save(devicePO);
             eventBus.publish(DeviceEvent.of(DeviceEvent.EventType.CREATED, device));
         } else {
