@@ -122,7 +122,6 @@ public class EntityService implements EntityServiceProvider {
             entityPO.setName(entity.getName());
             entityPO.setType(entity.getType());
             entityPO.setAccessMod(entity.getAccessMod());
-            entityPO.setSyncCall(entity.isSyncCall());
             entityPO.setParent(entity.getParentIdentifier());
             entityPO.setAttachTarget(attachTarget);
             entityPO.setAttachTargetId(attachTargetId);
@@ -176,7 +175,6 @@ public class EntityService implements EntityServiceProvider {
                     entity.setName(childEntityPO.getName());
                     entity.setIdentifier(childEntityPO.getKey().substring(childEntityPO.getKey().lastIndexOf(".") + 1));
                     entity.setAccessMod(childEntityPO.getAccessMod());
-                    entity.setSyncCall(childEntityPO.getSyncCall());
                     entity.setValueType(childEntityPO.getValueType());
                     entity.setType(childEntityPO.getType());
                     entity.setAttributes(objectMapper.readValue(childEntityPO.getValueAttribute(), Map.class));
@@ -196,7 +194,6 @@ public class EntityService implements EntityServiceProvider {
                 entity.setName(entityPO.getName());
                 entity.setIdentifier(entityPO.getKey().substring(entityPO.getKey().lastIndexOf(".") + 1));
                 entity.setAccessMod(entityPO.getAccessMod());
-                entity.setSyncCall(entityPO.getSyncCall());
                 entity.setValueType(entityPO.getValueType());
                 entity.setType(entityPO.getType());
                 entity.setAttributes(objectMapper.readValue(entityPO.getValueAttribute(), Map.class));
@@ -553,7 +550,6 @@ public class EntityService implements EntityServiceProvider {
                     entity.setName(childEntityPO.getName());
                     entity.setIdentifier(childEntityPO.getKey().substring(childEntityPO.getKey().lastIndexOf(".") + 1));
                     entity.setAccessMod(childEntityPO.getAccessMod());
-                    entity.setSyncCall(childEntityPO.getSyncCall());
                     entity.setValueType(childEntityPO.getValueType());
                     entity.setType(childEntityPO.getType());
                     entity.setAttributes(objectMapper.readValue(childEntityPO.getValueAttribute(), Map.class));
@@ -583,7 +579,6 @@ public class EntityService implements EntityServiceProvider {
                 entity.setName(entityPO.getName());
                 entity.setIdentifier(entityPO.getKey().substring(entityPO.getKey().lastIndexOf(".") + 1));
                 entity.setAccessMod(entityPO.getAccessMod());
-                entity.setSyncCall(entityPO.getSyncCall());
                 entity.setValueType(entityPO.getValueType());
                 entity.setType(entityPO.getType());
                 entity.setAttributes(objectMapper.readValue(entityPO.getValueAttribute(), Map.class));

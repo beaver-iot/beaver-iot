@@ -30,7 +30,6 @@ public class EntityPO {
     private EntityType type;
     @Enumerated(EnumType.STRING)
     private AccessMod accessMod;
-    private Boolean syncCall;
     private String parent;
     @Enumerated(EnumType.STRING)
     private AttachTargetType attachTarget;
