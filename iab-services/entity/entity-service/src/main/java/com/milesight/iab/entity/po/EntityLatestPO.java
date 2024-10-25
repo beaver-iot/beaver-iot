@@ -1,10 +1,12 @@
 package com.milesight.iab.entity.po;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 /**
  * @author loong
@@ -14,6 +16,7 @@ import lombok.experimental.FieldNameConstants;
 @Table(name = "t_entity_latest")
 @Entity
 @FieldNameConstants
+@EntityListeners(AuditingEntityListener.class)
 public class EntityLatestPO {
 
     @Id

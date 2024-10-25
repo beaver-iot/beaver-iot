@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.Map;
 
@@ -14,6 +15,7 @@ import java.util.Map;
 @Entity
 @FieldNameConstants
 @Table(name = "t_device")
+@EntityListeners(AuditingEntityListener.class)
 public class DevicePO {
 
     @Id

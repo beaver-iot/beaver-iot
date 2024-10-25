@@ -51,8 +51,6 @@ public class DashboardService {
         dashboardPO = new DashboardPO();
         dashboardPO.setId(SnowflakeUtil.nextId());
         dashboardPO.setName(name);
-        dashboardPO.setCreatedAt(System.currentTimeMillis());
-        dashboardPO.setUpdatedAt(System.currentTimeMillis());
         dashboardRepository.save(dashboardPO);
     }
 
@@ -67,7 +65,6 @@ public class DashboardService {
         }
         DashboardPO dashboardPO = dashboardRepository.findById(dashboardId).orElseThrow(() -> ServiceException.with(ErrorCode.DATA_NO_FOUND).detailMessage("dashboard not exist").build());
         dashboardPO.setName(name);
-        dashboardPO.setUpdatedAt(System.currentTimeMillis());
         dashboardRepository.save(dashboardPO);
     }
 
@@ -97,8 +94,6 @@ public class DashboardService {
         dashboardWidgetPO.setId(SnowflakeUtil.nextId());
         dashboardWidgetPO.setDashboardId(dashboardId);
         dashboardWidgetPO.setData(createWidgetRequest.getData());
-        dashboardWidgetPO.setCreatedAt(System.currentTimeMillis());
-        dashboardWidgetPO.setUpdatedAt(System.currentTimeMillis());
         dashboardWidgetRepository.save(dashboardWidgetPO);
     }
 
@@ -108,7 +103,6 @@ public class DashboardService {
             throw ServiceException.with(ErrorCode.DATA_NO_FOUND).detailMessage("widget not exist").build();
         }
         dashboardWidgetPO.setData(updateWidgetRequest.getData());
-        dashboardWidgetPO.setUpdatedAt(System.currentTimeMillis());
         dashboardWidgetRepository.save(dashboardWidgetPO);
     }
 

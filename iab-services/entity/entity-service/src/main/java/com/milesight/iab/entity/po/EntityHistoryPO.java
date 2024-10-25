@@ -1,10 +1,14 @@
 package com.milesight.iab.entity.po;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 /**
  * @author loong
@@ -14,6 +18,7 @@ import lombok.experimental.FieldNameConstants;
 @Table(name = "t_entity_history")
 @Entity
 @FieldNameConstants
+@EntityListeners(AuditingEntityListener.class)
 public class EntityHistoryPO {
 
     @Id
@@ -25,8 +30,10 @@ public class EntityHistoryPO {
     private String valueString;
     private Byte[] valueBinary;
     private Long timestamp;
+    @CreatedDate
     private Long createdAt;
     private String createdBy;
+    @LastModifiedDate
     private Long updatedAt;
     private String updatedBy;
 

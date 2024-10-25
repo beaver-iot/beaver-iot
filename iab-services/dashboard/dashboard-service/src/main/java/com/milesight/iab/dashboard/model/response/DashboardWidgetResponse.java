@@ -1,6 +1,7 @@
 package com.milesight.iab.dashboard.model.response;
 
 import lombok.Data;
+import org.springframework.data.annotation.CreatedDate;
 
 /**
  * @author loong
@@ -12,6 +13,7 @@ public class DashboardWidgetResponse {
     private Long widgetId;
     private Long dashboardId;
     private String data;
+    @CreatedDate
     private Long createdAt;
 
 }

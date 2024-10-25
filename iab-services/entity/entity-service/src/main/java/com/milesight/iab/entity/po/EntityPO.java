@@ -5,12 +5,16 @@ import com.milesight.iab.context.integration.enums.AttachTargetType;
 import com.milesight.iab.context.integration.enums.EntityType;
 import com.milesight.iab.context.integration.enums.EntityValueType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 /**
  * @author loong
@@ -20,6 +24,7 @@ import lombok.experimental.FieldNameConstants;
 @Table(name = "t_entity")
 @Entity
 @FieldNameConstants
+@EntityListeners(AuditingEntityListener.class)
 public class EntityPO {
 
     @Id
@@ -37,7 +42,9 @@ public class EntityPO {
     private String valueAttribute;
     @Enumerated(EnumType.STRING)
     private EntityValueType valueType;
+    @CreatedDate
     private Long createdAt;
+    @LastModifiedDate
     private Long updatedAt;
 
 }

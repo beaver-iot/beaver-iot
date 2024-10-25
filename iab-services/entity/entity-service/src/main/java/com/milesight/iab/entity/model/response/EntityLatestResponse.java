@@ -10,6 +10,6 @@ import lombok.Data;
 public class EntityLatestResponse {
 
     private Object value;
-    private String updateAt;
+    private String updatedAt;
 
 }

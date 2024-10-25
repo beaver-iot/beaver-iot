@@ -112,7 +112,6 @@ public class EntityService implements EntityServiceProvider {
                 attachTargetId = entity.getIntegrationId();
             }
             Long entityId = dataEntityIdMap.get(entity.getKey());
-            boolean isCreate = entityId == null;
             if (entityId == null) {
                 entityId = SnowflakeUtil.nextId();
             }
@@ -127,10 +126,6 @@ public class EntityService implements EntityServiceProvider {
             entityPO.setAttachTargetId(attachTargetId);
             entityPO.setValueAttribute(objectMapper.writeValueAsString(entity.getAttributes()));
             entityPO.setValueType(entity.getValueType());
-            if (isCreate) {
-                entityPO.setCreatedAt(System.currentTimeMillis());
-            }
-            entityPO.setUpdatedAt(System.currentTimeMillis());
             return entityPO;
         } catch (Exception e) {
             log.error("save entity error:{}", e.getMessage(), e);
@@ -394,7 +389,6 @@ public class EntityService implements EntityServiceProvider {
             } else {
                 throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
             }
-            entityLatestPO.setUpdatedAt(System.currentTimeMillis());
             entityLatestPOList.add(entityLatestPO);
         });
         entityLatestRepository.saveAll(entityLatestPOList);
@@ -461,10 +455,8 @@ public class EntityService implements EntityServiceProvider {
             entityHistoryPO.setTimestamp(exchangePayload.getTimestamp());
             String operatorId = SecurityUserContext.getUserId();
             if (isCreate) {
-                entityHistoryPO.setCreatedAt(System.currentTimeMillis());
                 entityHistoryPO.setCreatedBy(operatorId);
             }
-            entityHistoryPO.setUpdatedAt(System.currentTimeMillis());
             entityHistoryPO.setUpdatedBy(operatorId);
             entityHistoryPOList.add(entityHistoryPO);
         });
@@ -820,7 +812,7 @@ public class EntityService implements EntityServiceProvider {
         } else if (entityLatestPO.getValueBinary() != null) {
             entityLatestResponse.setValue(entityLatestPO.getValueBinary());
         }
-        entityLatestResponse.setUpdateAt(entityLatestPO.getUpdatedAt().toString());
+        entityLatestResponse.setUpdatedAt(entityLatestPO.getUpdatedAt().toString());
         return entityLatestResponse;
     }
 
