@@ -35,6 +35,8 @@ websocket:
   port: ${WEBSOCKET_PORT:9201}
   context-path: ${WEBSOCKET_CONTEXT_PATH:/websocket}
 oauth2:
+  client-id: ${OAUTH2_CLIENT_ID:iab}
+  client-secret: ${OAUTH2_CLIENT_SECRET:milesight*iab}
   permit-urls:
     - "/oauth2/token"
     - "/user/register"
