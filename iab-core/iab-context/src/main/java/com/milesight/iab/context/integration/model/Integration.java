@@ -1,5 +1,6 @@
 package com.milesight.iab.context.integration.model;
 
+import com.milesight.iab.context.constants.IntegrationConstants;
 import com.milesight.iab.context.integration.bootstrap.IntegrationBootstrap;
 import lombok.Getter;
 import lombok.Setter;
@@ -94,6 +95,15 @@ public class Integration {
             initialDevices = new ArrayList<>();
         }
         initialDevices.add(device);
+    }
+
+    public String getEntityKeyAddDevice() {
+        String addDeviceServiceIdentifier = this.getEntityIdentifierAddDevice();
+        if (addDeviceServiceIdentifier == null) {
+            return null;
+        }
+
+        return IntegrationConstants.formatIntegrationEntityKey(this.getId(), this.getEntityIdentifierAddDevice());
     }
 
 }

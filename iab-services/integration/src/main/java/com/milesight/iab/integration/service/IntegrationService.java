@@ -38,7 +38,7 @@ public class IntegrationService {
         data.setIcon(integration.getIconUrl());
         data.setName(integration.getName());
         data.setDescription(integration.getDescription());
-        data.setAddDeviceServiceKey(integration.getEntityIdentifierAddDevice());
+        data.setAddDeviceServiceKey(integration.getEntityKeyAddDevice());
         return data;
     }
 

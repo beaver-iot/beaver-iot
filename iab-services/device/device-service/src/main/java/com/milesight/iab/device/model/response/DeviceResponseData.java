@@ -1,14 +1,19 @@
 package com.milesight.iab.device.model.response;
 
-import com.milesight.iab.device.po.DevicePO;
 import lombok.*;
 
 import java.util.Map;
 
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
 @Data
-public class DeviceResponseData extends DevicePO {
+public class DeviceResponseData {
+    private String id;
+    private String key;
+    private String name;
+    private String integration;
+    private Map<String, Object> additionalData;
+    private Long createdAt;
+    private Long updatedAt;
+
     private String integrationName;
     private Boolean deletable;
 }

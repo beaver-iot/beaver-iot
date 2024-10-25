@@ -90,10 +90,15 @@ public class DeviceService {
 
     private DeviceResponseData convertPOToResponseData(DevicePO devicePO) {
         DeviceResponseData deviceResponseData = new DeviceResponseData();
-        BeanUtils.copyProperties(devicePO, deviceResponseData, DevicePO.Fields.additionalData);
+        deviceResponseData.setId(devicePO.getId().toString());
+        deviceResponseData.setKey(devicePO.getKey());
+        deviceResponseData.setName(devicePO.getName());
+        deviceResponseData.setIntegration(devicePO.getIntegration());
+        deviceResponseData.setAdditionalData(devicePO.getAdditionalData());
+        deviceResponseData.setCreatedAt(devicePO.getCreatedAt());
+        deviceResponseData.setUpdatedAt(devicePO.getUpdatedAt());
 
         Integration integrationConfig = getIntegrationConfig(devicePO.getIntegration());
-        deviceResponseData.setAdditionalData(devicePO.getAdditionalData());
         deviceResponseData.setDeletable(integrationConfig.getEntityIdentifierDeleteDevice() != null);
         deviceResponseData.setIntegrationName(integrationConfig.getName());
         return deviceResponseData;
@@ -120,8 +125,12 @@ public class DeviceService {
 
     }
 
-    public void batchDeleteDevices(List<Long> deviceIdList) {
-        List<DevicePO> devices = deviceRepository.findByIdIn(deviceIdList);
+    public void batchDeleteDevices(List<String> deviceIdList) {
+        if (deviceIdList.isEmpty()) {
+            return;
+        }
+
+        List<DevicePO> devices = deviceRepository.findByIdIn(deviceIdList.stream().map(Long::valueOf).collect(Collectors.toList()));
         Set<Long> foundIds = devices.stream().map(DevicePO::getId).collect(Collectors.toSet());
 
         // check whether all devices exist
@@ -167,7 +176,7 @@ public class DeviceService {
                 .findByTargetId(AttachTargetType.DEVICE, deviceId.toString())
                 .stream().map((Entity entity) -> DeviceEntityData
                         .builder()
-                        .id(entity.getId())
+                        .id(entity.getId().toString())
                         .key(entity.getKey())
                         .type(entity.getType())
                         .valueType(entity.getValueType())
