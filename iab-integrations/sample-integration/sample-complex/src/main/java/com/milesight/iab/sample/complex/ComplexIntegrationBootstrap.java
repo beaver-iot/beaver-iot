@@ -22,19 +22,19 @@ public class ComplexIntegrationBootstrap implements IntegrationBootstrap {
     public void onStarted(Integration integrationConfig) {
 
         //ie: build device/entity by DeviceBuilder
-        Entity entityConfig = new EntityBuilder()
-                .property("prop1", AccessMod.W)
-                .children()
-                    .property("prop11", AccessMod.W).end()
-                .children()
-                    .property("prop12", AccessMod.W).end()
-                .build();
-        Device device = new DeviceBuilder()
-                .name("complexDevice1")
-                .identifier("complexDevice1")
-                .entity(entityConfig)
-                .build();
-        integrationConfig.addInitialDevice(device);
+//        Entity entityConfig = new EntityBuilder()
+//                .property("prop1", AccessMod.W)
+//                .children()
+//                    .property("prop11", AccessMod.W).end()
+//                .children()
+//                    .property("prop12", AccessMod.W).end()
+//                .build();
+//        Device device = new DeviceBuilder()
+//                .name("complexDevice1")
+//                .identifier("complexDevice1")
+//                .entity(entityConfig)
+//                .build();
+//        integrationConfig.addInitialDevice(device);
 
     }
 
