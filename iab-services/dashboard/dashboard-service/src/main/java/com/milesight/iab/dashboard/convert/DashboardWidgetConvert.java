@@ -1,6 +1,6 @@
 package com.milesight.iab.dashboard.convert;
 
-import com.milesight.iab.dashboard.model.response.DashboardWidgetResponse;
+import com.milesight.iab.dashboard.model.dto.DashboardWidgetDTO;
 import com.milesight.iab.dashboard.po.DashboardWidgetPO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -18,8 +18,8 @@ public interface DashboardWidgetConvert {
     DashboardWidgetConvert INSTANCE = Mappers.getMapper(DashboardWidgetConvert.class);
 
     @Mapping(source = "id", target = "widgetId")
-    DashboardWidgetResponse convertResponse(DashboardWidgetPO dashboardWidgetPO);
+    DashboardWidgetDTO convertResponse(DashboardWidgetPO dashboardWidgetPO);
 
-    List<DashboardWidgetResponse> convertResponseList(List<DashboardWidgetPO> dashboardWidgetPOList);
+    List<DashboardWidgetDTO> convertResponseList(List<DashboardWidgetPO> dashboardWidgetPOList);
 
 }

@@ -7,10 +7,12 @@ import com.milesight.iab.context.integration.model.event.ExchangeEvent;
 import com.milesight.iab.eventbus.api.EventResponse;
 import com.milesight.iab.rule.RuleEngineExecutor;
 import com.milesight.iab.rule.constants.RuleNodeNames;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author leon
  */
+@Slf4j
 public class GenericExchangeFlowExecutor implements ExchangeFlowExecutor {
 
     private RuleEngineExecutor ruleEngineExecutor;
@@ -22,7 +24,11 @@ public class GenericExchangeFlowExecutor implements ExchangeFlowExecutor {
     @Override
     public EventResponse syncExchangeUp(ExchangePayload exchangePayload) {
         initializeEventContext(ExchangeEvent.EventType.UP, exchangePayload, true);
-        return (EventResponse) ruleEngineExecutor.executeWithResponse(RuleNodeNames.innerExchangeUpFlow, exchangePayload);
+        Object response = ruleEngineExecutor.executeWithResponse(RuleNodeNames.innerExchangeUpFlow, exchangePayload);
+        if(response != null && !(response instanceof EventResponse)){
+            log.warn("syncExchangeDown response is not EventResponse, response:{}", response);
+        }
+        return (EventResponse) response;
     }
 
     @Override
@@ -34,7 +40,11 @@ public class GenericExchangeFlowExecutor implements ExchangeFlowExecutor {
     @Override
     public EventResponse syncExchangeDown(ExchangePayload exchangePayload) {
         initializeEventContext(ExchangeEvent.EventType.DOWN, exchangePayload, true);
-        return (EventResponse) ruleEngineExecutor.executeWithResponse(RuleNodeNames.innerExchangeDownFlow, exchangePayload);
+        Object response = ruleEngineExecutor.executeWithResponse(RuleNodeNames.innerExchangeDownFlow, exchangePayload);
+        if(response != null && !(response instanceof EventResponse)){
+            log.warn("syncExchangeDown response is not EventResponse, response:{}", response);
+        }
+        return (EventResponse) response;
     }
 
     @Override

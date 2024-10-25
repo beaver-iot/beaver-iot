@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 public class DemoEntityEventHandler {
 
     //connect service
-    @EventSubscribe(payloadKeyExpression="msc-integration.integration.connect")
+    @EventSubscribe(payloadKeyExpression="msc-integration.integration.*")
     public EventResponse handleConnect(ExchangeEvent event) {
 
         log.debug("DemoEntityEventHandler handleConnect:{}",event);

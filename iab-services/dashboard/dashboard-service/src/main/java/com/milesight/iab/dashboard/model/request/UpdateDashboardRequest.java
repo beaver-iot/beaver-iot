@@ -1,6 +1,9 @@
 package com.milesight.iab.dashboard.model.request;
 
+import com.milesight.iab.dashboard.model.dto.DashboardWidgetDTO;
 import lombok.Data;
+
+import java.util.List;
 
 /**
  * @author loong
@@ -10,5 +13,6 @@ import lombok.Data;
 public class UpdateDashboardRequest {
 
     private String name;
+    private List<DashboardWidgetDTO> widgets;
 
 }

@@ -56,6 +56,7 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -70,7 +71,7 @@ public class WebSecurityConfiguration {
     UserDetailsService userDetailsService;
     @Autowired
     OAuth2TokenCustomizer tokenCustomizer;
-//    @Autowired
+    //    @Autowired
 //    private JdbcTemplate jdbcTemplate;
     @Autowired
     AuthenticationFilter authenticationFilter;
@@ -94,11 +95,6 @@ public class WebSecurityConfiguration {
                 )
                 .clientAuthentication(clientAuthentication -> clientAuthentication.errorResponseHandler(new CustomAuthenticationHandler()))
                 .oidc(Customizer.withDefaults());
-        http.oauth2ResourceServer(oauth2ResourceServer ->
-                oauth2ResourceServer.jwt(Customizer.withDefaults())
-                        .authenticationEntryPoint(new CustomOAuth2ExceptionEntryPoint())
-                        .accessDeniedHandler(new CustomOAuth2AccessDeniedHandler())
-        );
         return http.build();
     }
 
@@ -107,9 +103,8 @@ public class WebSecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .anyRequest().permitAll()
-//                        .requestMatchers(oAuth2Properties.getPermitUrls()).permitAll()
-//                        .anyRequest().authenticated()
+                        .requestMatchers(oAuth2Properties.getIgnoreUrls()).permitAll()
+                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .formLogin(
@@ -117,10 +112,6 @@ public class WebSecurityConfiguration {
                 )
                 .logout(
                         AbstractHttpConfigurer::disable
-                )
-                .httpBasic(
-                        httpBasic -> {
-                        }
                 )
                 .exceptionHandling(
                         exception -> exception.authenticationEntryPoint(new CustomOAuth2ExceptionEntryPoint())
@@ -130,6 +121,11 @@ public class WebSecurityConfiguration {
                         AbstractHttpConfigurer::disable
                 )
                 .authenticationProvider(authenticationProvider());
+        http.oauth2ResourceServer(oauth2ResourceServer ->
+                oauth2ResourceServer.jwt(jwt -> jwt.decoder(jwtDecoder()))
+                        .authenticationEntryPoint(new CustomOAuth2ExceptionEntryPoint())
+                        .accessDeniedHandler(new CustomOAuth2AccessDeniedHandler())
+        );
         return http.build();
     }
 
@@ -142,18 +138,23 @@ public class WebSecurityConfiguration {
 
     @Bean
     public RegisteredClientRepository registeredClientRepository() {
+        TokenSettings tokenSettings = TokenSettings.builder()
+                .accessTokenFormat(OAuth2TokenFormat.SELF_CONTAINED)
+                .reuseRefreshTokens(false)
+                .accessTokenTimeToLive(Duration.ofDays(1))
+                .refreshTokenTimeToLive(Duration.ofDays(30))
+                .build();
+        ClientSettings clientSettings = ClientSettings.builder()
+                .requireAuthorizationConsent(false)
+                .build();
         RegisteredClient registeredClient = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId(oAuth2Properties.getClientId())
-                .clientSecret("{noop}"+oAuth2Properties.getClientSecret())
-                .scope("read")
-                .scope("write")
-                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                .clientSecret("{noop}" + oAuth2Properties.getClientSecret())
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
                 .authorizationGrantType(AuthorizationGrantType.PASSWORD)
-                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                .tokenSettings(TokenSettings.builder().accessTokenFormat(OAuth2TokenFormat.SELF_CONTAINED).reuseRefreshTokens(false).build())
-                .clientSettings(ClientSettings.builder().requireAuthorizationConsent(false).build())
+                .tokenSettings(tokenSettings)
+                .clientSettings(clientSettings)
                 .build();
         return new InMemoryRegisteredClientRepository(registeredClient);
 //        return new JdbcRegisteredClientRepository(jdbcTemplate);
@@ -211,7 +212,7 @@ public class WebSecurityConfiguration {
         return keyPair;
     }
 
-    @Bean
+    //    @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }

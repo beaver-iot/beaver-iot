@@ -4,6 +4,7 @@ import com.milesight.iab.context.api.IntegrationServiceProvider;
 import com.milesight.iab.context.integration.entity.EntityLoader;
 import com.milesight.iab.context.integration.bootstrap.IntegrationBootstrap;
 import com.milesight.iab.context.integration.bootstrap.IntegrationBootstrapManager;
+import com.milesight.iab.context.integration.entity.annotation.AnnotationEntityLoader;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -21,4 +22,9 @@ public class IntegrationAutoConfiguration {
         return new IntegrationBootstrapManager(entityLoaders, integrationBootstraps, integrationStorageProvider);
     }
 
+    @Bean
+    @ConditionalOnMissingBean
+    public AnnotationEntityLoader annotationEntityLoader(){
+        return new AnnotationEntityLoader();
+    }
 }
