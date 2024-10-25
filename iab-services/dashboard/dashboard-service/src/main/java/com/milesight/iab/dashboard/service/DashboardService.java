@@ -63,7 +63,7 @@ public class DashboardService {
         if (!StringUtils.hasText(name)) {
             throw ServiceException.with(ErrorCode.PARAMETER_SYNTAX_ERROR).detailMessage("name is empty").build();
         }
-        DashboardPO otherDashboardPO = dashboardRepository.findOne(filterable -> filterable.eq(DashboardPO.Fields.name, name)).orElseThrow(() -> ServiceException.with(DashboardErrorCode.DASHBOARD_NAME_EXIST).build());
+        DashboardPO otherDashboardPO = dashboardRepository.findOne(filterable -> filterable.eq(DashboardPO.Fields.name, name)).orElseThrow(() -> ServiceException.with(ErrorCode.DATA_NO_FOUND).build());
         if (!Objects.equals(otherDashboardPO.getId(), dashboardId)) {
             throw ServiceException.with(DashboardErrorCode.DASHBOARD_NAME_EXIST).build();
         }
