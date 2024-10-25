@@ -716,7 +716,8 @@ public class EntityService implements EntityServiceProvider {
             response.setEntityName(t.getName());
             response.setEntityValueAttribute(t.getValueAttribute());
             response.setEntityValueType(t.getValueType().name());
-        });
+            return response;
+        }).collect(Collectors.toList());
     }
 
     public Page<EntityHistoryResponse> historySearch(EntityHistoryQuery entityHistoryQuery) {
