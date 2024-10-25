@@ -15,6 +15,6 @@ public class OAuth2Properties {
 
     private String clientId;
     private String clientSecret;
-    private String[] permitUrls;
+    private String[] ignoreUrls;
 
 }
