@@ -4,12 +4,7 @@ import com.milesight.iab.context.integration.enums.AccessMod;
 import com.milesight.iab.context.integration.enums.AttachTargetType;
 import com.milesight.iab.context.integration.enums.EntityType;
 import com.milesight.iab.context.integration.enums.EntityValueType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.CreatedDate;
@@ -29,6 +24,7 @@ public class EntityPO {
 
     @Id
     private Long id;
+    @Column(name = "\"key\"")
     private String key;
     private String name;
     @Enumerated(EnumType.STRING)
