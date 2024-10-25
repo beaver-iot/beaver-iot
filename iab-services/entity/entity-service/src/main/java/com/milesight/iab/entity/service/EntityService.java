@@ -97,7 +97,7 @@ public class EntityService implements EntityServiceProvider {
         return Integer.compare(a.length, b.length);
     };
 
-    private EntityPO saveConvert(Entity entity, Map<String, Long> deviceKeyMap, Map<String, Long> dataEntityIdMap) {
+    private EntityPO saveConvert(Entity entity, Map<String, Long> deviceKeyMap, Map<String, EntityPO> dataEntityIdMap) {
         try {
             AttachTargetType attachTarget;
             String attachTargetId;
@@ -111,11 +111,15 @@ public class EntityService implements EntityServiceProvider {
                 attachTarget = AttachTargetType.INTEGRATION;
                 attachTargetId = entity.getIntegrationId();
             }
-            Long entityId = dataEntityIdMap.get(entity.getKey());
-            if (entityId == null) {
-                entityId = SnowflakeUtil.nextId();
-            }
             EntityPO entityPO = new EntityPO();
+            Long entityId = null;
+            EntityPO dataEntityPO = dataEntityIdMap.get(entity.getKey());
+            if (dataEntityPO == null) {
+                entityId = SnowflakeUtil.nextId();
+            }else{
+                entityId = dataEntityPO.getId();
+                entityPO.setCreatedAt(dataEntityPO.getCreatedAt());
+            }
             entityPO.setId(entityId);
             entityPO.setKey(entity.getKey());
             entityPO.setName(entity.getName());
@@ -261,9 +265,9 @@ public class EntityService implements EntityServiceProvider {
         }
         List<String> entityKeys = entityList.stream().map(Entity::getKey).filter(StringUtils::hasText).toList();
         List<EntityPO> dataEntityPOList = getByKeys(entityKeys);
-        Map<String, Long> dataEntityIdMap = new HashMap<>();
+        Map<String, EntityPO> dataEntityIdMap = new HashMap<>();
         if (dataEntityPOList != null && !dataEntityPOList.isEmpty()) {
-            dataEntityIdMap.putAll(dataEntityPOList.stream().collect(Collectors.toMap(EntityPO::getKey, EntityPO::getId)));
+            dataEntityIdMap.putAll(dataEntityPOList.stream().collect(Collectors.toMap(EntityPO::getKey, Function.identity())));
         }
         List<EntityPO> entityPOList = new ArrayList<>();
         entityList.forEach(t -> {
