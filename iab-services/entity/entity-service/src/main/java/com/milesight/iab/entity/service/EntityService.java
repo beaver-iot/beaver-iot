@@ -232,20 +232,11 @@ public class EntityService implements EntityServiceProvider {
         if (entity == null) {
             return;
         }
-        Map<String, Long> deviceKeyMap = new HashMap<>();
-        if (StringUtils.hasText(entity.getDeviceKey())) {
-            DeviceNameDTO deviceNameDTO = deviceFacade.getDeviceNameByKey(entity.getDeviceKey());
-            if (deviceNameDTO != null) {
-                deviceKeyMap.put(entity.getDeviceKey(), deviceNameDTO.getId());
-            }
-        }
-        EntityPO dataEntityPO = getByKey(entity.getKey());
-        Map<String, Long> dataEntityIdMap = new HashMap<>();
-        if (dataEntityPO != null) {
-            dataEntityIdMap.put(dataEntityPO.getKey(), dataEntityPO.getId());
-        }
-        EntityPO entityPO = saveConvert(entity, deviceKeyMap, dataEntityIdMap);
-        entityRepository.save(entityPO);
+        List<Entity> allEntityList = new ArrayList<>();
+        allEntityList.add(entity);
+        allEntityList.addAll(entity.getChildren());
+
+        doBatchSaveEntity(allEntityList);
     }
 
     @Override
@@ -253,8 +244,23 @@ public class EntityService implements EntityServiceProvider {
         if (entityList == null || entityList.isEmpty()) {
             return;
         }
-        Map<String, Long> deviceKeyMap = new HashMap<>();
+        List<Entity> allEntityList = new ArrayList<>();
+        allEntityList.addAll(entityList);
+        entityList.forEach(entity -> {
+            List<Entity> childrenEntityList = entity.getChildren();
+            if (childrenEntityList != null && !childrenEntityList.isEmpty()) {
+                allEntityList.addAll(childrenEntityList);
+            }
+        });
+        doBatchSaveEntity(allEntityList);
+    }
+
+    private void doBatchSaveEntity(List<Entity> entityList) {
+        if (entityList == null || entityList.isEmpty()) {
+            return;
+        }
         List<String> deviceKeys = entityList.stream().map(Entity::getDeviceKey).filter(StringUtils::hasText).toList();
+        Map<String, Long> deviceKeyMap = new HashMap<>();
         if (!deviceKeys.isEmpty()) {
             List<DeviceNameDTO> deviceNameDTOList = deviceFacade.getDeviceNameByKey(deviceKeys);
             if (deviceNameDTOList != null && !deviceNameDTOList.isEmpty()) {
@@ -268,8 +274,8 @@ public class EntityService implements EntityServiceProvider {
             dataEntityIdMap.putAll(dataEntityPOList.stream().collect(Collectors.toMap(EntityPO::getKey, EntityPO::getId)));
         }
         List<EntityPO> entityPOList = new ArrayList<>();
-        entityList.forEach(entity -> {
-            EntityPO entityPO = saveConvert(entity, deviceKeyMap, dataEntityIdMap);
+        entityList.forEach(t -> {
+            EntityPO entityPO = saveConvert(t, deviceKeyMap, dataEntityIdMap);
             entityPOList.add(entityPO);
         });
         entityRepository.saveAll(entityPOList);
