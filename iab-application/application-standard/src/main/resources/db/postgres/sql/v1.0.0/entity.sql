@@ -28,6 +28,7 @@ CREATE TABLE "t_entity_latest"
     value_boolean BOOLEAN,
     value_string  VARCHAR(255),
     value_binary  BYTEA,
+    timestamp     BIGINT not null,
     updated_at    BIGINT
 );
 CREATE INDEX idx_entity_latest_entity_id ON "t_entity_latest" (entity_id);

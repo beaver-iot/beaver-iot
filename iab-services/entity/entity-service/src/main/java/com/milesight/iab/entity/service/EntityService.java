@@ -359,9 +359,9 @@ public class EntityService implements EntityServiceProvider {
         Map<String, Long> entityIdMap = entityPOList.stream().collect(Collectors.toMap(EntityPO::getKey, EntityPO::getId));
         List<Long> entityIds = entityPOList.stream().map(EntityPO::getId).toList();
         List<EntityLatestPO> nowEntityLatestPOList = entityLatestRepository.findAll(filter -> filter.in(EntityLatestPO.Fields.entityId, entityIds.toArray()));
-        Map<Long, Long> entityIdDataMap = new HashMap<>();
+        Map<Long, EntityLatestPO> entityIdDataMap = new HashMap<>();
         if (nowEntityLatestPOList != null && !nowEntityLatestPOList.isEmpty()) {
-            entityIdDataMap.putAll(nowEntityLatestPOList.stream().collect(Collectors.toMap(EntityLatestPO::getEntityId, EntityLatestPO::getId)));
+            entityIdDataMap.putAll(nowEntityLatestPOList.stream().collect(Collectors.toMap(EntityLatestPO::getEntityId, Function.identity())));
         }
         List<EntityLatestPO> entityLatestPOList = new ArrayList<>();
         payloads.forEach((entityKey, payload) -> {
@@ -369,9 +369,16 @@ public class EntityService implements EntityServiceProvider {
             if (entityId == null) {
                 return;
             }
-            Long entityLatestId = entityIdDataMap.get(entityId);
-            if (entityLatestId == null) {
+            EntityLatestPO dataEntityLatest = entityIdDataMap.get(entityId);
+            Long entityLatestId = null;
+            if (dataEntityLatest == null) {
                 entityLatestId = SnowflakeUtil.nextId();
+            }else {
+                if(dataEntityLatest.getTimestamp() >= exchangePayload.getTimestamp()){
+                    log.info("entityLatestId is bigger than exchangePayload timestamp, entityId:{}, exchangePayload:{}", entityId, exchangePayload);
+                    return;
+                }
+                entityLatestId = dataEntityLatest.getId();
             }
             EntityLatestPO entityLatestPO = new EntityLatestPO();
             entityLatestPO.setId(entityLatestId);
@@ -389,6 +396,7 @@ public class EntityService implements EntityServiceProvider {
             } else {
                 throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
             }
+            entityLatestPO.setTimestamp(exchangePayload.getTimestamp());
             entityLatestPOList.add(entityLatestPO);
         });
         entityLatestRepository.saveAll(entityLatestPOList);
