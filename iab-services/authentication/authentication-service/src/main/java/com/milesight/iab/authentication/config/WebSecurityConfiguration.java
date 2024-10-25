@@ -7,6 +7,7 @@ import com.milesight.iab.authentication.filter.AuthenticationFilter;
 import com.milesight.iab.authentication.handler.CustomOAuth2AccessTokenResponseHandler;
 import com.milesight.iab.authentication.provider.CustomOAuth2PasswordAuthenticationConverter;
 import com.milesight.iab.authentication.provider.CustomOAuth2PasswordAuthenticationProvider;
+import com.milesight.iab.authentication.util.OAuth2EndpointUtils;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
@@ -120,12 +121,13 @@ public class WebSecurityConfiguration {
                 .csrf(
                         AbstractHttpConfigurer::disable
                 )
-                .authenticationProvider(authenticationProvider());
-        http.oauth2ResourceServer(oauth2ResourceServer ->
-                oauth2ResourceServer.jwt(jwt -> jwt.decoder(jwtDecoder()))
-                        .authenticationEntryPoint(new CustomOAuth2ExceptionEntryPoint())
-                        .accessDeniedHandler(new CustomOAuth2AccessDeniedHandler())
-        );
+                .authenticationProvider(authenticationProvider())
+                .oauth2ResourceServer(oauth2ResourceServer ->
+                        oauth2ResourceServer.jwt(jwt -> jwt.decoder(jwtDecoder()))
+                                .authenticationEntryPoint(new CustomOAuth2ExceptionEntryPoint())
+                                .accessDeniedHandler(new CustomOAuth2AccessDeniedHandler())
+                )
+                .securityMatcher((request) -> !OAuth2EndpointUtils.getWhiteListMatcher(oAuth2Properties.getIgnoreUrls()).matches(request));
         return http.build();
     }
 

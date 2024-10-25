@@ -10,6 +10,9 @@ import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import com.milesight.iab.data.support.MapJsonConverter;
+
+import java.util.Map;
 
 /**
  * @author loong
@@ -35,7 +38,8 @@ public class EntityPO {
     @Enumerated(EnumType.STRING)
     private AttachTargetType attachTarget;
     private String attachTargetId;
-    private String valueAttribute;
+    @Convert(converter = MapJsonConverter.class)
+    private Map<String, Object> valueAttribute;
     @Enumerated(EnumType.STRING)
     private EntityValueType valueType;
     @CreatedDate

@@ -1,5 +1,6 @@
 package com.milesight.iab.authentication.service;
 
+import com.milesight.iab.authentication.config.OAuth2Properties;
 import com.milesight.iab.authentication.util.OAuth2EndpointUtils;
 import com.milesight.iab.context.security.SecurityUserContext;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,10 +24,13 @@ public class UserAuthenticationService {
     OAuth2AuthorizationService authorizationService;
     @Autowired
     JwtDecoder jwtDecoder;
+    @Autowired
+    OAuth2Properties oAuth2Properties;
 
     public void loadSecurityContext(HttpServletRequest request) {
         String authorizationValue = request.getHeader("Authorization");
-        if (authorizationValue != null && authorizationValue.startsWith("Bearer ")) {
+        boolean isAuthorization = !OAuth2EndpointUtils.getWhiteListMatcher(oAuth2Properties.getIgnoreUrls()).matches(request);
+        if (isAuthorization && authorizationValue != null && authorizationValue.startsWith("Bearer ")) {
             String token = authorizationValue.substring(7);
 
             Jwt jwt = readAccessToken(token);

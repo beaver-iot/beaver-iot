@@ -1,7 +1,10 @@
 package com.milesight.iab.entity.model.response;
 
 import com.milesight.iab.context.integration.enums.AccessMod;
+import com.milesight.iab.context.integration.enums.EntityType;
 import lombok.Data;
+
+import java.util.Map;
 
 /**
  * @author loong
@@ -15,8 +18,9 @@ public class EntityResponse {
     private String entityId;
     private AccessMod entityAccessMod;
     private String entityKey;
+    private EntityType entityType;
     private String entityName;
-    private String entityValueAttribute;
+    private Map<String, Object> entityValueAttribute;
     private String entityValueType;
 
 }

@@ -6,5 +6,5 @@ import java.util.List;
 
 @Data
 public class BatchDeleteDeviceRequest {
-    private List<Long> deviceIdList;
+    private List<String> deviceIdList;
 }

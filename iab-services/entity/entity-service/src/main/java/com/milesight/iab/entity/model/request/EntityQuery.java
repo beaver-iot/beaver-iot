@@ -13,5 +13,6 @@ public class EntityQuery extends GenericPageRequest {
 
     private String keyword;
     private EntityType entityType;
+    private Boolean excludeChildren;
 
 }

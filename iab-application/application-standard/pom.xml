@@ -129,6 +129,12 @@
             <version>${project.version}</version>
             <!--<scope>test</scope>-->
         </dependency>
+        <dependency>
+            <groupId>com.milesight.iab</groupId>
+            <artifactId>msc-integration</artifactId>
+            <version>${project.version}</version>
+            <!--<scope>test</scope>-->
+        </dependency>
 
 
     </dependencies>
