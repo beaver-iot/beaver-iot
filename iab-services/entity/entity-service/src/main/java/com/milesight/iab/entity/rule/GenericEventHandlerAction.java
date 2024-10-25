@@ -6,7 +6,6 @@ import com.milesight.iab.context.integration.model.event.ExchangeEvent;
 import com.milesight.iab.eventbus.EventBus;
 import com.milesight.iab.eventbus.api.EventResponse;
 import com.milesight.iab.rule.annotations.RuleNode;
-import com.milesight.iab.rule.api.ProcessorNode;
 import com.milesight.iab.rule.api.TransformerNode;
 import com.milesight.iab.rule.constants.RuleNodeNames;
 import lombok.extern.slf4j.Slf4j;
@@ -23,10 +22,11 @@ public class GenericEventHandlerAction implements TransformerNode<ExchangePayloa
 
     @Autowired
     private EventBus eventBus;
+
     @Override
     public EventResponse transform(ExchangePayload exchange) {
 
-        log.debug("GenericEventHandlerAction processor {}",exchange.toString());
+        log.debug("GenericEventHandlerAction processor {}", exchange.toString());
 
         String eventType = (String) exchange.getContext(EventContextAccessor.EXCHANGE_KEY_EVENT_TYPE);
 

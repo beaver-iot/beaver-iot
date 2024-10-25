@@ -16,37 +16,37 @@ public class ExchangeRuleEngineRouteConfigurer implements RuleEngineRouteConfigu
         context.addRoutes(new RouteBuilder() {
             @Override
             public void configure() {
-                from(RuleNodeNames.innerExchangeUpFlow )
-                    .choice()
+                from(RuleNodeNames.innerExchangeUpFlow)
+                        .choice()
                         .when().method(RuleNodeNames.innerExchangeValidator)
-                            .bean(RuleNodeNames.innerExchangeSaveAction)
-                            .choice()
-                                .when().method(RuleNodeNames.innerSyncCallPredicate)
-                                    .bean(RuleNodeNames.innerEventHandlerAction)
-                                .otherwise()
-                                    .bean(RuleNodeNames.innerEventSubscribeAction)
-                                .end()
-                             .endChoice()
+                        .bean(RuleNodeNames.innerExchangeSaveAction)
+                        .choice()
+                        .when().method(RuleNodeNames.innerSyncCallPredicate)
+                        .bean(RuleNodeNames.innerEventHandlerAction)
                         .otherwise()
-                            .log("ExchangeValidator failed on innerExchangeUpFlow.")
+                        .bean(RuleNodeNames.innerEventSubscribeAction)
+                        .end()
+                        .endChoice()
+                        .otherwise()
+                        .log("ExchangeValidator failed on innerExchangeUpFlow.")
                         .end();
 
                 from(RuleNodeNames.innerExchangeDownFlow)
-                    .choice()
+                        .choice()
                         .when().method(RuleNodeNames.innerExchangeValidator)
                         .bean(RuleNodeNames.innerExchangeSaveAction)
                         .choice()
 //                            .when().method(RuleNodeNames.innerCustomExchangeDownHandlerPredicate)
 //                                .to("direct:innerExchangeDownHandler!msc-integration")
-                            .when().method(RuleNodeNames.innerSyncCallPredicate)
-                                .bean(RuleNodeNames.innerEventHandlerAction)
-                            .otherwise()
-                                .bean(RuleNodeNames.innerEventSubscribeAction)
-                            .end()
+                        .when().method(RuleNodeNames.innerSyncCallPredicate)
+                        .bean(RuleNodeNames.innerEventHandlerAction)
+                        .otherwise()
+                        .bean(RuleNodeNames.innerEventSubscribeAction)
+                        .end()
                         .endChoice()
-                    .otherwise()
+                        .otherwise()
                         .log("ExchangeValidator failed on innerExchangeDownFlow")
-                    .end();
+                        .end();
             }
         });
     }

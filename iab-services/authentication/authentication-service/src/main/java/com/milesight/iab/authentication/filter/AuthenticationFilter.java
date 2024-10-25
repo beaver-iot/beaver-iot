@@ -1,5 +1,6 @@
 package com.milesight.iab.authentication.filter;
 
+import com.milesight.iab.authentication.exception.CustomOAuth2Exception;
 import com.milesight.iab.authentication.service.UserAuthenticationService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -25,7 +26,12 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        userAuthenticationService.loadSecurityContext(request);
+        try {
+            userAuthenticationService.loadSecurityContext(request);
+        } catch (Exception e) {
+            CustomOAuth2Exception.exceptionResponse(response, e);
+            return;
+        }
         filterChain.doFilter(request, response);
     }
 }
