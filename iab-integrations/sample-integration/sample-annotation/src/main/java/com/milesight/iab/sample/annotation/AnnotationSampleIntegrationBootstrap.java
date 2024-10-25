@@ -21,19 +21,19 @@ public class AnnotationSampleIntegrationBootstrap implements IntegrationBootstra
     @Override
     public void onStarted(Integration integrationConfig) {
 
-        Entity entityConfig = new EntityBuilder()
-                .property("prop1", AccessMod.W)
-                .children()
-                    .property("prop11", AccessMod.W).end()
-                .children()
-                    .property("prop12", AccessMod.RW).end()
-                .build();
-        Device device = new DeviceBuilder()
-                .name("device1")
-                .identifier("device1")
-                .entity(entityConfig)
-                .build();
-        integrationConfig.addInitialDevice(device);
+//        Entity entityConfig = new EntityBuilder()
+//                .property("prop1", AccessMod.W)
+//                .children()
+//                    .property("prop11", AccessMod.W).end()
+//                .children()
+//                    .property("prop12", AccessMod.RW).end()
+//                .build();
+//        Device device = new DeviceBuilder()
+//                .name("device1")
+//                .identifier("device1")
+//                .entity(entityConfig)
+//                .build();
+//        integrationConfig.addInitialDevice(device);
     }
 
     @Override
