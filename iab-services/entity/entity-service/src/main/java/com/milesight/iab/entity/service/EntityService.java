@@ -666,6 +666,7 @@ public class EntityService implements EntityServiceProvider {
             response.setEntityId(entityPO.getId().toString());
             response.setEntityAccessMod(entityPO.getAccessMod());
             response.setEntityKey(entityPO.getKey());
+            response.setEntityType(entityPO.getType());
             response.setEntityName(entityPO.getName());
             response.setEntityValueAttribute(entityPO.getValueAttribute());
             response.setEntityValueType(entityPO.getValueType().name());
