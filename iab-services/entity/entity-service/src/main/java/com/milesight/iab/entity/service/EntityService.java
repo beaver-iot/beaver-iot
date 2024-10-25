@@ -870,7 +870,7 @@ public class EntityService implements EntityServiceProvider {
             return;
         }
         ExchangePayload payload = new ExchangePayload(exchange);
-        payload.getContext().put(SecurityUserContext.USER_ID, SecurityUserContext.getUserId());
+        payload.putContext(SecurityUserContext.USER_ID, SecurityUserContext.getUserId());
         exchangeFlowExecutor.asyncExchangeDown(payload);
     }
 

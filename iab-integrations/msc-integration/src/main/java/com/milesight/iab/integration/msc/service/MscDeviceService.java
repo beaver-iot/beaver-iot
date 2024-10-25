@@ -95,7 +95,7 @@ public class MscDeviceService {
     @SneakyThrows
     @EventSubscribe(payloadKeyExpression = "msc-integration.integration.add-device", eventType = ExchangeEvent.EventType.DOWN)
     public void onAddDevice(Event<MscServiceEntities.AddDevice> event) {
-        val deviceName = (String) event.getPayload().getContext().getOrDefault("name", "Device Name");
+        val deviceName = event.getPayload().getContext("name", "Device Name");
         if (mscClientProvider == null || mscClientProvider.getMscClient() == null) {
             log.warn("MscClient not initiated.");
             return;

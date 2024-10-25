@@ -154,7 +154,7 @@ public class DeviceService {
             }
 
             payload.put(deleteDeviceEntityIdentifier, "");
-            payload.getContext().put("device", device);
+            payload.putContext("device", device);
             return payload;
         }).forEach((ExchangePayload payload) -> {
             // call service for deleting
