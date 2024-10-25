@@ -22,7 +22,7 @@ public class DevicePO {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "key")
+    @Column(name = "\"key\"")
     private String key;
 
     @Column(name = "name")
