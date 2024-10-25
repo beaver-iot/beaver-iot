@@ -20,7 +20,7 @@ public class GenericSyncCallPredicate implements PredicateNode<ExchangePayload> 
 
         Boolean syncCall = exchange.getContext(EventContextAccessor.EXCHANGE_KEY_SYNC_CALL, false);
 
-        log.debug("SyncCallPredicate Predicate {}",syncCall);
+        log.debug("SyncCallPredicate Predicate {}", syncCall);
 
         return syncCall;
     }

@@ -3,10 +3,14 @@ package com.milesight.iab.authentication.util;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author loong
@@ -28,6 +32,15 @@ public class OAuth2EndpointUtils {
         });
         return parameters;
     }
+
+    public static OrRequestMatcher getWhiteListMatcher(String[] whiteList) {
+        return new OrRequestMatcher(
+                Stream.of(whiteList)
+                        .map(AntPathRequestMatcher::new)
+                        .collect(Collectors.toList())
+        );
+    }
+
 
     public static void throwError(String errorCode, String description, String errorUri) {
         OAuth2Error error = new OAuth2Error(errorCode, description, errorUri);

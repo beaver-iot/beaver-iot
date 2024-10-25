@@ -21,10 +21,11 @@ public class GenericEventSubscribeAction implements ProcessorNode<ExchangePayloa
 
     @Autowired
     private EventBus eventBus;
+
     @Override
     public void processor(ExchangePayload exchange) {
 
-        log.debug("GenericEventSubscribeAction processor {}",exchange.toString());
+        log.debug("GenericEventSubscribeAction processor {}", exchange.toString());
 
         String eventType = (String) exchange.getContext(EventContextAccessor.EXCHANGE_KEY_EVENT_TYPE);
 

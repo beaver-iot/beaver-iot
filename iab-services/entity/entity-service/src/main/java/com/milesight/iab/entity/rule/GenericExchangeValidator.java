@@ -26,18 +26,19 @@ public class GenericExchangeValidator implements PredicateNode<ExchangePayload> 
 
     @Autowired
     private EntityServiceProvider entityServiceProvider;
+
     @Override
-    public boolean matches(ExchangePayload exchange){
+    public boolean matches(ExchangePayload exchange) {
         log.debug("Start ExchangeValidator matches, keys : {}", exchange.getKey());
 
         Map<String, Object> allPayloads = exchange.getAllPayloads();
 
-        if(ObjectUtils.isEmpty(allPayloads)){
+        if (ObjectUtils.isEmpty(allPayloads)) {
             log.warn("ExchangeValidator matches failed, allPayloads is empty");
             return false;
         }
 
-        Map<String,Entity> entityMap = new HashMap<>();
+        Map<String, Entity> entityMap = new HashMap<>();
 
         boolean isValid = allPayloads.keySet().stream().allMatch(k -> {
             Entity entity = entityServiceProvider.findByKey(k);
@@ -45,7 +46,7 @@ public class GenericExchangeValidator implements PredicateNode<ExchangePayload> 
             return validateEntity(entity);
         });
 
-        if(!isValid){
+        if (!isValid) {
             return false;
         }
 
@@ -56,15 +57,15 @@ public class GenericExchangeValidator implements PredicateNode<ExchangePayload> 
 
     private boolean validateEntity(Entity entity) {
 
-        if(entity == null){
+        if (entity == null) {
             log.info("ExchangeValidator matches failed, entity is empty ");
             return false;
         }
-        if(!entity.loadActiveIntegration().isPresent()){
+        if (!entity.loadActiveIntegration().isPresent()) {
             log.info("ExchangeValidator matches failed, activeIntegration is empty :{}", entity.getIntegrationId());
             return false;
         }
-        if(StringUtils.hasText(entity.getDeviceKey()) && !entity.loadDevice().isPresent()){
+        if (StringUtils.hasText(entity.getDeviceKey()) && !entity.loadDevice().isPresent()) {
             log.info("ExchangeValidator matches failed, device is empty : {}", entity.getDeviceKey());
             return false;
         }

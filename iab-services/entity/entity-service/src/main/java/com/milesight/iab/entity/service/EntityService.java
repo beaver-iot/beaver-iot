@@ -1,6 +1,5 @@
 package com.milesight.iab.entity.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.milesight.iab.base.enums.ErrorCode;
 import com.milesight.iab.base.exception.ServiceException;
 import com.milesight.iab.base.utils.snowflake.SnowflakeUtil;
@@ -16,12 +15,12 @@ import com.milesight.iab.context.integration.model.Entity;
 import com.milesight.iab.context.integration.model.ExchangePayload;
 import com.milesight.iab.context.integration.model.Integration;
 import com.milesight.iab.context.security.SecurityUserContext;
+import com.milesight.iab.data.filterable.Filterable;
 import com.milesight.iab.device.dto.DeviceNameDTO;
 import com.milesight.iab.device.facade.IDeviceFacade;
 import com.milesight.iab.entity.enums.AggregateType;
 import com.milesight.iab.entity.model.dto.EntityHistoryUnionQuery;
 import com.milesight.iab.entity.model.request.EntityAggregateQuery;
-import com.milesight.iab.entity.model.request.EntityFormRequest;
 import com.milesight.iab.entity.model.request.EntityHistoryQuery;
 import com.milesight.iab.entity.model.request.EntityQuery;
 import com.milesight.iab.entity.model.request.ServiceCallRequest;
@@ -53,6 +52,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -63,8 +63,6 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class EntityService implements EntityServiceProvider {
-
-    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
     private EntityRepository entityRepository;
@@ -116,7 +114,7 @@ public class EntityService implements EntityServiceProvider {
             EntityPO dataEntityPO = dataEntityIdMap.get(entity.getKey());
             if (dataEntityPO == null) {
                 entityId = SnowflakeUtil.nextId();
-            }else{
+            } else {
                 entityId = dataEntityPO.getId();
                 entityPO.setCreatedAt(dataEntityPO.getCreatedAt());
             }
@@ -128,7 +126,7 @@ public class EntityService implements EntityServiceProvider {
             entityPO.setParent(entity.getParentIdentifier());
             entityPO.setAttachTarget(attachTarget);
             entityPO.setAttachTargetId(attachTargetId);
-            entityPO.setValueAttribute(objectMapper.writeValueAsString(entity.getAttributes()));
+            entityPO.setValueAttribute(entity.getAttributes());
             entityPO.setValueType(entity.getValueType());
             return entityPO;
         } catch (Exception e) {
@@ -157,7 +155,7 @@ public class EntityService implements EntityServiceProvider {
         Map<String, String> deviceKeyMap = new HashMap<>();
         Map<String, Integration> deviceIntegrationMap = new HashMap<>();
         if (targetType == AttachTargetType.DEVICE) {
-            List<DeviceNameDTO> deviceNameDTOList = deviceFacade.getDeviceNameByIds(targetIds.stream().map(Long::valueOf).collect(Collectors.toList()));
+            List<DeviceNameDTO> deviceNameDTOList = deviceFacade.getDeviceNameByIds(targetIds.stream().map(Long::valueOf).distinct().collect(Collectors.toList()));
             if (deviceNameDTOList != null && !deviceNameDTOList.isEmpty()) {
                 deviceKeyMap.putAll(deviceNameDTOList.stream().collect(Collectors.toMap(t -> String.valueOf(t.getId()), DeviceNameDTO::getKey)));
                 deviceIntegrationMap.putAll(deviceNameDTOList.stream().collect(Collectors.toMap(t -> String.valueOf(t.getId()), DeviceNameDTO::getIntegrationConfig)));
@@ -176,7 +174,7 @@ public class EntityService implements EntityServiceProvider {
                     entity.setAccessMod(childEntityPO.getAccessMod());
                     entity.setValueType(childEntityPO.getValueType());
                     entity.setType(childEntityPO.getType());
-                    entity.setAttributes(objectMapper.readValue(childEntityPO.getValueAttribute(), Map.class));
+                    entity.setAttributes(childEntityPO.getValueAttribute());
                     entity.setParentIdentifier(childEntityPO.getParent());
                     childrenEntityList.add(entity);
                 } catch (Exception e) {
@@ -195,7 +193,7 @@ public class EntityService implements EntityServiceProvider {
                 entity.setAccessMod(entityPO.getAccessMod());
                 entity.setValueType(entityPO.getValueType());
                 entity.setType(entityPO.getType());
-                entity.setAttributes(objectMapper.readValue(entityPO.getValueAttribute(), Map.class));
+                entity.setAttributes(entityPO.getValueAttribute());
                 entity.setParentIdentifier(entityPO.getParent());
                 String key = entityPO.getKey();
                 List<Entity> childEntityList = childrenEntityList.stream().filter(childEntity -> key.contains(childEntity.getParentIdentifier())).toList();
@@ -377,8 +375,8 @@ public class EntityService implements EntityServiceProvider {
             Long entityLatestId = null;
             if (dataEntityLatest == null) {
                 entityLatestId = SnowflakeUtil.nextId();
-            }else {
-                if(dataEntityLatest.getTimestamp() >= exchangePayload.getTimestamp()){
+            } else {
+                if (dataEntityLatest.getTimestamp() >= exchangePayload.getTimestamp()) {
                     log.info("entityLatestId is bigger than exchangePayload timestamp, entityId:{}, exchangePayload:{}", entityId, exchangePayload);
                     return;
                 }
@@ -556,7 +554,7 @@ public class EntityService implements EntityServiceProvider {
                     entity.setAccessMod(childEntityPO.getAccessMod());
                     entity.setValueType(childEntityPO.getValueType());
                     entity.setType(childEntityPO.getType());
-                    entity.setAttributes(objectMapper.readValue(childEntityPO.getValueAttribute(), Map.class));
+                    entity.setAttributes(childEntityPO.getValueAttribute());
                     entity.setParentIdentifier(childEntityPO.getParent());
                     childrenEntityList.add(entity);
                 } catch (Exception e) {
@@ -566,7 +564,7 @@ public class EntityService implements EntityServiceProvider {
             });
         }
         List<Entity> entityList = new ArrayList<>();
-        List<Long> deviceIds = parentEntityPOList.stream().filter(entityPO -> entityPO.getAttachTarget() == AttachTargetType.DEVICE).map(t -> Long.valueOf(t.getAttachTargetId())).toList();
+        List<Long> deviceIds = parentEntityPOList.stream().filter(entityPO -> entityPO.getAttachTarget() == AttachTargetType.DEVICE).map(t -> Long.valueOf(t.getAttachTargetId())).distinct().toList();
         Map<String, String> deviceKeyMap = new HashMap<>();
         Map<String, Integration> deviceIntegrationMap = new HashMap<>();
         if (!deviceIds.isEmpty()) {
@@ -585,7 +583,7 @@ public class EntityService implements EntityServiceProvider {
                 entity.setAccessMod(entityPO.getAccessMod());
                 entity.setValueType(entityPO.getValueType());
                 entity.setType(entityPO.getType());
-                entity.setAttributes(objectMapper.readValue(entityPO.getValueAttribute(), Map.class));
+                entity.setAttributes(entityPO.getValueAttribute());
                 entity.setParentIdentifier(entityPO.getParent());
                 String key = entityPO.getKey();
                 List<Entity> childEntityList = childrenEntityList.stream().filter(childEntity -> key.contains(childEntity.getParentIdentifier())).toList();
@@ -617,6 +615,7 @@ public class EntityService implements EntityServiceProvider {
         if (!StringUtils.hasText(entityQuery.getKeyword())) {
             return Page.empty();
         }
+        boolean isExcludeChildren = entityQuery.getExcludeChildren() != null && entityQuery.getExcludeChildren();
         List<String> attachTargetIds = new ArrayList<>();
         List<Integration> integrations = integrationServiceProvider.findIntegrations(f -> f.getName().contains(entityQuery.getKeyword()));
         if (integrations != null && !integrations.isEmpty()) {
@@ -633,14 +632,20 @@ public class EntityService implements EntityServiceProvider {
             List<String> deviceIds = deviceNameDTOList.stream().map(DeviceNameDTO::getId).map(String::valueOf).toList();
             attachTargetIds.addAll(deviceIds);
         }
-        Page<EntityPO> entityPOList = entityRepository.findAll(f -> f.eq(EntityPO.Fields.type, entityQuery.getEntityType())
-                        .or(f1 -> f1.like(EntityPO.Fields.name, entityQuery.getKeyword())
-                                .in(EntityPO.Fields.attachTargetId, attachTargetIds.toArray())),
-                entityQuery.toPageable());
+        Consumer<Filterable> filterable = f -> f.eq(EntityPO.Fields.type, entityQuery.getEntityType())
+                .or(f1 -> f1.like(EntityPO.Fields.name, entityQuery.getKeyword())
+                        .in(EntityPO.Fields.attachTargetId, attachTargetIds.toArray()));
+        if (isExcludeChildren) {
+            filterable = f -> f.eq(EntityPO.Fields.type, entityQuery.getEntityType())
+                    .eq(EntityPO.Fields.parent, null)
+                    .or(f1 -> f1.like(EntityPO.Fields.name, entityQuery.getKeyword())
+                            .in(EntityPO.Fields.attachTargetId, attachTargetIds.toArray()));
+        }
+        Page<EntityPO> entityPOList = entityRepository.findAll(filterable, entityQuery.toPageable());
         if (entityPOList == null || entityPOList.getContent().isEmpty()) {
             return Page.empty();
         }
-        List<Long> resultDeviceIds = entityPOList.stream().filter(entityPO -> entityPO.getAttachTarget() == AttachTargetType.DEVICE).map(t -> Long.parseLong(t.getAttachTargetId())).toList();
+        List<Long> resultDeviceIds = entityPOList.stream().filter(entityPO -> entityPO.getAttachTarget() == AttachTargetType.DEVICE).map(t -> Long.parseLong(t.getAttachTargetId())).distinct().toList();
         List<DeviceNameDTO> resultDevices = deviceFacade.getDeviceNameByIds(resultDeviceIds);
         Map<String, String> deviceNameMap = new HashMap<>();
         Map<String, String> deviceIntegrationNameMap = new HashMap<>();
@@ -671,6 +676,46 @@ public class EntityService implements EntityServiceProvider {
             response.setEntityValueAttribute(entityPO.getValueAttribute());
             response.setEntityValueType(entityPO.getValueType().name());
             return response;
+        });
+    }
+
+    public List<EntityResponse> getChildren(Long entityId) {
+        EntityPO entityPO = entityRepository.findOne(f -> f.eq(EntityPO.Fields.id, entityId)).orElseThrow(() -> ServiceException.with(ErrorCode.DATA_NO_FOUND).build());
+        String parentIdentifier = entityPO.getKey().substring(entityPO.getKey().lastIndexOf(".") + 1);
+        List<EntityPO> entityPOList = entityRepository.findAll(f -> f.eq(EntityPO.Fields.parent, parentIdentifier));
+        if (entityPOList == null || entityPOList.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<Long> resultDeviceIds = entityPOList.stream().filter(t -> t.getAttachTarget() == AttachTargetType.DEVICE).map(t -> Long.parseLong(t.getAttachTargetId())).distinct().toList();
+        List<DeviceNameDTO> resultDevices = deviceFacade.getDeviceNameByIds(resultDeviceIds);
+        Map<String, String> deviceNameMap = new HashMap<>();
+        Map<String, String> deviceIntegrationNameMap = new HashMap<>();
+        if (resultDevices != null && !resultDevices.isEmpty()) {
+            deviceNameMap.putAll(resultDevices.stream().collect(Collectors.toMap(t -> String.valueOf(t.getId()), DeviceNameDTO::getName)));
+            deviceIntegrationNameMap.putAll(resultDevices.stream().collect(Collectors.toMap(t -> String.valueOf(t.getId()), t -> t.getIntegrationConfig().getName())));
+        }
+        return entityPOList.stream().map(t -> {
+            EntityResponse response = new EntityResponse();
+            String deviceName = null;
+            String integrationName = null;
+            if (t.getAttachTarget() == AttachTargetType.DEVICE) {
+                String deviceId = t.getAttachTargetId();
+                deviceName = deviceNameMap.get(deviceId);
+                integrationName = deviceIntegrationNameMap.get(deviceId);
+            } else if (t.getAttachTarget() == AttachTargetType.INTEGRATION) {
+                String integrationId = t.getAttachTargetId();
+                Integration integration = integrationServiceProvider.getIntegration(integrationId);
+                integrationName = integration.getName();
+            }
+            response.setDeviceName(deviceName);
+            response.setIntegrationName(integrationName);
+            response.setEntityId(t.getId().toString());
+            response.setEntityAccessMod(t.getAccessMod());
+            response.setEntityKey(t.getKey());
+            response.setEntityType(t.getType());
+            response.setEntityName(t.getName());
+            response.setEntityValueAttribute(t.getValueAttribute());
+            response.setEntityValueType(t.getValueType().name());
         });
     }
 
@@ -839,19 +884,6 @@ public class EntityService implements EntityServiceProvider {
         entityMetaResponse.setValueAttribute(entityPO.getValueAttribute());
         entityMetaResponse.setValueType(entityPO.getValueType());
         return entityMetaResponse;
-    }
-
-    public Map<String, Object> getEntityForm(EntityFormRequest entityFormRequest) {
-        List<String> entityIds = entityFormRequest.getEntityIdList();
-        if (entityIds == null || entityIds.isEmpty()) {
-            throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).detailMessage("entityIdList is empty").build();
-        }
-        List<EntityPO> entityPOList = entityRepository.findAll(filter -> filter.in(EntityPO.Fields.id, entityIds.toArray()));
-        if (entityPOList == null || entityPOList.isEmpty()) {
-            throw ServiceException.with(ErrorCode.DATA_NO_FOUND).detailMessage("entity not found").build();
-        }
-        //TODO
-        return null;
     }
 
     public void updatePropertyEntity(UpdatePropertyEntityRequest updatePropertyEntityRequest) {

@@ -5,6 +5,8 @@ import com.milesight.iab.context.integration.enums.EntityType;
 import com.milesight.iab.context.integration.enums.EntityValueType;
 import lombok.Data;
 
+import java.util.Map;
+
 /**
  * @author loong
  * @date 2024/10/22 13:27
@@ -16,7 +18,7 @@ public class EntityMetaResponse {
     private String name;
     private EntityType type;
     private AccessMod accessMod;
-    private String valueAttribute;
+    private Map<String, Object> valueAttribute;
     private EntityValueType valueType;
 
 }
