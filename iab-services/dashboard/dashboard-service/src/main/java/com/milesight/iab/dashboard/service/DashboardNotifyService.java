@@ -1,6 +1,6 @@
 package com.milesight.iab.dashboard.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.milesight.iab.base.utils.JsonUtils;
 import com.milesight.iab.context.integration.model.ExchangePayload;
 import com.milesight.iab.context.integration.model.event.ExchangeEvent;
 import com.milesight.iab.context.integration.model.event.WebSocketEvent;
@@ -17,8 +17,6 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class DashboardNotifyService {
-
-    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @EventSubscribe(payloadKeyExpression = "*.device.*")
     public void onDeviceDashboardNotify(ExchangeEvent exchangeEvent) {
@@ -39,7 +37,7 @@ public class DashboardNotifyService {
             }
             String userId = exchangePayload.getContext(SecurityUserContext.USER_ID).toString();
             WebSocketEvent webSocketEvent = WebSocketEvent.of(WebSocketEvent.EventType.EXCHANGE, exchangePayload);
-            WebSocketContext.sendMessage(userId, objectMapper.writeValueAsString(webSocketEvent));
+            WebSocketContext.sendMessage(userId, JsonUtils.toJSON(webSocketEvent));
         } catch (Exception e) {
             log.error("onDashboardNotify error:{}", e.getMessage(), e);
         }

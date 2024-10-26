@@ -11,7 +11,6 @@ import java.util.Map;
 @Data
 public class ServiceCallRequest {
 
-    private Long entityId;
     private Map<String, Object> exchange;
 
 }

@@ -541,7 +541,6 @@ public class EntityService implements EntityServiceProvider {
         if (entityPOList == null || entityPOList.isEmpty()) {
             return new HashMap<>();
         }
-        List<EntityPO> parentEntityPOList = entityPOList.stream().filter(entityPO -> !StringUtils.hasText(entityPO.getParent())).toList();
         List<EntityPO> childrenEntityPOList = entityPOList.stream().filter(entityPO -> StringUtils.hasText(entityPO.getParent())).toList();
         List<Entity> childrenEntityList = new ArrayList<>();
         if (!childrenEntityPOList.isEmpty()) {
@@ -564,7 +563,7 @@ public class EntityService implements EntityServiceProvider {
             });
         }
         List<Entity> entityList = new ArrayList<>();
-        List<Long> deviceIds = parentEntityPOList.stream().filter(entityPO -> entityPO.getAttachTarget() == AttachTargetType.DEVICE).map(t -> Long.valueOf(t.getAttachTargetId())).distinct().toList();
+        List<Long> deviceIds = entityPOList.stream().filter(entityPO -> entityPO.getAttachTarget() == AttachTargetType.DEVICE).map(t -> Long.valueOf(t.getAttachTargetId())).distinct().toList();
         Map<String, String> deviceKeyMap = new HashMap<>();
         Map<String, Integration> deviceIntegrationMap = new HashMap<>();
         if (!deviceIds.isEmpty()) {
@@ -574,7 +573,7 @@ public class EntityService implements EntityServiceProvider {
                 deviceIntegrationMap.putAll(deviceNameDTOList.stream().collect(Collectors.toMap(t -> String.valueOf(t.getId()), DeviceNameDTO::getIntegrationConfig)));
             }
         }
-        parentEntityPOList.forEach(entityPO -> {
+        entityPOList.forEach(entityPO -> {
             try {
                 Entity entity = new Entity();
                 entity.setId(entityPO.getId());
@@ -585,8 +584,7 @@ public class EntityService implements EntityServiceProvider {
                 entity.setType(entityPO.getType());
                 entity.setAttributes(entityPO.getValueAttribute());
                 entity.setParentIdentifier(entityPO.getParent());
-                String key = entityPO.getKey();
-                List<Entity> childEntityList = childrenEntityList.stream().filter(childEntity -> key.contains(childEntity.getParentIdentifier())).toList();
+                List<Entity> childEntityList = childrenEntityList.stream().filter(childEntity -> entity.getIdentifier().equals(childEntity.getParentIdentifier())).toList();
                 entity.setChildren(childEntityList);
 
                 String attachTargetId = entityPO.getAttachTargetId();
@@ -888,18 +886,18 @@ public class EntityService implements EntityServiceProvider {
     }
 
     public void updatePropertyEntity(UpdatePropertyEntityRequest updatePropertyEntityRequest) {
-        Long entityId = updatePropertyEntityRequest.getEntityId();
         Map<String, Object> exchange = updatePropertyEntityRequest.getExchange();
-        EntityPO entityPO = entityRepository.getOne(entityId);
-        if (entityPO == null) {
+        List<String> entityKeys = exchange.keySet().stream().toList();
+        List<EntityPO> entityPOList = entityRepository.findAll(filter -> filter.in(EntityPO.Fields.key, entityKeys.toArray()));
+        if (entityPOList == null || entityPOList.isEmpty()) {
             return;
         }
-        if (!entityPO.getType().equals(EntityType.PROPERTY)) {
-            log.info("update property entity only support property entity:{}", entityId);
+        if (entityPOList.stream().anyMatch(entityPO -> !entityPO.getType().equals(EntityType.PROPERTY))) {
+            log.info("update property entity only support property entity");
             return;
         }
-        if (entityPO.getAccessMod() != AccessMod.W && entityPO.getAccessMod() != AccessMod.RW) {
-            log.info("update property entity only support write access:{}", entityId);
+        if (entityPOList.stream().anyMatch(entityPO -> entityPO.getAccessMod() != AccessMod.RW && entityPO.getAccessMod() != AccessMod.W)) {
+            log.info("update property entity only support write access");
             return;
         }
         ExchangePayload payload = new ExchangePayload(exchange);
@@ -908,14 +906,14 @@ public class EntityService implements EntityServiceProvider {
     }
 
     public void serviceCall(ServiceCallRequest serviceCallRequest) {
-        Long entityId = serviceCallRequest.getEntityId();
         Map<String, Object> exchange = serviceCallRequest.getExchange();
-        EntityPO entityPO = entityRepository.getOne(entityId);
-        if (entityPO == null) {
+        List<String> entityKeys = exchange.keySet().stream().toList();
+        List<EntityPO> entityPOList = entityRepository.findAll(filter -> filter.in(EntityPO.Fields.key, entityKeys.toArray()));
+        if (entityPOList == null || entityPOList.isEmpty()) {
             return;
         }
-        if (!entityPO.getType().equals(EntityType.SERVICE)) {
-            log.info("service call only support service entity:{}", entityId);
+        if (entityPOList.stream().anyMatch(entityPO -> !entityPO.getType().equals(EntityType.SERVICE))) {
+            log.info("service call only support service entity");
             return;
         }
         ExchangePayload payload = new ExchangePayload(exchange);
