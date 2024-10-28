@@ -24,10 +24,9 @@ public class ExchangePayload extends HashMap<String,Object> implements ExchangeP
 
     private transient Map<String,Object> context = new HashMap<>();
 
-    private long timestamp;
+    private long timestamp = System.currentTimeMillis();
 
     public ExchangePayload() {
-        this.timestamp = System.currentTimeMillis();
     }
 
     public ExchangePayload(Map<String, Object> payloads) {
