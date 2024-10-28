@@ -16,4 +16,5 @@ public class IntegrationEntityData {
     private EntityType type;
     private Map<String, Object> valueAttribute;
     private EntityValueType valueType;
+    private Object value;
 }
