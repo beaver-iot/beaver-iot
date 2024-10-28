@@ -69,8 +69,6 @@ public class BaseDeviceBuilder<T extends BaseDeviceBuilder> {
     }
 
     public Device build(){
-        Assert.notNull(name, "Device name must not be null");
-        Assert.notNull(identifier, "Device identifier must not be null");
 
         Device device = new Device();
         device.setName(name);

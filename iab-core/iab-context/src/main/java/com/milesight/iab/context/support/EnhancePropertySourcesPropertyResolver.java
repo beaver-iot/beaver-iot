@@ -1,11 +1,16 @@
 package com.milesight.iab.context.support;
 
+import com.milesight.iab.base.utils.StringUtils;
+import com.milesight.iab.context.integration.entity.annotation.Entity;
 import org.springframework.core.env.PropertySources;
 import org.springframework.core.env.PropertySourcesPropertyResolver;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.SystemPropertyUtils;
 
+import java.lang.reflect.Field;
 import java.util.Map;
+
+import static com.milesight.iab.context.integration.entity.annotation.AnnotationEntityLoader.REPLACE_HOLDER_FIELD_NAME;
 
 /**
  * @author leon
@@ -30,5 +35,19 @@ public class EnhancePropertySourcesPropertyResolver extends PropertySourcesPrope
             return value;
         }
 
+    }
+
+    public String resolvePlaceholders(String value, Field field) {
+        Map<String, Object> dynamicProperties = Map.of(REPLACE_HOLDER_FIELD_NAME, StringUtils.toUnderlineCase(field.getName()));
+        return resolvePlaceholders(value, dynamicProperties);
+    }
+
+    public String resolveEntityNamePlaceholders(Field field) {
+        Entity entityAnnotation = field.getAnnotation(Entity.class);
+        if (entityAnnotation != null) {
+            return resolvePlaceholders(entityAnnotation.name(), field);
+        }else{
+            return null;
+        }
     }
 }

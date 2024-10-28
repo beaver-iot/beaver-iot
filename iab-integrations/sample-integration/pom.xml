@@ -16,7 +16,6 @@
         <module>sample-yaml</module>
         <module>sample-annotation</module>
         <module>sample-complex</module>
-        <module>sample-base</module>
     </modules>
 
     <properties>

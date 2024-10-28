@@ -64,6 +64,7 @@ public class Entity implements IdentityKey {
     }
 
     public void initializeProperties(String integrationId, String deviceKey){
+        validate();
         Assert.notNull(integrationId, "Integration must not be null");
         Assert.notNull(deviceKey, "Device must not be null");
         this.setIntegrationId(integrationId);
@@ -77,6 +78,7 @@ public class Entity implements IdentityKey {
     }
 
     public void initializeProperties(String integrationId){
+        validate();
         Assert.notNull(integrationId, "Integration must not be null");
         this.setIntegrationId(integrationId);
         if(!CollectionUtils.isEmpty(children)){
@@ -96,4 +98,10 @@ public class Entity implements IdentityKey {
         return Optional.ofNullable(integrationServiceProvider.getActiveIntegration(integrationId));
     }
 
+    public void validate() {
+        Assert.notNull(identifier, "Entity identifier must not be null");
+        Assert.notNull(type, "EntityType must not be null");
+        Assert.notNull(valueType, "EntityValueType must not be null");
+        Assert.notNull(name, "Entity name must not be null");
+    }
 }

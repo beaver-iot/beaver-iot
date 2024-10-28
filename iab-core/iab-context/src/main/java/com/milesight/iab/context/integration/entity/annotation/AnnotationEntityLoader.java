@@ -64,9 +64,9 @@ public class AnnotationEntityLoader implements EntityLoader {
             Entity entityAnnotation = field.getAnnotation(Entity.class);
             if (entityAnnotation != null) {
                 EntityValueType valueType = EntityValueType.of(field.getType());
-                String name = resolvePlaceholders(entityAnnotation.name(), field, propertyResolver);
-                String identifier = resolvePlaceholders(entityAnnotation.identifier(), field, propertyResolver);
-                EntityBuilder entityBuilder = new EntityBuilder(integration).identifier(resolvePlaceholders(entityAnnotation.identifier(), field, propertyResolver)).type(entityAnnotation.type()).attributes(resolveAttributes(entityAnnotation.attributes())).valueType(valueType);
+                String name = propertyResolver.resolvePlaceholders(entityAnnotation.name(), field);
+                String identifier = propertyResolver.resolvePlaceholders(entityAnnotation.identifier(), field);
+                EntityBuilder entityBuilder = new EntityBuilder(integration).identifier(propertyResolver.resolvePlaceholders(entityAnnotation.identifier(), field)).type(entityAnnotation.type()).attributes(resolveAttributes(entityAnnotation.attributes())).valueType(valueType);
                 switch (entityAnnotation.type()) {
                     case EVENT:
                         entityBuilder.event(name);
@@ -109,11 +109,6 @@ public class AnnotationEntityLoader implements EntityLoader {
 
     private Map<String, Object> resolveKeyValue(KeyValue[] keyValues) {
         return ObjectUtils.isEmpty(keyValues) ? Map.of() : Arrays.stream(keyValues).collect(Collectors.toMap(KeyValue::key, KeyValue::value));
-    }
-
-    private String resolvePlaceholders(String value, Field field, EnhancePropertySourcesPropertyResolver propertyResolver) {
-        Map<String, Object> dynamicProperties = Map.of(REPLACE_HOLDER_FIELD_NAME, StringUtils.toUnderlineCase(field.getName()));
-        return propertyResolver.resolvePlaceholders(value, dynamicProperties);
     }
 
 }

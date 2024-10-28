@@ -61,10 +61,6 @@ public class IntegrationBootstrapManager implements SmartInitializingSingleton {
 
                 integration.initializeProperties();
 
-                if (!integration.validate()) {
-                    throw new BootstrapException("Failed to build integration config");
-                }
-
                 integrationContext.cacheIntegration(integrationBootstrap, integration, integrationEnvironment);
 
                 int allDeviceEntitySize = integration.getInitialDevices().stream().mapToInt(device -> ObjectUtils.isEmpty(device.getEntities()) ? 0 : device.getEntities().size()).sum();

@@ -44,6 +44,7 @@ public class Device implements IdentityKey {
         if(integrationId == null){
             return;
         }
+        validate();
         this.setIntegrationId(integrationId);
         List<Entity> entitiesList = getEntities();
         if(!CollectionUtils.isEmpty(entitiesList)){
@@ -51,5 +52,10 @@ public class Device implements IdentityKey {
                 entity.initializeProperties(integrationId, getKey());
             }
         }
+    }
+
+    public void validate() {
+        Assert.notNull(name, "Device name must not be null");
+        Assert.notNull(identifier, "Device identifier must not be null");
     }
 }

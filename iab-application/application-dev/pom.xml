@@ -72,6 +72,12 @@
         <!-- sample test -->
         <dependency>
             <groupId>com.milesight.iab</groupId>
+            <artifactId>sample-yaml</artifactId>
+            <version>${project.version}</version>
+            <!--<scope>test</scope>-->
+        </dependency>
+        <dependency>
+            <groupId>com.milesight.iab</groupId>
             <artifactId>sample-annotation</artifactId>
             <version>${project.version}</version>
             <!--<scope>test</scope>-->

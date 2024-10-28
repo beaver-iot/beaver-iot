@@ -1,7 +1,8 @@
 
+
 integration:
-  yaml-integration:  #当前集成的名称
-    name: yaml-integration
+  demo-yaml-integration:  #当前集成的名称
+    name: demo-yaml-integration
     enabled: true
     #配置当前集成（云生态）下行处理规则引擎子流程
     flow-exchange-down-handler: "direct:myDemoExchangeDownHandler"
@@ -9,7 +10,7 @@ integration:
     entity-identifier-add-device: addDevice
     #删除设备
     entity-identifier-delete-device: deleteDevice
-    devices:
+    initial-devices:
       - name: device1
         identifier: demoSN
         entities:
@@ -17,7 +18,7 @@ integration:
             name: switch
             access_mod: rw
             value_type: boolean
-    entities:
+    initial-entities:
       - identifier: 'address'
         name: mscAddress
         access_mod: rw

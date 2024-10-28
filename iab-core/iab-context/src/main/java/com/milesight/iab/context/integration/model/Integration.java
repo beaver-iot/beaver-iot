@@ -4,6 +4,7 @@ import com.milesight.iab.context.constants.IntegrationConstants;
 import com.milesight.iab.context.integration.bootstrap.IntegrationBootstrap;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -60,6 +61,9 @@ public class Integration {
     }
 
     public void initializeProperties() {
+
+        validate();
+
         if(!CollectionUtils.isEmpty(initialDevices)){
             initialDevices.forEach(device -> device.initializeProperties(this.getId()));
         }
@@ -71,9 +75,9 @@ public class Integration {
 
 
     public boolean validate() {
-        //todo
-        //1. Duplicate integrations
-        //2. Legality of attributes、config
+
+        Assert.notNull(name, "Integration name must not be null");
+        
         return true;
     }
 

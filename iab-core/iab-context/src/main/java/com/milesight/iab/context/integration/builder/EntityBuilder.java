@@ -65,10 +65,6 @@ public class EntityBuilder extends BaseEntityBuilder<EntityBuilder>{
     }
 
     public Entity build() {
-        Assert.notNull(identifier, "Entity identifier must not be null");
-        Assert.notNull(type, "EntityType must not be null");
-        Assert.notNull(valueType, "EntityValueType must not be null");
-        Assert.notNull(name, "Entity name must not be null");
 
         Entity entity = newInstance();
         entity.setChildren(children);
@@ -77,6 +73,7 @@ public class EntityBuilder extends BaseEntityBuilder<EntityBuilder>{
         }else if(device != null){
             entity.initializeProperties(device.getIntegrationId(), device.getKey());
         }
+        entity.validate();
         return entity;
     }
 
