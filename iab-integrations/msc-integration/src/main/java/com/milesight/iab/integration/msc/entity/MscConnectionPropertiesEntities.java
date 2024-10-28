@@ -1,5 +1,6 @@
 package com.milesight.iab.integration.msc.entity;
 
+import com.milesight.iab.base.utils.StringUtils;
 import com.milesight.iab.context.integration.entity.annotation.Entities;
 import com.milesight.iab.context.integration.entity.annotation.Entity;
 import com.milesight.iab.context.integration.entity.annotation.IntegrationEntities;
@@ -19,7 +20,7 @@ import lombok.experimental.*;
 public class MscConnectionPropertiesEntities extends ExchangePayload {
 
     public static String getKey(String propertyKey) {
-        return MscIntegrationConstants.INTEGRATION_IDENTIFIER + ".integration." + propertyKey;
+        return MscIntegrationConstants.INTEGRATION_IDENTIFIER + ".integration." + StringUtils.toSnakeCase(propertyKey);
     }
 
     /**

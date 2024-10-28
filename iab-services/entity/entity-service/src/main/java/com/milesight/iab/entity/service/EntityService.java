@@ -389,7 +389,8 @@ public class EntityService implements EntityServiceProvider {
             if (dataEntityLatest == null) {
                 entityLatestId = SnowflakeUtil.nextId();
             } else {
-                if (dataEntityLatest.getTimestamp() >= exchangePayload.getTimestamp()) {
+                // fixme: always false here
+                if (dataEntityLatest.getTimestamp() > exchangePayload.getTimestamp()) {
                     log.info("entityLatestId is bigger than exchangePayload timestamp, entityId:{}, exchangePayload:{}", entityId, exchangePayload);
                     return;
                 }

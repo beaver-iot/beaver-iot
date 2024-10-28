@@ -42,7 +42,7 @@ public class EnhancePropertySourcesPropertyResolver extends PropertySourcesPrope
     }
 
     public String resolvePlaceholders(String value, Field field) {
-        Map<String, Object> dynamicProperties = Map.of(REPLACE_HOLDER_FIELD_NAME, StringUtils.toUnderlineCase(field.getName()));
+        Map<String, Object> dynamicProperties = Map.of(REPLACE_HOLDER_FIELD_NAME, StringUtils.toSnakeCase(field.getName()));
         return resolvePlaceholders(value, dynamicProperties);
     }
 

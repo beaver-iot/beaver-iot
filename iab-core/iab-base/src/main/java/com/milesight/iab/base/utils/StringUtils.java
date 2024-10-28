@@ -26,13 +26,13 @@ public class StringUtils {
      * @param str The camel case named string before conversion, which can also be in underscore form
      * @return The converted string named with underscores
      */
-    public static String toUnderlineCase(CharSequence str) {
+    public static String toSnakeCase(CharSequence str) {
         return toSymbolCase(str, StringConstant.UNDERLINE.charAt(0));
     }
 
 
     /**
-     * 将驼Peak-style named strings are converted to symbolic links. If the camelCase named string before conversion is empty, an empty string is returned.
+     * Peak-style named strings are converted to symbolic links. If the camelCase named string before conversion is empty, an empty string is returned.
      *
      * @param str The camel case named string before conversion, which can also be in the form of a symbolic connection
      * @param symbol connector

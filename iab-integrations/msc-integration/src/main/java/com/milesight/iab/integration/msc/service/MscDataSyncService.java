@@ -91,6 +91,7 @@ public class MscDataSyncService {
             timer.cancel();
             timer = null;
         }
+        log.info("timer stopped");
     }
 
     public void init() {
@@ -98,6 +99,7 @@ public class MscDataSyncService {
     }
 
     public void start() {
+        log.info("timer starting");
         if (timer != null) {
             return;
         }
@@ -130,6 +132,8 @@ public class MscDataSyncService {
                 syncAllDataExecutor.submit(() -> syncAllData());
             }
         }, 0, periodSeconds * 1000L);
+
+        log.info("timer started");
     }
 
     private void syncAllData() {
