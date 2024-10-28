@@ -24,6 +24,7 @@
         <camel.version>4.4.3</camel.version>
         <postgresql.version>42.7.3</postgresql.version>
         <disruptor.version>3.4.4</disruptor.version>
+        <liquibase.version>4.29.2</liquibase.version>
     </properties>
 
     <dependencyManagement>
@@ -42,11 +43,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <!--<dependency>
-                <groupId>org.apache.camel.springboot</groupId>
-                <artifactId>camel-spring-starter</artifactId>
-                <version>${camel.version}</version>
-            </dependency>-->
             <dependency>
                 <groupId>org.apache.camel.springboot</groupId>
                 <artifactId>camel-spring-boot-dependencies</artifactId>
@@ -66,6 +62,12 @@
                 <groupId>com.lmax</groupId>
                 <artifactId>disruptor</artifactId>
                 <version>${disruptor.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-core</artifactId>
+                <version>${liquibase.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
