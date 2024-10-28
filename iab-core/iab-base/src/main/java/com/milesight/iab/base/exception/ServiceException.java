@@ -96,7 +96,7 @@ public class ServiceException extends BaseException{
 
     @Override
     public String getMessage() {
-        return super.getMessage();
+        return StringUtils.hasText(detailMessage) ? super.getMessage() + "," + detailMessage : super.getMessage();
     }
 
     public String getDetailMessage() {
