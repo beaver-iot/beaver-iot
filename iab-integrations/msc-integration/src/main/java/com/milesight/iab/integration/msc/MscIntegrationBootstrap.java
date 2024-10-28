@@ -27,6 +27,11 @@ public class MscIntegrationBootstrap implements IntegrationBootstrap {
 
 
     @Override
+    public void onPrepared(Integration integrationConfig) {
+
+    }
+
+    @Override
     public void onStarted(Integration integrationConfig) {
         log.info("MSC integration starting");
         mscConnectionService.init();

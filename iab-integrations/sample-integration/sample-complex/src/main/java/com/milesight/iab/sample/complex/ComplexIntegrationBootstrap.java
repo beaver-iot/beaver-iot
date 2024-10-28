@@ -20,8 +20,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ComplexIntegrationBootstrap implements IntegrationBootstrap {
     @Override
-    public void onStarted(Integration integrationConfig) {
-
+    public void onPrepared(Integration integrationConfig) {
         //ie: build device/entity by DeviceBuilder
         Entity entityConfig = new EntityBuilder()
                 .property("prop_parent", AccessMod.W)
@@ -37,6 +36,10 @@ public class ComplexIntegrationBootstrap implements IntegrationBootstrap {
                 .entity(entityConfig)
                 .build();
         integrationConfig.addInitialDevice(device);
+    }
+
+    @Override
+    public void onStarted(Integration integrationConfig) {
 
     }
 

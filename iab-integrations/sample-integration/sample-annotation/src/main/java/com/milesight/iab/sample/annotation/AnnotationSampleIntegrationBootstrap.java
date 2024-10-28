@@ -19,15 +19,14 @@ import org.springframework.stereotype.Component;
 public class AnnotationSampleIntegrationBootstrap implements IntegrationBootstrap {
 
     @Override
-    public void onStarted(Integration integrationConfig) {
-
+    public void onPrepared(Integration integrationConfig) {
         Entity entityConfig = new EntityBuilder()
                 .property("propParent", AccessMod.W)
                 .valueType(EntityValueType.STRING)
                 .children()
-                    .valueType(EntityValueType.STRING).property("propChildren1", AccessMod.W).end()
+                .valueType(EntityValueType.STRING).property("propChildren1", AccessMod.W).end()
                 .children()
-                    .valueType(EntityValueType.STRING).property("propChildren2", AccessMod.W).end()
+                .valueType(EntityValueType.STRING).property("propChildren2", AccessMod.W).end()
                 .build();
         Device device = new DeviceBuilder()
                 .name("deviceDemo1")
@@ -35,6 +34,11 @@ public class AnnotationSampleIntegrationBootstrap implements IntegrationBootstra
                 .entity(entityConfig)
                 .build();
         integrationConfig.addInitialDevice(device);
+    }
+
+    @Override
+    public void onStarted(Integration integrationConfig) {
+
     }
 
     @Override

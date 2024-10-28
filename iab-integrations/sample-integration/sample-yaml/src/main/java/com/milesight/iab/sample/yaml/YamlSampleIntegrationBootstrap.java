@@ -11,6 +11,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class YamlSampleIntegrationBootstrap implements IntegrationBootstrap {
     @Override
+    public void onPrepared(Integration integrationConfig) {
+
+    }
+
+    @Override
     public void onStarted(Integration integrationConfig) {
 
     }

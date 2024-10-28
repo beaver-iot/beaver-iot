@@ -34,7 +34,7 @@ public class DeviceDemoService<T> {
         Page<DeviceDemoEntity> all = deviceDemoRepository.findAll(f -> f.eq(DeviceDemoEntity.Fields.name, demoQuery.getName())
                 .like(DeviceDemoEntity.Fields.key, demoQuery.getKey())
                 .between(DeviceDemoEntity.Fields.id, 1,2)
-                .in(DeviceDemoEntity.Fields.name, "a","b")
+                .in(DeviceDemoEntity.Fields.name, new String[]{"a","b"})
                 .or(f2 -> f2
                         .like(DeviceDemoEntity.Fields.name, demoQuery.getName())
                         .eq(DeviceDemoEntity.Fields.key, demoQuery.getKey())),

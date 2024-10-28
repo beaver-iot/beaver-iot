@@ -21,6 +21,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,7 +58,7 @@ public class IntegrationBootstrapManager implements SmartInitializingSingleton {
 
                 loadIntegrationEntityConfig(integration, integrationEnvironment);
 
-                integrationBootstrap.onStarted(integration);
+                integrationBootstrap.onPrepared(integration);
 
                 integration.initializeProperties();
 
@@ -74,6 +75,13 @@ public class IntegrationBootstrapManager implements SmartInitializingSingleton {
         });
 
         integrationStorageProvider.batchSave(integrationContext.getAllIntegrations().values());
+
+        integrationBootstrapList.orderedStream().forEach(integrationBootstrap -> {
+            Integration integration = integrationContext.getIntegration(integrationBootstrap);
+            if(integration != null){
+                integrationBootstrap.onStarted(integration);
+            }
+        });
 
     }
 

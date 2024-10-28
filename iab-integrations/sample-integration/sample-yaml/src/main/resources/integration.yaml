@@ -18,6 +18,7 @@ integration:
             name: switch
             access_mod: rw
             value_type: boolean
+            type: property
     initial-entities:
       - identifier: 'address'
         name: mscAddress

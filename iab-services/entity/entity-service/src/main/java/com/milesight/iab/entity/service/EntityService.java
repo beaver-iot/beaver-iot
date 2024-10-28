@@ -45,6 +45,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
@@ -238,7 +239,9 @@ public class EntityService implements EntityServiceProvider {
         }
         List<Entity> allEntityList = new ArrayList<>();
         allEntityList.add(entity);
-        allEntityList.addAll(entity.getChildren());
+        if(!CollectionUtils.isEmpty(entity.getChildren())){
+            allEntityList.addAll(entity.getChildren());
+        }
 
         doBatchSaveEntity(allEntityList);
     }

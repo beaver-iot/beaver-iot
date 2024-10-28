@@ -1,7 +1,5 @@
-#- from:
-#    uri: "undertow:http://0.0.0.0:8088/webhook-msc"
-#    steps:
-#     - bean: "demoMscExchangeTransformer"
-#     - bean: "demoMscHttpSink"
-
-#    uri: "undertow:{{entity:msc-integration.integration.url}}"
+- from:
+    uri: "direct:myDemoExchangeDownHandler_up"
+    steps:
+     - bean: "demoMscExchangeTransformer"
+     - bean: "demoMscHttpSink"

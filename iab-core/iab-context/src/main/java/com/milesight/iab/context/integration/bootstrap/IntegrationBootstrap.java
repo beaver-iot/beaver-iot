@@ -9,6 +9,8 @@ import org.apache.camel.CamelContext;
  */
 public interface IntegrationBootstrap extends RuleEngineRouteConfigurer {
 
+    void onPrepared(Integration integrationConfig);
+
      void onStarted(Integration integrationConfig);
 
     void onDestroy(Integration integrationConfig);

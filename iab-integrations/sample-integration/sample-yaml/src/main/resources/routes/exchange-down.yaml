@@ -2,7 +2,7 @@
 # 如果配置了下行路由，
 
 - from:
-    uri: "direct:myDemoExchangeDownHandler"
+    uri: "direct:myDemoExchangeDownHandler_down"
     steps:
       - bean: "demoMscExchangeTransformer"
       - bean: "demoMscHttpSink"

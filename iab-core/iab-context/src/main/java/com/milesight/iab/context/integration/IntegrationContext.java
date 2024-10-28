@@ -32,6 +32,14 @@ public class IntegrationContext {
         return integrationCache.get(id);
     }
 
+    public Integration getIntegration(IntegrationBootstrap integrationBootstrap){
+        Map.Entry<String, IntegrationBootstrap> integrationBootstrapEntry = integrationBootstrapCache.entrySet().stream().filter(entry -> entry.getValue().equals(integrationBootstrap)).findFirst().orElse(null);
+        if(integrationBootstrapEntry == null){
+            return null;
+        }
+        return integrationCache.get(integrationBootstrapEntry.getKey());
+    }
+
     public IntegrationBootstrap getIntegrationBootstrap(String id) {
         return integrationBootstrapCache.get(id);
     }
