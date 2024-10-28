@@ -8,23 +8,23 @@ import com.milesight.iab.base.constants.StringConstant;
 public class StringUtils {
 
     /**
-     * 将驼峰式命名的字符串转换为下划线方式，又称SnakeCase、underScoreCase。<br>
-     * 如果转换前的驼峰式命名的字符串为空，则返回空字符串。<br>
-     * 规则为：
+     * Convert camelCase-named strings to underscores, also known as SnakeCase and underScoreCase. <br>
+     * If the camelCase named string before conversion is empty, an empty string is returned. <br>
+     *The rules are:
      * <ul>
-     *     <li>单字之间以下划线隔开</li>
-     *     <li>每个单字的首字母亦用小写字母</li>
+     * <li>Words are separated by underscores</li>
+     * <li>Also use lowercase letters for the first letter of each word</li>
      * </ul>
-     * 例如：
+     * For example:
      *
      * <pre>
-     * HelloWorld=》hello_world
-     * Hello_World=》hello_world
+     *HelloWorld=》hello_world
+     *Hello_World=》hello_world
      * HelloWorld_test=》hello_world_test
      * </pre>
      *
-     * @param str 转换前的驼峰式命名的字符串，也可以为下划线形式
-     * @return 转换后下划线方式命名的字符串
+     * @param str The camel case named string before conversion, which can also be in underscore form
+     * @return The converted string named with underscores
      */
     public static String toUnderlineCase(CharSequence str) {
         return toSymbolCase(str, StringConstant.UNDERLINE.charAt(0));
@@ -32,12 +32,11 @@ public class StringUtils {
 
 
     /**
-     * 将驼峰式命名的字符串转换为使用符号连接方式。如果转换前的驼峰式命名的字符串为空，则返回空字符串。
+     * 将驼Peak-style named strings are converted to symbolic links. If the camelCase named string before conversion is empty, an empty string is returned.
      *
-     * @param str    转换前的驼峰式命名的字符串，也可以为符号连接形式
-     * @param symbol 连接符
-     * @return 转换后符号连接方式命名的字符串
-     * @since 4.0.10
+     * @param str The camel case named string before conversion, which can also be in the form of a symbolic connection
+     * @param symbol connector
+     * @return the converted symbolic link named string
      */
     public static String toSymbolCase(CharSequence str, char symbol) {
         if (str == null) {
@@ -55,36 +54,24 @@ public class StringUtils {
 
                 if (null != preChar) {
                     if (symbol == preChar) {
-                        // 前一个为分隔符
                         if (null == nextChar || Character.isLowerCase(nextChar)) {
-                            //普通首字母大写，如_Abb -> _abb
                             c = Character.toLowerCase(c);
                         }
-                        //后一个为大写，按照专有名词对待，如_AB -> _AB
                     } else if (Character.isLowerCase(preChar)) {
-                        // 前一个为小写
                         sb.append(symbol);
                         if (null == nextChar || Character.isLowerCase(nextChar) || isNumber(nextChar)) {
-                            //普通首字母大写，如aBcc -> a_bcc
                             c = Character.toLowerCase(c);
                         }
-                        // 后一个为大写，按照专有名词对待，如aBC -> a_BC
                     } else {
-                        //前一个为大写
                         if (null != nextChar && Character.isLowerCase(nextChar)) {
-                            // 普通首字母大写，如ABcc -> A_bcc
                             sb.append(symbol);
                             c = Character.toLowerCase(c);
                         }
-                        // 后一个为大写，按照专有名词对待，如ABC -> ABC
                     }
                 } else {
-                    // 首字母，需要根据后一个判断是否转为小写
                     if (null == nextChar || Character.isLowerCase(nextChar)) {
-                        // 普通首字母大写，如Abc -> abc
                         c = Character.toLowerCase(c);
                     }
-                    // 后一个为大写，按照专有名词对待，如ABC -> ABC
                 }
             }
             sb.append(c);
@@ -93,29 +80,28 @@ public class StringUtils {
     }
 
     /**
-     * 将下划线方式命名的字符串转换为驼峰式。如果转换前的下划线大写方式命名的字符串为空，则返回空字符串。<br>
-     * 规则为：
+     * Converts underscore-named strings to camelCase. If the underscore-capitalized string before conversion is empty, an empty string is returned. <br>
+     *The rules are:
      * <ul>
-     *     <li>单字之间不以空格或任何连接符断开</li>
-     *     <li>第一个单字首字母采用小写字母</li>
-     *     <li>后续单字的首字母亦用大写字母</li>
+     * <li>Do not separate words with spaces or any connectors</li>
+     * <li>The first letter of the first word is lowercase letters</li>
+     * <li>Also use capital letters for the first letters of subsequent words</li>
      * </ul>
-     * 例如：hello_world=》helloWorld
+     * For example: hello_world=》helloWorld
      *
-     * @param name 转换前的下划线大写方式命名的字符串
-     * @return 转换后的驼峰式命名的字符串
+     * @param name String named in underline capitalization before conversion
+     * @return the converted camel case named string
      */
     public static String toCamelCase(CharSequence name) {
         return toCamelCase(name, StringConstant.UNDERLINE.charAt(0));
     }
 
     /**
-     * 将连接符方式命名的字符串转换为驼峰式。如果转换前的下划线大写方式命名的字符串为空，则返回空字符串。
+     *Convert a concatenated string to camelCase. If the underscore-capitalized string before conversion is empty, an empty string is returned.
      *
-     * @param name   转换前的自定义方式命名的字符串
-     * @param symbol 原字符串中的连接符连接符
-     * @return 转换后的驼峰式命名的字符串
-     * @since 5.7.17
+     * @param name A string named in a custom way before conversion
+     * @param symbol connector in the original string
+     * @return the converted camel case named string
      */
     public static String toCamelCase(CharSequence name, char symbol) {
         if (null == name) {
