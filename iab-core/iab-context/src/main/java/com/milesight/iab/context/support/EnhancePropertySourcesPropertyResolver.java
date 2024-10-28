@@ -25,6 +25,10 @@ public class EnhancePropertySourcesPropertyResolver extends PropertySourcesPrope
         super(propertySources);
     }
 
+    public EnhancePropertySourcesPropertyResolver(){
+        super(null);
+    }
+
     public String resolvePlaceholders(String text, Map<String,Object> propertySource) {
 
         String value = super.resolvePlaceholders(text);
@@ -50,4 +54,5 @@ public class EnhancePropertySourcesPropertyResolver extends PropertySourcesPrope
             return null;
         }
     }
+
 }
