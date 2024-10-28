@@ -69,8 +69,10 @@ public class AnnotationEntityLoader implements EntityLoader {
                 EntityBuilder entityBuilder = new EntityBuilder(integration).identifier(resolvePlaceholders(entityAnnotation.identifier(), field, propertyResolver)).type(entityAnnotation.type()).attributes(resolveAttributes(entityAnnotation.attributes())).valueType(valueType);
                 switch (entityAnnotation.type()) {
                     case EVENT:
-                    case SERVICE:
                         entityBuilder.event(name);
+                        break;
+                    case SERVICE:
+                        entityBuilder.service(name);
                         break;
                     case PROPERTY:
                         entityBuilder.property(name, entityAnnotation.accessMod());
