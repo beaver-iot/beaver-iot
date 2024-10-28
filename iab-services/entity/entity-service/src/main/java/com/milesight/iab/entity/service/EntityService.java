@@ -679,7 +679,7 @@ public class EntityService implements EntityServiceProvider {
         Consumer<Filterable> filterable = f -> f.eq(entityQuery.getEntityType() != null, EntityPO.Fields.type, entityQuery.getEntityType())
                 .eq(isExcludeChildren, EntityPO.Fields.parent, null)
                 .or(f1 -> f1.like(StringUtils.hasText(entityQuery.getKeyword()), EntityPO.Fields.name, entityQuery.getKeyword())
-                        .in(StringUtils.hasText(entityQuery.getKeyword()), EntityPO.Fields.attachTargetId, attachTargetIds.toArray()));
+                        .in(!attachTargetIds.isEmpty(), EntityPO.Fields.attachTargetId, attachTargetIds.toArray()));
         Page<EntityPO> entityPOList = entityRepository.findAll(filterable, entityQuery.toPageable());
         if (entityPOList == null || entityPOList.getContent().isEmpty()) {
             return Page.empty();
