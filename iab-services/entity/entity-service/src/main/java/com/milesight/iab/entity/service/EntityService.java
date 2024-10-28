@@ -125,7 +125,7 @@ public class EntityService implements EntityServiceProvider {
             entityPO.setName(entity.getName());
             entityPO.setType(entity.getType());
             entityPO.setAccessMod(entity.getAccessMod());
-            entityPO.setParent(entity.getParentIdentifier());
+            entityPO.setParent(entity.getParentKey());
             entityPO.setAttachTarget(attachTarget);
             entityPO.setAttachTargetId(attachTargetId);
             entityPO.setValueAttribute(entity.getAttributes());
@@ -177,7 +177,11 @@ public class EntityService implements EntityServiceProvider {
                     entity.setValueType(childEntityPO.getValueType());
                     entity.setType(childEntityPO.getType());
                     entity.setAttributes(childEntityPO.getValueAttribute());
-                    entity.setParentIdentifier(childEntityPO.getParent());
+                    String parentKey = childEntityPO.getParent();
+                    if (StringUtils.hasText(parentKey)) {
+                        parentKey = parentKey.substring(parentKey.lastIndexOf(".") + 1);
+                    }
+                    entity.setParentIdentifier(parentKey);
                     childrenEntityList.add(entity);
                 } catch (Exception e) {
                     log.error("find entity by targetId error:{}", e.getMessage(), e);
@@ -196,7 +200,11 @@ public class EntityService implements EntityServiceProvider {
                 entity.setValueType(entityPO.getValueType());
                 entity.setType(entityPO.getType());
                 entity.setAttributes(entityPO.getValueAttribute());
-                entity.setParentIdentifier(entityPO.getParent());
+                String parentKey = entityPO.getParent();
+                if (StringUtils.hasText(parentKey)) {
+                    parentKey = parentKey.substring(parentKey.lastIndexOf(".") + 1);
+                }
+                entity.setParentIdentifier(parentKey);
                 List<Entity> childEntityList = childrenEntityList.stream().filter(childEntity -> entity.getIdentifier().equals(childEntity.getParentIdentifier())).toList();
                 entity.setChildren(childEntityList);
 
@@ -479,11 +487,16 @@ public class EntityService implements EntityServiceProvider {
         if (!StringUtils.hasText(key)) {
             return null;
         }
+        return findExchangeValuesByKeys(Collections.singletonList(key));
+    }
+
+    @Override
+    public JsonNode findExchangeValuesByKeys(List<String> keys) {
         List<EntityPO> allEntities = new ArrayList<>();
-        EntityPO entityPO = getByKey(key);
-        List<EntityPO> childrenEntities = getByParentKey(key);
-        if (entityPO != null) {
-            allEntities.add(entityPO);
+        List<EntityPO> entityPOList = getByKeys(keys);
+        List<EntityPO> childrenEntities = getByParentKeys(keys);
+        if (entityPOList != null && !entityPOList.isEmpty()) {
+            allEntities.addAll(entityPOList);
         }
         if (childrenEntities != null && !childrenEntities.isEmpty()) {
             allEntities.addAll(childrenEntities);
@@ -535,7 +548,7 @@ public class EntityService implements EntityServiceProvider {
                         String keyFieldName = exchangeKey.substring(exchangeKey.lastIndexOf(".") + 1);
                         if (field.getName().equals(keyFieldName)) {
                             field.setAccessible(true);
-                            field.set(instance, exchangeValueNode.get(exchangeKey));
+                            field.set(instance, JsonUtils.cast(exchangeValueNode.get(exchangeKey), field.getType()));
                             break;
                         }
                     }
@@ -578,7 +591,11 @@ public class EntityService implements EntityServiceProvider {
                     entity.setValueType(childEntityPO.getValueType());
                     entity.setType(childEntityPO.getType());
                     entity.setAttributes(childEntityPO.getValueAttribute());
-                    entity.setParentIdentifier(childEntityPO.getParent());
+                    String parentKey = childEntityPO.getParent();
+                    if (StringUtils.hasText(parentKey)) {
+                        parentKey = parentKey.substring(parentKey.lastIndexOf(".") + 1);
+                    }
+                    entity.setParentIdentifier(parentKey);
                     childrenEntityList.add(entity);
                 } catch (Exception e) {
                     log.error("find entity by targetId error:{}", e.getMessage(), e);
@@ -607,7 +624,11 @@ public class EntityService implements EntityServiceProvider {
                 entity.setValueType(entityPO.getValueType());
                 entity.setType(entityPO.getType());
                 entity.setAttributes(entityPO.getValueAttribute());
-                entity.setParentIdentifier(entityPO.getParent());
+                String parentKey = entityPO.getParent();
+                if (StringUtils.hasText(parentKey)) {
+                    parentKey = parentKey.substring(parentKey.lastIndexOf(".") + 1);
+                }
+                entity.setParentIdentifier(parentKey);
                 List<Entity> childEntityList = childrenEntityList.stream().filter(childEntity -> entity.getIdentifier().equals(childEntity.getParentIdentifier())).toList();
                 entity.setChildren(childEntityList);
 
@@ -697,8 +718,7 @@ public class EntityService implements EntityServiceProvider {
 
     public List<EntityResponse> getChildren(Long entityId) {
         EntityPO entityPO = entityRepository.findOne(f -> f.eq(EntityPO.Fields.id, entityId)).orElseThrow(() -> ServiceException.with(ErrorCode.DATA_NO_FOUND).build());
-        String parentIdentifier = entityPO.getKey().substring(entityPO.getKey().lastIndexOf(".") + 1);
-        List<EntityPO> entityPOList = entityRepository.findAll(f -> f.eq(EntityPO.Fields.parent, parentIdentifier));
+        List<EntityPO> entityPOList = entityRepository.findAll(f -> f.eq(EntityPO.Fields.parent, entityPO.getKey()));
         if (entityPOList == null || entityPOList.isEmpty()) {
             return Collections.emptyList();
         }
@@ -887,7 +907,7 @@ public class EntityService implements EntityServiceProvider {
         } else if (entityLatestPO.getValueBinary() != null) {
             entityLatestResponse.setValue(entityLatestPO.getValueBinary());
         }
-        entityLatestResponse.setUpdatedAt(entityLatestPO.getUpdatedAt().toString());
+        entityLatestResponse.setUpdatedAt(entityLatestPO.getUpdatedAt() == null ? null : entityLatestPO.getUpdatedAt().toString());
         return entityLatestResponse;
     }
 
@@ -948,6 +968,10 @@ public class EntityService implements EntityServiceProvider {
 
     private List<EntityPO> getByKeys(List<String> entityKeys) {
         return entityRepository.findAll(filter -> filter.in(EntityPO.Fields.key, entityKeys.toArray()));
+    }
+
+    private List<EntityPO> getByParentKeys(List<String> entityKeys) {
+        return entityRepository.findAll(filter -> filter.in(EntityPO.Fields.parent, entityKeys.toArray()));
     }
 
 }

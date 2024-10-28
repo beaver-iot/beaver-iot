@@ -37,6 +37,8 @@ public interface EntityServiceProvider {
 
     JsonNode findExchangeValueByKey(String key);
 
+    JsonNode findExchangeValuesByKeys(List<String> keys);
+
     <T> T findExchangeByKey(String key, Class<T> entitiesClazz);
 
     Entity findByKey(String entityKey);
