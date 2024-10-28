@@ -6,6 +6,8 @@ import com.milesight.iab.base.exception.BaseException;
 import com.milesight.iab.base.exception.ServiceException;
 import com.milesight.iab.base.response.ResponseBuilder;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.camel.CamelExecutionException;
+import org.apache.camel.Service;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
@@ -99,6 +101,17 @@ public class DefaultExceptionHandler {
     }
 
     @ResponseBody
+    @ExceptionHandler({CamelExecutionException.class})
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseEntity handleException(CamelExecutionException e) {
+        log.error("Cause CamelExecutionException {}", e.getMessage());
+        Throwable cause = e.getCause();
+        return (cause != null && cause instanceof ServiceException) ?
+                ResponseEntity.status(((ServiceException)cause).getStatus()).body(ResponseBuilder.fail(((ServiceException)cause))) :
+                ResponseEntity.status(ErrorCode.SERVER_ERROR.getStatus()).body(ResponseBuilder.fail(ErrorCode.SERVER_ERROR, e.getMessage()));
+    }
+
+    @ResponseBody
     @ExceptionHandler({RuntimeException.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public com.milesight.iab.base.response.ResponseBody<?> handleException(RuntimeException e) {
@@ -113,33 +126,6 @@ public class DefaultExceptionHandler {
         log.error("Cause Throwable : ", e);
         return ResponseBuilder.fail(ErrorCode.SERVER_ERROR, e.getMessage());
     }
-
-    // servlet exception
-    /*@ResponseBody
-    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
-    public com.milesight.iab.base.response.ResponseBody<?> httpRequestMethodNotSupportedExceptionHandler(HttpRequestMethodNotSupportedException e) {
-        log.error("Cause HttpRequestMethodNotSupportedException:", e);
-        return ResponseBuilder.fail(ErrorCode.METHOD_NOT_ALLOWED);
-    }
-
-    @ResponseBody
-    @ExceptionHandler({HttpMediaTypeNotSupportedException.class})
-    @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
-    public com.milesight.iab.base.response.ResponseBody<?>  httpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException e) {
-        log.error("Cause Exception:", e);
-        return ResponseBuilder.fail(ErrorCode.PARAMETER_SYNTAX_ERROR);
-    }
-
-    @ResponseBody
-    @ExceptionHandler(ValidationException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public com.milesight.iab.base.response.ResponseBody<?> validationExceptionHandler(ValidationException e) {
-        log.error("Cause ValidationException: {}", e.getMessage());
-        log.debug("Cause ValidationException Detail:", e);
-        String message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
-        return ResponseBuilder.fail(ErrorCode.PARAMETER_VALIDATION_FAILED, message);
-    }*/
 
     private BindingResult extractBindingResult(Throwable error) {
         if (error instanceof BindingResult) {
