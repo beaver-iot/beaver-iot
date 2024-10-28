@@ -1,5 +1,7 @@
 package com.milesight.iab.dashboard.po;
 
+import com.milesight.iab.data.support.MapJsonConverter;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
@@ -9,6 +11,8 @@ import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.util.Map;
 
 /**
  * @author loong
@@ -24,7 +28,8 @@ public class DashboardWidgetPO {
     @Id
     private Long id;
     private Long dashboardId;
-    private String data;
+    @Convert(converter = MapJsonConverter.class)
+    private Map<String, Object> data;
     @CreatedDate
     private Long createdAt;
     @LastModifiedDate

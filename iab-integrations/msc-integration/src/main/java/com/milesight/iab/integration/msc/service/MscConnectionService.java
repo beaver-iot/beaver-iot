@@ -35,7 +35,7 @@ public class MscConnectionService implements IMscClientProvider {
         if (isConfigChanged(event)) {
             val openapiSettings = event.getPayload();
             initConnection(openapiSettings);
-            entityServiceProvider.saveExchange(new ExchangePayload(Map.of(OPENAPI_STATUS_KEY, MscIntegrationConstants.OpenapiStatus.NOT_CONNECTED)));
+            entityServiceProvider.saveExchange(new ExchangePayload(Map.of(OPENAPI_STATUS_KEY, MscIntegrationConstants.IntegrationStatus.NOT_READY)));
         }
         testConnection();
     }
@@ -53,10 +53,10 @@ public class MscConnectionService implements IMscClientProvider {
     private void testConnection() {
         try {
             mscClient.test();
-            entityServiceProvider.saveExchange(new ExchangePayload(Map.of(OPENAPI_STATUS_KEY, MscIntegrationConstants.OpenapiStatus.CONNECTED)));
+            entityServiceProvider.saveExchange(new ExchangePayload(Map.of(OPENAPI_STATUS_KEY, MscIntegrationConstants.IntegrationStatus.READY)));
         } catch (Exception e) {
             log.error("Error occurs while testing connection", e);
-            entityServiceProvider.saveExchange(new ExchangePayload(Map.of(OPENAPI_STATUS_KEY, MscIntegrationConstants.OpenapiStatus.ERROR)));
+            entityServiceProvider.saveExchange(new ExchangePayload(Map.of(OPENAPI_STATUS_KEY, MscIntegrationConstants.IntegrationStatus.ERROR)));
         }
     }
 
@@ -101,7 +101,7 @@ public class MscConnectionService implements IMscClientProvider {
             }
         } catch (Exception e) {
             log.error("Error occurs while initializing connection", e);
-            entityServiceProvider.saveExchange(new ExchangePayload(Map.of(OPENAPI_STATUS_KEY, MscIntegrationConstants.OpenapiStatus.NOT_CONNECTED)));
+            entityServiceProvider.saveExchange(new ExchangePayload(Map.of(OPENAPI_STATUS_KEY, MscIntegrationConstants.IntegrationStatus.NOT_READY)));
         }
     }
 

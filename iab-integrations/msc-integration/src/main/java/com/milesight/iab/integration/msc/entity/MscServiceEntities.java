@@ -38,12 +38,8 @@ public class MscServiceEntities extends ExchangePayload {
     @Data
     @Builder
     @NoArgsConstructor
-    @AllArgsConstructor
     @Entities
     public static class DeleteDevice extends ExchangePayload {
-
-        @Entity
-        private String identifier;
 
     }
 

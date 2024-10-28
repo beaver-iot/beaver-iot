@@ -1,7 +1,9 @@
 package com.milesight.iab.entity.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.milesight.iab.base.enums.ErrorCode;
 import com.milesight.iab.base.exception.ServiceException;
+import com.milesight.iab.base.utils.JsonUtils;
 import com.milesight.iab.base.utils.snowflake.SnowflakeUtil;
 import com.milesight.iab.context.api.DeviceServiceProvider;
 import com.milesight.iab.context.api.EntityServiceProvider;
@@ -123,7 +125,7 @@ public class EntityService implements EntityServiceProvider {
             entityPO.setName(entity.getName());
             entityPO.setType(entity.getType());
             entityPO.setAccessMod(entity.getAccessMod());
-            entityPO.setParent(entity.getParentIdentifier());
+            entityPO.setParent(entity.getParentKey());
             entityPO.setAttachTarget(attachTarget);
             entityPO.setAttachTargetId(attachTargetId);
             entityPO.setValueAttribute(entity.getAttributes());
@@ -175,7 +177,11 @@ public class EntityService implements EntityServiceProvider {
                     entity.setValueType(childEntityPO.getValueType());
                     entity.setType(childEntityPO.getType());
                     entity.setAttributes(childEntityPO.getValueAttribute());
-                    entity.setParentIdentifier(childEntityPO.getParent());
+                    String parentKey = childEntityPO.getParent();
+                    if (StringUtils.hasText(parentKey)) {
+                        parentKey = parentKey.substring(parentKey.lastIndexOf(".") + 1);
+                    }
+                    entity.setParentIdentifier(parentKey);
                     childrenEntityList.add(entity);
                 } catch (Exception e) {
                     log.error("find entity by targetId error:{}", e.getMessage(), e);
@@ -194,9 +200,12 @@ public class EntityService implements EntityServiceProvider {
                 entity.setValueType(entityPO.getValueType());
                 entity.setType(entityPO.getType());
                 entity.setAttributes(entityPO.getValueAttribute());
-                entity.setParentIdentifier(entityPO.getParent());
-                String key = entityPO.getKey();
-                List<Entity> childEntityList = childrenEntityList.stream().filter(childEntity -> key.contains(childEntity.getParentIdentifier())).toList();
+                String parentKey = entityPO.getParent();
+                if (StringUtils.hasText(parentKey)) {
+                    parentKey = parentKey.substring(parentKey.lastIndexOf(".") + 1);
+                }
+                entity.setParentIdentifier(parentKey);
+                List<Entity> childEntityList = childrenEntityList.stream().filter(childEntity -> entity.getIdentifier().equals(childEntity.getParentIdentifier())).toList();
                 entity.setChildren(childEntityList);
 
                 String attachTargetId = entityPO.getAttachTargetId();
@@ -430,9 +439,9 @@ public class EntityService implements EntityServiceProvider {
             return entityHistoryUnionQuery;
         }).filter(Objects::nonNull).toList();
         List<EntityHistoryPO> existEntityHistoryPOList = entityHistoryRepository.findByUnionUnique(entityManager, entityHistoryUnionQueryList);
-        Map<String, Long> existUnionIdMap = new HashMap<>();
+        Map<String, EntityHistoryPO> existUnionIdMap = new HashMap<>();
         if (existEntityHistoryPOList != null && !existEntityHistoryPOList.isEmpty()) {
-            existUnionIdMap.putAll(existEntityHistoryPOList.stream().collect(Collectors.toMap(entityHistoryPO -> entityHistoryPO.getEntityId() + ":" + entityHistoryPO.getTimestamp(), EntityHistoryPO::getId)));
+            existUnionIdMap.putAll(existEntityHistoryPOList.stream().collect(Collectors.toMap(entityHistoryPO -> entityHistoryPO.getEntityId() + ":" + entityHistoryPO.getTimestamp(), Function.identity())));
         }
         List<EntityHistoryPO> entityHistoryPOList = new ArrayList<>();
         payloads.forEach((entityKey, payload) -> {
@@ -440,13 +449,19 @@ public class EntityService implements EntityServiceProvider {
             if (entityId == null) {
                 return;
             }
-            String unionId = entityId + ":" + exchangePayload.getTimestamp();
-            Long historyId = existUnionIdMap.get(unionId);
-            boolean isCreate = historyId == null;
-            if (historyId == null) {
-                historyId = SnowflakeUtil.nextId();
-            }
             EntityHistoryPO entityHistoryPO = new EntityHistoryPO();
+            String unionId = entityId + ":" + exchangePayload.getTimestamp();
+            EntityHistoryPO dataHistory = existUnionIdMap.get(unionId);
+            Long historyId = null;
+            String operatorId = SecurityUserContext.getUserId();
+            if (dataHistory == null) {
+                historyId = SnowflakeUtil.nextId();
+                entityHistoryPO.setCreatedBy(operatorId);
+            } else {
+                historyId = dataHistory.getId();
+                entityHistoryPO.setCreatedAt(dataHistory.getCreatedAt());
+                entityHistoryPO.setCreatedBy(dataHistory.getCreatedBy());
+            }
             entityHistoryPO.setId(historyId);
             entityHistoryPO.setEntityId(entityId);
             if (payload instanceof Boolean) {
@@ -463,10 +478,6 @@ public class EntityService implements EntityServiceProvider {
                 throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
             }
             entityHistoryPO.setTimestamp(exchangePayload.getTimestamp());
-            String operatorId = SecurityUserContext.getUserId();
-            if (isCreate) {
-                entityHistoryPO.setCreatedBy(operatorId);
-            }
             entityHistoryPO.setUpdatedBy(operatorId);
             entityHistoryPOList.add(entityHistoryPO);
         });
@@ -474,32 +485,50 @@ public class EntityService implements EntityServiceProvider {
     }
 
     @Override
-    public Object findExchangeValueByKey(String key) {
+    public JsonNode findExchangeValueByKey(String key) {
         if (!StringUtils.hasText(key)) {
             return null;
         }
-        EntityPO entityPO = getByKey(key);
-        if (entityPO == null) {
+        return findExchangeValuesByKeys(Collections.singletonList(key));
+    }
+
+    @Override
+    public JsonNode findExchangeValuesByKeys(List<String> keys) {
+        List<EntityPO> allEntities = new ArrayList<>();
+        List<EntityPO> entityPOList = getByKeys(keys);
+        List<EntityPO> childrenEntities = getByParentKeys(keys);
+        if (entityPOList != null && !entityPOList.isEmpty()) {
+            allEntities.addAll(entityPOList);
+        }
+        if (childrenEntities != null && !childrenEntities.isEmpty()) {
+            allEntities.addAll(childrenEntities);
+        }
+        if (allEntities.isEmpty()) {
             return null;
         }
-        Long entityId = entityPO.getId();
-        EntityLatestPO entityLatestPO = entityLatestRepository.findOne(filter -> filter.eq(EntityLatestPO.Fields.entityId, entityId)).orElse(null);
-        if (entityLatestPO == null) {
+        List<Long> entityIds = allEntities.stream().map(EntityPO::getId).toList();
+        Map<Long, String> entityKeyMap = allEntities.stream().collect(Collectors.toMap(EntityPO::getId, EntityPO::getKey));
+        List<EntityLatestPO> entityLatestPOList = entityLatestRepository.findAll(filter -> filter.in(EntityLatestPO.Fields.entityId, entityIds.toArray()));
+        if (entityLatestPOList == null || entityLatestPOList.isEmpty()) {
             return null;
         }
-        Object value = null;
-        if (entityLatestPO.getValueBoolean() != null) {
-            value = entityLatestPO.getValueBoolean();
-        } else if (entityLatestPO.getValueInt() != null) {
-            value = entityLatestPO.getValueInt();
-        } else if (entityLatestPO.getValueFloat() != null) {
-            value = entityLatestPO.getValueFloat();
-        } else if (entityLatestPO.getValueString() != null) {
-            value = entityLatestPO.getValueString();
-        } else if (entityLatestPO.getValueBinary() != null) {
-            value = entityLatestPO.getValueBinary();
-        }
-        return value;
+        Map<String, Object> resultMap = new HashMap<>();
+        entityLatestPOList.forEach(entityLatestPO -> {
+            Object value = null;
+            if (entityLatestPO.getValueBoolean() != null) {
+                value = entityLatestPO.getValueBoolean();
+            } else if (entityLatestPO.getValueInt() != null) {
+                value = entityLatestPO.getValueInt();
+            } else if (entityLatestPO.getValueFloat() != null) {
+                value = entityLatestPO.getValueFloat();
+            } else if (entityLatestPO.getValueString() != null) {
+                value = entityLatestPO.getValueString();
+            } else if (entityLatestPO.getValueBinary() != null) {
+                value = entityLatestPO.getValueBinary();
+            }
+            resultMap.put(entityKeyMap.get(entityLatestPO.getEntityId()), value);
+        });
+        return JsonUtils.toJsonNode(resultMap);
     }
 
     @Override
@@ -507,18 +536,28 @@ public class EntityService implements EntityServiceProvider {
         if (!StringUtils.hasText(key)) {
             return null;
         }
-        Object value = findExchangeValueByKey(key);
+        JsonNode exchangeValueNode = findExchangeValueByKey(key);
+        if (exchangeValueNode == null || exchangeValueNode.isEmpty()) {
+            return null;
+        }
         try {
             T instance = entitiesClazz.getDeclaredConstructor().newInstance();
             Field[] fields = entitiesClazz.getDeclaredFields();
-            for (Field field : fields) {
-                String keyFieldName = key.substring(key.lastIndexOf(".") + 1);
-                if (field.getName().equals(keyFieldName)) {
-                    field.setAccessible(true);
-                    field.set(instance, value);
-                    break;
+
+            exchangeValueNode.fieldNames().forEachRemaining(exchangeKey -> {
+                try {
+                    for (Field field : fields) {
+                        String keyFieldName = exchangeKey.substring(exchangeKey.lastIndexOf(".") + 1);
+                        if (field.getName().equals(keyFieldName)) {
+                            field.setAccessible(true);
+                            field.set(instance, JsonUtils.cast(exchangeValueNode.get(exchangeKey), field.getType()));
+                            break;
+                        }
+                    }
+                } catch (IllegalAccessException e) {
+                    log.error("findExchangeByKey error:{}", e.getMessage(), e);
                 }
-            }
+            });
             return instance;
         } catch (Exception e) {
             log.error("findExchangeByKey error:{}", e.getMessage(), e);
@@ -554,7 +593,11 @@ public class EntityService implements EntityServiceProvider {
                     entity.setValueType(childEntityPO.getValueType());
                     entity.setType(childEntityPO.getType());
                     entity.setAttributes(childEntityPO.getValueAttribute());
-                    entity.setParentIdentifier(childEntityPO.getParent());
+                    String parentKey = childEntityPO.getParent();
+                    if (StringUtils.hasText(parentKey)) {
+                        parentKey = parentKey.substring(parentKey.lastIndexOf(".") + 1);
+                    }
+                    entity.setParentIdentifier(parentKey);
                     childrenEntityList.add(entity);
                 } catch (Exception e) {
                     log.error("find entity by targetId error:{}", e.getMessage(), e);
@@ -583,7 +626,11 @@ public class EntityService implements EntityServiceProvider {
                 entity.setValueType(entityPO.getValueType());
                 entity.setType(entityPO.getType());
                 entity.setAttributes(entityPO.getValueAttribute());
-                entity.setParentIdentifier(entityPO.getParent());
+                String parentKey = entityPO.getParent();
+                if (StringUtils.hasText(parentKey)) {
+                    parentKey = parentKey.substring(parentKey.lastIndexOf(".") + 1);
+                }
+                entity.setParentIdentifier(parentKey);
                 List<Entity> childEntityList = childrenEntityList.stream().filter(childEntity -> entity.getIdentifier().equals(childEntity.getParentIdentifier())).toList();
                 entity.setChildren(childEntityList);
 
@@ -610,35 +657,29 @@ public class EntityService implements EntityServiceProvider {
     }
 
     public Page<EntityResponse> search(EntityQuery entityQuery) {
-        if (!StringUtils.hasText(entityQuery.getKeyword())) {
-            return Page.empty();
-        }
         boolean isExcludeChildren = entityQuery.getExcludeChildren() != null && entityQuery.getExcludeChildren();
         List<String> attachTargetIds = new ArrayList<>();
-        List<Integration> integrations = integrationServiceProvider.findIntegrations(f -> f.getName().contains(entityQuery.getKeyword()));
-        if (integrations != null && !integrations.isEmpty()) {
-            List<String> integrationIds = integrations.stream().map(Integration::getId).toList();
-            attachTargetIds.addAll(integrationIds);
-            List<DeviceNameDTO> integrationDevices = deviceFacade.getDeviceNameByIntegrations(integrationIds);
-            if (integrationDevices != null && !integrationDevices.isEmpty()) {
-                List<String> deviceIds = integrationDevices.stream().map(t -> String.valueOf(t.getId())).toList();
+        if (StringUtils.hasText(entityQuery.getKeyword())) {
+            List<Integration> integrations = integrationServiceProvider.findIntegrations(f -> f.getName().contains(entityQuery.getKeyword()));
+            if (integrations != null && !integrations.isEmpty()) {
+                List<String> integrationIds = integrations.stream().map(Integration::getId).toList();
+                attachTargetIds.addAll(integrationIds);
+                List<DeviceNameDTO> integrationDevices = deviceFacade.getDeviceNameByIntegrations(integrationIds);
+                if (integrationDevices != null && !integrationDevices.isEmpty()) {
+                    List<String> deviceIds = integrationDevices.stream().map(t -> String.valueOf(t.getId())).toList();
+                    attachTargetIds.addAll(deviceIds);
+                }
+            }
+            List<DeviceNameDTO> deviceNameDTOList = deviceFacade.fuzzySearchDeviceByName(entityQuery.getKeyword());
+            if (deviceNameDTOList != null && !deviceNameDTOList.isEmpty()) {
+                List<String> deviceIds = deviceNameDTOList.stream().map(DeviceNameDTO::getId).map(String::valueOf).toList();
                 attachTargetIds.addAll(deviceIds);
             }
         }
-        List<DeviceNameDTO> deviceNameDTOList = deviceFacade.fuzzySearchDeviceByName(entityQuery.getKeyword());
-        if (deviceNameDTOList != null && !deviceNameDTOList.isEmpty()) {
-            List<String> deviceIds = deviceNameDTOList.stream().map(DeviceNameDTO::getId).map(String::valueOf).toList();
-            attachTargetIds.addAll(deviceIds);
-        }
-        Consumer<Filterable> filterable = f -> f.eq(EntityPO.Fields.type, entityQuery.getEntityType())
-                .or(f1 -> f1.like(EntityPO.Fields.name, entityQuery.getKeyword())
-                        .in(EntityPO.Fields.attachTargetId, attachTargetIds.toArray()));
-        if (isExcludeChildren) {
-            filterable = f -> f.eq(EntityPO.Fields.type, entityQuery.getEntityType())
-                    .eq(EntityPO.Fields.parent, null)
-                    .or(f1 -> f1.like(EntityPO.Fields.name, entityQuery.getKeyword())
-                            .in(EntityPO.Fields.attachTargetId, attachTargetIds.toArray()));
-        }
+        Consumer<Filterable> filterable = f -> f.eq(entityQuery.getEntityType() != null, EntityPO.Fields.type, entityQuery.getEntityType())
+                .eq(isExcludeChildren, EntityPO.Fields.parent, null)
+                .or(f1 -> f1.like(StringUtils.hasText(entityQuery.getKeyword()), EntityPO.Fields.name, entityQuery.getKeyword())
+                        .in(!attachTargetIds.isEmpty(), EntityPO.Fields.attachTargetId, attachTargetIds.toArray()));
         Page<EntityPO> entityPOList = entityRepository.findAll(filterable, entityQuery.toPageable());
         if (entityPOList == null || entityPOList.getContent().isEmpty()) {
             return Page.empty();
@@ -679,8 +720,7 @@ public class EntityService implements EntityServiceProvider {
 
     public List<EntityResponse> getChildren(Long entityId) {
         EntityPO entityPO = entityRepository.findOne(f -> f.eq(EntityPO.Fields.id, entityId)).orElseThrow(() -> ServiceException.with(ErrorCode.DATA_NO_FOUND).build());
-        String parentIdentifier = entityPO.getKey().substring(entityPO.getKey().lastIndexOf(".") + 1);
-        List<EntityPO> entityPOList = entityRepository.findAll(f -> f.eq(EntityPO.Fields.parent, parentIdentifier));
+        List<EntityPO> entityPOList = entityRepository.findAll(f -> f.eq(EntityPO.Fields.parent, entityPO.getKey()));
         if (entityPOList == null || entityPOList.isEmpty()) {
             return Collections.emptyList();
         }
@@ -869,7 +909,7 @@ public class EntityService implements EntityServiceProvider {
         } else if (entityLatestPO.getValueBinary() != null) {
             entityLatestResponse.setValue(entityLatestPO.getValueBinary());
         }
-        entityLatestResponse.setUpdatedAt(entityLatestPO.getUpdatedAt().toString());
+        entityLatestResponse.setUpdatedAt(entityLatestPO.getUpdatedAt() == null ? null : entityLatestPO.getUpdatedAt().toString());
         return entityLatestResponse;
     }
 
@@ -924,8 +964,16 @@ public class EntityService implements EntityServiceProvider {
         return entityRepository.findOne(filter -> filter.eq(EntityPO.Fields.key, entityKey)).orElse(null);
     }
 
+    private List<EntityPO> getByParentKey(String entityKey) {
+        return entityRepository.findAll(filter -> filter.eq(EntityPO.Fields.parent, entityKey));
+    }
+
     private List<EntityPO> getByKeys(List<String> entityKeys) {
         return entityRepository.findAll(filter -> filter.in(EntityPO.Fields.key, entityKeys.toArray()));
+    }
+
+    private List<EntityPO> getByParentKeys(List<String> entityKeys) {
+        return entityRepository.findAll(filter -> filter.in(EntityPO.Fields.parent, entityKeys.toArray()));
     }
 
 }

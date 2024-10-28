@@ -4,7 +4,6 @@ import com.milesight.iab.base.enums.ErrorCode;
 import com.milesight.iab.base.exception.ServiceException;
 import com.milesight.iab.context.api.EntityServiceProvider;
 import com.milesight.iab.context.integration.model.Entity;
-import com.milesight.iab.context.integration.model.EventContextAccessor;
 import com.milesight.iab.context.integration.model.ExchangePayload;
 import com.milesight.iab.rule.annotations.RuleNode;
 import com.milesight.iab.rule.api.PredicateNode;
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.milesight.iab.context.constants.ExchangeContextKeys.EXCHANGE_KEY_ENTITIES;

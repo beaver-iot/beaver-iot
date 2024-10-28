@@ -27,7 +27,7 @@ public interface EntityHistoryRepository extends BaseJpaRepository<EntityHistory
     }
 
     default String generateDynamicQuery(List<EntityHistoryUnionQuery> queries) {
-        StringBuilder sqlBuilder = new StringBuilder("SELECT * FROM entity_history WHERE ");
+        StringBuilder sqlBuilder = new StringBuilder("SELECT * FROM t_entity_history WHERE ");
         for (int i = 0; i < queries.size(); i++) {
             if (i > 0) {
                 sqlBuilder.append(" OR ");

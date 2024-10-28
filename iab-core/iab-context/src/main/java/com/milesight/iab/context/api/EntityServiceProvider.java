@@ -1,10 +1,10 @@
 package com.milesight.iab.context.api;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.milesight.iab.context.integration.enums.AttachTargetType;
 import com.milesight.iab.context.integration.model.Entity;
 import com.milesight.iab.context.integration.model.ExchangePayload;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +35,9 @@ public interface EntityServiceProvider {
 
     void saveExchangeHistory(ExchangePayload exchangePayload);
 
-    Object findExchangeValueByKey(String key);
+    JsonNode findExchangeValueByKey(String key);
+
+    JsonNode findExchangeValuesByKeys(List<String> keys);
 
     <T> T findExchangeByKey(String key, Class<T> entitiesClazz);
 

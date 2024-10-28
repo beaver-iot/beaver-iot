@@ -3,7 +3,6 @@ package com.milesight.iab.sample.complex.listener;
 
 import com.milesight.iab.eventbus.annotations.EventSubscribe;
 import com.milesight.iab.eventbus.api.Event;
-import com.milesight.iab.sample.complex.entity.DemoMscSettingEntities;
 import com.milesight.iab.context.api.DeviceServiceProvider;
 import com.milesight.iab.context.api.IntegrationServiceProvider;
 import com.milesight.iab.context.integration.builder.EntityBuilder;
@@ -12,6 +11,8 @@ import com.milesight.iab.context.integration.enums.AccessMod;
 import com.milesight.iab.context.integration.model.Entity;
 import com.milesight.iab.context.integration.model.Integration;
 import com.milesight.iab.context.integration.model.event.ExchangeEvent;
+import com.milesight.iab.eventbus.api.EventResponse;
+import com.milesight.iab.sample.complex.entity.DemoMscServiceEntities;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -23,18 +24,22 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class DemoEntityEventSubscribe {
 
-    private DeviceServiceProvider deviceServiceProvider;
     @Autowired
     private IntegrationServiceProvider integrationServiceProvider;
 
     // save properties
-    @EventSubscribe(payloadKeyExpression ="msc-integration.integration.connect")
-    public void subscribeSaveSetting(Event<DemoMscSettingEntities> event) {
-        log.debug("DemoEntityEventSubscribe subscribeSaveSetting:{}",event);
+    @EventSubscribe(payloadKeyExpression ="demo-complex-integration.integration.setting.*")
+    public EventResponse subscribeSaveSetting(Event<DemoMscServiceEntities.DemoMscSettingEntities> event) {
+        DemoMscServiceEntities.DemoMscSettingEntities payload = event.getPayload();
+        log.debug("DemoEntityEventSubscribe subscribeSaveSetting:{}", payload);
+        log.info("url :{}",payload.getUrl());
+        log.info("accessKey: {}",payload.getAccessKey());
+        log.info("secretKey :{}",payload.getSecretKey());
+        return EventResponse.of("integrationSettingResponse", "success");
     }
 
     // sync event
-    @EventSubscribe(payloadKeyExpression ="msc-integration.integration.syncDevice")
+    @EventSubscribe(payloadKeyExpression ="demo-complex-integration.integration.syncDevice")
     public void subscribeSyncEntity(ExchangeEvent event) {
         log.debug("DemoEntityEventSubscribe subscribeSyncEntity:{}",event);
         //1.call msc url
@@ -62,7 +67,7 @@ public class DemoEntityEventSubscribe {
         integrationServiceProvider.save(integrationConfig);
 
     }
-    @EventSubscribe(payloadKeyExpression ="msc-integration.integration.syncHistory")
+    @EventSubscribe(payloadKeyExpression ="demo-complex-integration.integration.syncHistory")
     public void subscribeHistory(ExchangeEvent event) {
         //方案1： 采用api调用 + 编码
         //方案2： 采用规则引擎编排 + timer
@@ -70,7 +75,7 @@ public class DemoEntityEventSubscribe {
     }
 
     //exchange up ? async?
-    @EventSubscribe(payloadKeyExpression ="msc-integration.integration.*", eventType = ExchangeEvent.EventType.UP)
+    @EventSubscribe(payloadKeyExpression ="demo-complex-integration.integration.*", eventType = ExchangeEvent.EventType.DOWN)
     public void subscribeDeviceExchangeUp(ExchangeEvent event) {
         // 同上
         log.debug("DemoEntityEventSubscribe subscribeDeviceExchangeUp:{}",event);

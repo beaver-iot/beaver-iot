@@ -4,6 +4,7 @@ import com.milesight.iab.base.response.ResponseBody;
 import com.milesight.iab.base.response.ResponseBuilder;
 import com.milesight.iab.dashboard.model.request.CreateDashboardRequest;
 import com.milesight.iab.dashboard.model.request.UpdateDashboardRequest;
+import com.milesight.iab.dashboard.model.response.CreateDashboardResponse;
 import com.milesight.iab.dashboard.model.response.DashboardResponse;
 import com.milesight.iab.dashboard.service.DashboardService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,9 +31,9 @@ public class DashboardController {
     DashboardService dashboardService;
 
     @PostMapping("")
-    public ResponseBody<Void> createDashboard(@RequestBody CreateDashboardRequest createDashboardRequest) {
-        dashboardService.createDashboard(createDashboardRequest);
-        return ResponseBuilder.success();
+    public ResponseBody<CreateDashboardResponse> createDashboard(@RequestBody CreateDashboardRequest createDashboardRequest) {
+        CreateDashboardResponse createDashboardResponse = dashboardService.createDashboard(createDashboardRequest);
+        return ResponseBuilder.success(createDashboardResponse);
     }
 
     @PutMapping("/{dashboardId}")

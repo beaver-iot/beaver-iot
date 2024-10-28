@@ -1,6 +1,5 @@
 package com.milesight.iab.context.integration.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.milesight.iab.context.api.DeviceServiceProvider;
 import com.milesight.iab.context.api.IntegrationServiceProvider;
 import com.milesight.iab.context.constants.IntegrationConstants;
@@ -50,6 +49,17 @@ public class Entity implements IdentityKey {
             return IntegrationConstants.formatIntegrationDeviceEntityKey(deviceKey, fullIdentifier);
         }else{
             return IntegrationConstants.formatIntegrationEntityKey(integrationId, fullIdentifier);
+        }
+    }
+
+    public String getParentKey() {
+        if(!StringUtils.hasLength(parentIdentifier)){
+            return null;
+        }
+        if(StringUtils.hasText(deviceKey)){
+            return IntegrationConstants.formatIntegrationDeviceEntityKey(deviceKey, parentIdentifier);
+        }else{
+            return IntegrationConstants.formatIntegrationEntityKey(integrationId, parentIdentifier);
         }
     }
 

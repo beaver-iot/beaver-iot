@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -18,7 +19,7 @@ public class EntityAggregateResponse {
 
     @Getter
     @Builder
-    public static class CountResult {
+    public static class CountResult implements Serializable {
         private Object value;
         private Long count;
 

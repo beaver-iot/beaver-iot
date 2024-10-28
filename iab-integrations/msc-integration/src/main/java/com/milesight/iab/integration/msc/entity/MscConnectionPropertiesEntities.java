@@ -19,7 +19,7 @@ import lombok.experimental.*;
 public class MscConnectionPropertiesEntities extends ExchangePayload {
 
     public static String getKey(String propertyKey) {
-        return MscIntegrationConstants.INTEGRATION_IDENTIFIER + "." + propertyKey;
+        return MscIntegrationConstants.INTEGRATION_IDENTIFIER + ".integration." + propertyKey;
     }
 
     /**

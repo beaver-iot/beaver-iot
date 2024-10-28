@@ -1,5 +1,6 @@
 package com.milesight.iab.context.integration;
 
+import com.milesight.iab.base.exception.ConfigurationException;
 import com.milesight.iab.context.integration.bootstrap.IntegrationBootstrap;
 import com.milesight.iab.context.integration.model.Integration;
 import org.springframework.core.env.StandardEnvironment;
@@ -19,6 +20,9 @@ public class IntegrationContext {
     private Map<String, Integration> integrationCache = new ConcurrentHashMap<>();
 
     public void cacheIntegration(IntegrationBootstrap integrationBootstrap, Integration integrationConfig, StandardEnvironment integrationEnvironment) {
+        if(integrationBootstrapCache.containsKey(integrationConfig.getId())){
+            throw new ConfigurationException("Integration id already exists ：" + integrationConfig.getId());
+        }
         integrationBootstrapCache.put(integrationConfig.getId(), integrationBootstrap);
         integrationCache.put(integrationConfig.getId(), integrationConfig);
         integrationEnvironmentCache.put(integrationConfig.getId(), integrationEnvironment);

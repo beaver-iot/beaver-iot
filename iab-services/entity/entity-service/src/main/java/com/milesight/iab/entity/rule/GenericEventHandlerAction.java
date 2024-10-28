@@ -1,6 +1,5 @@
 package com.milesight.iab.entity.rule;
 
-import com.milesight.iab.context.integration.model.EventContextAccessor;
 import com.milesight.iab.context.integration.model.ExchangePayload;
 import com.milesight.iab.context.integration.model.event.ExchangeEvent;
 import com.milesight.iab.eventbus.EventBus;
