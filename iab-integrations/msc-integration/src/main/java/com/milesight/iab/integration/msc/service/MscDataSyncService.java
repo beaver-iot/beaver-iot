@@ -23,7 +23,6 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
@@ -76,7 +75,7 @@ public class MscDataSyncService {
     @EventSubscribe(payloadKeyExpression = "msc-integration.integration.openapiStatus", eventType = ExchangeEvent.EventType.UP)
     public void onOpenapiStatusUpdate(Event<MscConnectionPropertiesEntities> event) {
         val status = event.getPayload().getOpenapiStatus();
-        if (MscIntegrationConstants.OpenapiStatus.CONNECTED.equals(status)) {
+        if (MscIntegrationConstants.IntegrationStatus.READY.equals(status)) {
             syncAllDataExecutor.submit(this::syncAllData);
         }
     }

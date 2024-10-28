@@ -4,17 +4,7 @@ public interface MscIntegrationConstants {
 
     String INTEGRATION_IDENTIFIER = "msc-integration";
 
-    interface OpenapiStatus {
-
-        String CONNECTED = "CONNECTED";
-
-        String NOT_CONNECTED = "NOT_CONNECTED";
-
-        String ERROR = "ERROR";
-
-    }
-
-    interface WebhookStatus {
+    interface IntegrationStatus {
 
         String READY = "READY";
 

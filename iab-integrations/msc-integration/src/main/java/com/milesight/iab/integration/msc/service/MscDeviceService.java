@@ -181,7 +181,7 @@ public class MscDeviceService {
             return;
         }
         val device = deviceServiceProvider.findByIdentifier(
-                event.getPayload().getIdentifier(), MscIntegrationConstants.INTEGRATION_IDENTIFIER);
+                ((Device) event.getPayload().getContext("device")).getIdentifier(), MscIntegrationConstants.INTEGRATION_IDENTIFIER);
         val additionalData = device.getAdditional();
         if (additionalData == null) {
             return;
