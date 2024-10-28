@@ -184,7 +184,6 @@ public class SearchFilter extends CompositeCondition implements Filterable{
 
     @Override
     public Filterable in(boolean condition, String name, Object[] value) {
-        Assert.isTrue(!ObjectUtils.isEmpty(value), "value must not be null");
         return addCompareCondition(condition , SearchOperator.IN, name, value);
     }
 
@@ -196,7 +195,6 @@ public class SearchFilter extends CompositeCondition implements Filterable{
 
     @Override
     public Filterable notIn(boolean condition, String name, Object[] value) {
-        Assert.isTrue(!ObjectUtils.isEmpty(value), "value must not be null");
         return addCompareCondition(condition , SearchOperator.NOT_IN, name, value);
     }
 
