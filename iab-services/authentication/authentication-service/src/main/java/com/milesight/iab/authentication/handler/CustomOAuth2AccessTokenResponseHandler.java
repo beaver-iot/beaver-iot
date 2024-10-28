@@ -57,7 +57,7 @@ public class CustomOAuth2AccessTokenResponseHandler implements AuthenticationSuc
                 .convert(accessTokenResponse);
 
         ResponseBody responseBody = ResponseBuilder.success(tokenResponseParameters);
-        OAuth2ResponseUtils.response(response, responseBody);
+        OAuth2ResponseUtils.response(response, HttpServletResponse.SC_OK, responseBody);
     }
 
 }
