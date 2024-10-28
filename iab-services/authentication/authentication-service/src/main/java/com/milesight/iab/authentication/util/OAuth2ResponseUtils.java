@@ -1,8 +1,7 @@
 package com.milesight.iab.authentication.util;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.milesight.iab.base.response.ResponseBody;
+import com.milesight.iab.base.utils.JsonUtils;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.MediaType;
 
@@ -15,13 +14,11 @@ import java.nio.charset.StandardCharsets;
  */
 public class OAuth2ResponseUtils {
 
-    private static final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
-
     public static void response(HttpServletResponse response, ResponseBody responseBody) throws IOException {
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
-        response.getWriter().write(objectMapper.writeValueAsString(responseBody));
+        response.getWriter().write(JsonUtils.toJSON(responseBody));
     }
 
 }

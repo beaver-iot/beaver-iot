@@ -9,6 +9,7 @@ import com.milesight.iab.dashboard.enums.DashboardErrorCode;
 import com.milesight.iab.dashboard.model.dto.DashboardWidgetDTO;
 import com.milesight.iab.dashboard.model.request.CreateDashboardRequest;
 import com.milesight.iab.dashboard.model.request.UpdateDashboardRequest;
+import com.milesight.iab.dashboard.model.response.CreateDashboardResponse;
 import com.milesight.iab.dashboard.model.response.DashboardResponse;
 import com.milesight.iab.dashboard.po.DashboardPO;
 import com.milesight.iab.dashboard.po.DashboardWidgetPO;
@@ -42,7 +43,7 @@ public class DashboardService {
     @Autowired
     private DashboardWidgetTemplateRepository dashboardWidgetTemplateRepository;
 
-    public void createDashboard(CreateDashboardRequest createDashboardRequest) {
+    public CreateDashboardResponse createDashboard(CreateDashboardRequest createDashboardRequest) {
         String name = createDashboardRequest.getName();
         if (!StringUtils.hasText(name)) {
             throw ServiceException.with(ErrorCode.PARAMETER_SYNTAX_ERROR).detailMessage("name is empty").build();
@@ -55,6 +56,10 @@ public class DashboardService {
         dashboardPO.setId(SnowflakeUtil.nextId());
         dashboardPO.setName(name);
         dashboardRepository.save(dashboardPO);
+
+        CreateDashboardResponse createDashboardResponse = new CreateDashboardResponse();
+        createDashboardResponse.setDashboardId(dashboardPO.getId().toString());
+        return createDashboardResponse;
     }
 
     @Transactional(rollbackFor = Exception.class)
