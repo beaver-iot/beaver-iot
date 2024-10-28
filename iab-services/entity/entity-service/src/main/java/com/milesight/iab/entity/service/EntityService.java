@@ -439,9 +439,9 @@ public class EntityService implements EntityServiceProvider {
             return entityHistoryUnionQuery;
         }).filter(Objects::nonNull).toList();
         List<EntityHistoryPO> existEntityHistoryPOList = entityHistoryRepository.findByUnionUnique(entityManager, entityHistoryUnionQueryList);
-        Map<String, Long> existUnionIdMap = new HashMap<>();
+        Map<String, EntityHistoryPO> existUnionIdMap = new HashMap<>();
         if (existEntityHistoryPOList != null && !existEntityHistoryPOList.isEmpty()) {
-            existUnionIdMap.putAll(existEntityHistoryPOList.stream().collect(Collectors.toMap(entityHistoryPO -> entityHistoryPO.getEntityId() + ":" + entityHistoryPO.getTimestamp(), EntityHistoryPO::getId)));
+            existUnionIdMap.putAll(existEntityHistoryPOList.stream().collect(Collectors.toMap(entityHistoryPO -> entityHistoryPO.getEntityId() + ":" + entityHistoryPO.getTimestamp(), Function.identity())));
         }
         List<EntityHistoryPO> entityHistoryPOList = new ArrayList<>();
         payloads.forEach((entityKey, payload) -> {
@@ -449,13 +449,19 @@ public class EntityService implements EntityServiceProvider {
             if (entityId == null) {
                 return;
             }
-            String unionId = entityId + ":" + exchangePayload.getTimestamp();
-            Long historyId = existUnionIdMap.get(unionId);
-            boolean isCreate = historyId == null;
-            if (historyId == null) {
-                historyId = SnowflakeUtil.nextId();
-            }
             EntityHistoryPO entityHistoryPO = new EntityHistoryPO();
+            String unionId = entityId + ":" + exchangePayload.getTimestamp();
+            EntityHistoryPO dataHistory = existUnionIdMap.get(unionId);
+            Long historyId = null;
+            String operatorId = SecurityUserContext.getUserId();
+            if (dataHistory == null) {
+                historyId = SnowflakeUtil.nextId();
+                entityHistoryPO.setCreatedBy(operatorId);
+            } else {
+                historyId = dataHistory.getId();
+                entityHistoryPO.setCreatedAt(dataHistory.getCreatedAt());
+                entityHistoryPO.setCreatedBy(dataHistory.getCreatedBy());
+            }
             entityHistoryPO.setId(historyId);
             entityHistoryPO.setEntityId(entityId);
             if (payload instanceof Boolean) {
@@ -472,10 +478,6 @@ public class EntityService implements EntityServiceProvider {
                 throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
             }
             entityHistoryPO.setTimestamp(exchangePayload.getTimestamp());
-            String operatorId = SecurityUserContext.getUserId();
-            if (isCreate) {
-                entityHistoryPO.setCreatedBy(operatorId);
-            }
             entityHistoryPO.setUpdatedBy(operatorId);
             entityHistoryPOList.add(entityHistoryPO);
         });

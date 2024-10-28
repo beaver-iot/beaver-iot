@@ -145,7 +145,7 @@ public class WebSecurityConfiguration {
                 .accessTokenFormat(OAuth2TokenFormat.SELF_CONTAINED)
                 .reuseRefreshTokens(false)
                 .accessTokenTimeToLive(Duration.ofDays(1))
-                .refreshTokenTimeToLive(Duration.ofDays(30))
+                .refreshTokenTimeToLive(Duration.ofDays(1))
                 .build();
         ClientSettings clientSettings = ClientSettings.builder()
                 .requireAuthorizationConsent(false)
