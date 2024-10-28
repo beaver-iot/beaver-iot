@@ -3,6 +3,7 @@ package com.milesight.iab.integration.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.milesight.iab.base.enums.ErrorCode;
 import com.milesight.iab.base.exception.ServiceException;
+import com.milesight.iab.base.utils.JsonUtils;
 import com.milesight.iab.context.api.DeviceServiceProvider;
 import com.milesight.iab.context.api.EntityServiceProvider;
 import com.milesight.iab.context.api.IntegrationServiceProvider;
@@ -93,6 +94,11 @@ public class IntegrationService {
         data.setEntityCount(entityServiceProvider.countAllEntitiesByIntegrationId(integrationId));
         List<Entity> entities = entityServiceProvider.findByTargetId(AttachTargetType.INTEGRATION, integrationId);
         JsonNode entityValues = entityServiceProvider.findExchangeValuesByKeys(entities.stream().map(Entity::getKey).toList());
+        if (entityValues == null) {
+            entityValues = JsonUtils.getObjectMapper().createObjectNode();
+        }
+
+        final JsonNode finalEntityValues = entityValues;
         data.setIntegrationEntities(entities
                 .stream().flatMap((Entity pEntity) -> {
                     ArrayList<Entity> flatEntities = new ArrayList<>();
@@ -110,7 +116,7 @@ public class IntegrationService {
                             .type(entity.getType())
                             .valueType(entity.getValueType())
                             .valueAttribute(entity.getAttributes())
-                            .value(entityValues.get(entity.getKey()))
+                            .value(finalEntityValues.get(entity.getKey()))
                             .build());
                 }).toList());
         return data;
