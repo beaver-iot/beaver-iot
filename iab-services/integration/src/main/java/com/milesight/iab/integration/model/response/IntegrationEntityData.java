@@ -10,7 +10,7 @@ import java.util.Map;
 @Builder
 @Data
 public class IntegrationEntityData {
-    private Long id;
+    private String id;
     private String key;
     private String name;
     private EntityType type;

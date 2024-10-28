@@ -17,9 +17,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class IntegrationService {
@@ -91,15 +93,24 @@ public class IntegrationService {
         data.setDeviceCount(deviceServiceProvider.countByIntegrationId(integrationId));
         data.setEntityCount(entityServiceProvider.countAllEntitiesByIntegrationId(integrationId));
         data.setIntegrationEntities(entityServiceProvider.findByTargetId(AttachTargetType.INTEGRATION, integrationId)
-                .stream().map((Entity entity) -> IntegrationEntityData
-                        .builder()
-                        .id(entity.getId())
-                        .key(entity.getKey())
-                        .type(entity.getType())
-                        .valueType(entity.getValueType())
-                        .valueAttribute(entity.getAttributes())
-                        .build()
-                ).collect(Collectors.toList()));
+                .stream().flatMap((Entity pEntity) -> {
+                    ArrayList<Entity> entities = new ArrayList<>();
+                    entities.add(pEntity);
+
+                    List<Entity> childrenEntities = pEntity.getChildren();
+                    if (childrenEntities != null) {
+                        entities.addAll(childrenEntities);
+                    }
+
+                    return entities.stream().map(entity -> IntegrationEntityData
+                            .builder()
+                            .id(entity.getId().toString())
+                            .key(entity.getKey())
+                            .type(entity.getType())
+                            .valueType(entity.getValueType())
+                            .valueAttribute(entity.getAttributes())
+                            .build());
+                }).toList());
         return data;
     }
 }
