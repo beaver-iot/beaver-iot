@@ -3,6 +3,7 @@ package com.milesight.iab.context.integration.builder;
 import com.milesight.iab.context.integration.model.Device;
 import com.milesight.iab.context.integration.model.Entity;
 import com.milesight.iab.context.integration.model.Integration;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +65,11 @@ public class EntityBuilder extends BaseEntityBuilder<EntityBuilder>{
     }
 
     public Entity build() {
+        Assert.notNull(identifier, "Entity identifier must not be null");
+        Assert.notNull(type, "EntityType must not be null");
+        Assert.notNull(valueType, "EntityValueType must not be null");
+        Assert.notNull(name, "Entity name must not be null");
+
         Entity entity = newInstance();
         entity.setChildren(children);
         if(integration != null){

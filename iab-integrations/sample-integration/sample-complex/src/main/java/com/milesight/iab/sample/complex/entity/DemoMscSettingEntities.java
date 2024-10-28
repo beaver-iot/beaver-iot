@@ -25,9 +25,4 @@ public class DemoMscSettingEntities extends ExchangePayload {
     @Entity(type = EntityType.PROPERTY, accessMod = AccessMod.RW)
     private String secretKey;
 
-    @Override
-    public String getKey() {
-        return url;
-    }
-
 }

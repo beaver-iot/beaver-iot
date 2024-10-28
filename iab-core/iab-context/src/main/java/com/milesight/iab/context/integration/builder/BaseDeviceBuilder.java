@@ -3,6 +3,7 @@ package com.milesight.iab.context.integration.builder;
 import com.milesight.iab.context.integration.model.Device;
 import com.milesight.iab.context.integration.model.Entity;
 import com.milesight.iab.context.integration.model.Integration;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,6 +69,9 @@ public class BaseDeviceBuilder<T extends BaseDeviceBuilder> {
     }
 
     public Device build(){
+        Assert.notNull(name, "Device name must not be null");
+        Assert.notNull(identifier, "Device identifier must not be null");
+
         Device device = new Device();
         device.setName(name);
         device.setAdditional(additional);

@@ -5,6 +5,7 @@ import com.milesight.iab.context.integration.bootstrap.IntegrationBootstrap;
 import com.milesight.iab.context.integration.builder.DeviceBuilder;
 import com.milesight.iab.context.integration.builder.EntityBuilder;
 import com.milesight.iab.context.integration.enums.AccessMod;
+import com.milesight.iab.context.integration.enums.EntityValueType;
 import com.milesight.iab.context.integration.model.Device;
 import com.milesight.iab.context.integration.model.Entity;
 import com.milesight.iab.context.integration.model.Integration;
@@ -22,19 +23,20 @@ public class ComplexIntegrationBootstrap implements IntegrationBootstrap {
     public void onStarted(Integration integrationConfig) {
 
         //ie: build device/entity by DeviceBuilder
-//        Entity entityConfig = new EntityBuilder()
-//                .property("prop1", AccessMod.W)
-//                .children()
-//                    .property("prop11", AccessMod.W).end()
-//                .children()
-//                    .property("prop12", AccessMod.W).end()
-//                .build();
-//        Device device = new DeviceBuilder()
-//                .name("complexDevice1")
-//                .identifier("complexDevice1")
-//                .entity(entityConfig)
-//                .build();
-//        integrationConfig.addInitialDevice(device);
+        Entity entityConfig = new EntityBuilder()
+                .property("prop_parent", AccessMod.W)
+                .valueType(EntityValueType.STRING)
+                .children()
+                .valueType(EntityValueType.STRING).property("prop_children1", AccessMod.W).end()
+                .children()
+                .valueType(EntityValueType.STRING).property("prop_children2", AccessMod.W).end()
+                .build();
+        Device device = new DeviceBuilder()
+                .name("complexDevice1")
+                .identifier("complexDevice1")
+                .entity(entityConfig)
+                .build();
+        integrationConfig.addInitialDevice(device);
 
     }
 
