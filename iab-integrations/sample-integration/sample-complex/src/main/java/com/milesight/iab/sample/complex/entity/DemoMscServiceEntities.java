@@ -8,10 +8,12 @@ import com.milesight.iab.context.integration.enums.AccessMod;
 import com.milesight.iab.context.integration.enums.EntityType;
 import com.milesight.iab.context.integration.model.ExchangePayload;
 import com.milesight.iab.context.integration.model.ExchangePayloadAccessor;
+import lombok.Data;
 
 /**
  * @author leon
  */
+@Data
 @IntegrationEntities
 public class DemoMscServiceEntities extends ExchangePayload {
 
@@ -28,8 +30,9 @@ public class DemoMscServiceEntities extends ExchangePayload {
     @Entity(type = EntityType.SERVICE)
     private DemoMscSettingEntities setting;
 
+    @Data
     @Entities
-    public class DemoMscSettingEntities extends ExchangePayload {
+    public static class DemoMscSettingEntities extends ExchangePayload {
 
         @Entity
         private String url;

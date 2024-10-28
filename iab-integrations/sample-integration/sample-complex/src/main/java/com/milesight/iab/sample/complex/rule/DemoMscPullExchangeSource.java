@@ -22,4 +22,5 @@ public class DemoMscPullExchangeSource implements ProcessorNode<Exchange> {
         exchange.getIn().setBody(exchangePayload);
         log.info("==============timer call demoMscPullExchangeSource, size:{}==============",exchangePayload.size());
     }
+
 }
