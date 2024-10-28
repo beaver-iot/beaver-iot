@@ -52,7 +52,7 @@ public class MscWebhookService {
             mac = HMacUtils.getMac(webhookSettings.getSecretKey());
         }
         if (!enabled) {
-            entityServiceProvider.saveExchange(ExchangePayload.create(WEBHOOK_STATUS_KEY, MscIntegrationConstants.WebhookStatus.NOT_READY));
+            entityServiceProvider.saveExchange(ExchangePayload.create(WEBHOOK_STATUS_KEY, MscIntegrationConstants.IntegrationStatus.NOT_READY));
         }
     }
 
@@ -130,7 +130,7 @@ public class MscWebhookService {
 
         // save data
         dataSyncService.saveHistoryData(device.getKey(), properties, webhookPayload.getEventCreatedTime() * 1000);
-        entityServiceProvider.saveExchange(ExchangePayload.create(WEBHOOK_STATUS_KEY, MscIntegrationConstants.WebhookStatus.READY));
+        entityServiceProvider.saveExchange(ExchangePayload.create(WEBHOOK_STATUS_KEY, MscIntegrationConstants.IntegrationStatus.READY));
     }
 
     public boolean isSignatureValid(String signature, String requestTimestamp, String requestNonce) {

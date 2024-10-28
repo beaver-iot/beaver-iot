@@ -5,12 +5,13 @@ import com.milesight.iab.context.integration.model.Integration;
 import com.milesight.iab.integration.msc.service.MscConnectionService;
 import com.milesight.iab.integration.msc.service.MscDataSyncService;
 import com.milesight.iab.integration.msc.service.MscWebhookService;
+import lombok.extern.slf4j.*;
 import org.apache.camel.CamelContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
-
+@Slf4j
 @Component
 @PropertySource("classpath:integration.yaml")
 public class MscIntegrationBootstrap implements IntegrationBootstrap {
@@ -27,14 +28,18 @@ public class MscIntegrationBootstrap implements IntegrationBootstrap {
 
     @Override
     public void onStarted(Integration integrationConfig) {
+        log.info("MSC integration starting");
         mscConnectionService.init();
         mscDataFetchingService.init();
         mscWebhookService.init();
+        log.info("MSC integration started");
     }
 
     @Override
     public void onDestroy(Integration integrationConfig) {
+        log.info("MSC integration stopping");
         mscDataFetchingService.stop();
+        log.info("MSC integration stopped");
     }
 
     @Override
