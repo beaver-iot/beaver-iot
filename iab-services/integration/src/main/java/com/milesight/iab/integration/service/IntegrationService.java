@@ -1,5 +1,6 @@
 package com.milesight.iab.integration.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.milesight.iab.base.enums.ErrorCode;
 import com.milesight.iab.base.exception.ServiceException;
 import com.milesight.iab.context.api.DeviceServiceProvider;
@@ -17,11 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class IntegrationService {
@@ -92,23 +91,26 @@ public class IntegrationService {
         BeanUtils.copyProperties(integrationToSearchResponseData(integration), data);
         data.setDeviceCount(deviceServiceProvider.countByIntegrationId(integrationId));
         data.setEntityCount(entityServiceProvider.countAllEntitiesByIntegrationId(integrationId));
-        data.setIntegrationEntities(entityServiceProvider.findByTargetId(AttachTargetType.INTEGRATION, integrationId)
+        List<Entity> entities = entityServiceProvider.findByTargetId(AttachTargetType.INTEGRATION, integrationId);
+        JsonNode entityValues = entityServiceProvider.findExchangeValuesByKeys(entities.stream().map(Entity::getKey).toList());
+        data.setIntegrationEntities(entities
                 .stream().flatMap((Entity pEntity) -> {
-                    ArrayList<Entity> entities = new ArrayList<>();
-                    entities.add(pEntity);
+                    ArrayList<Entity> flatEntities = new ArrayList<>();
+                    flatEntities.add(pEntity);
 
                     List<Entity> childrenEntities = pEntity.getChildren();
                     if (childrenEntities != null) {
-                        entities.addAll(childrenEntities);
+                        flatEntities.addAll(childrenEntities);
                     }
 
-                    return entities.stream().map(entity -> IntegrationEntityData
+                    return flatEntities.stream().map(entity -> IntegrationEntityData
                             .builder()
                             .id(entity.getId().toString())
                             .key(entity.getKey())
                             .type(entity.getType())
                             .valueType(entity.getValueType())
                             .valueAttribute(entity.getAttributes())
+                            .value(entityValues.get(entity.getKey()))
                             .build());
                 }).toList());
         return data;

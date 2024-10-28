@@ -47,6 +47,10 @@ public class MscWebhookService {
     public void init() {
         val webhookSettingsKey = MscConnectionPropertiesEntities.getKey(MscConnectionPropertiesEntities.Fields.webhook);
         val webhookSettings = entityServiceProvider.findExchangeByKey(webhookSettingsKey, MscConnectionPropertiesEntities.Webhook.class);
+        if (webhookSettings == null) {
+            log.info("Webhook settings not found");
+            return;
+        }
         enabled = Boolean.TRUE.equals(webhookSettings.getEnabled());
         if (webhookSettings.getSecretKey() != null && !webhookSettings.isEmpty()) {
             mac = HMacUtils.getMac(webhookSettings.getSecretKey());
