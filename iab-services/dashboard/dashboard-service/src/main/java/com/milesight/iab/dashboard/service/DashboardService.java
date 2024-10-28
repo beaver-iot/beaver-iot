@@ -86,7 +86,7 @@ public class DashboardService {
             List<DashboardWidgetPO> dashboardWidgetPOList = new ArrayList<>();
             dashboardWidgetDTOList.forEach(dashboardWidgetDTO -> {
                 String widgetId = dashboardWidgetDTO.getWidgetId();
-                String data = dashboardWidgetDTO.getData();
+                Map<String, Object> data = dashboardWidgetDTO.getData();
                 if (widgetId == null) {
                     DashboardWidgetPO dashboardWidgetPO = new DashboardWidgetPO();
                     dashboardWidgetPO.setId(SnowflakeUtil.nextId());

@@ -12,6 +12,6 @@ import org.springframework.data.jpa.repository.Query;
 public interface DashboardWidgetRepository extends BaseJpaRepository<DashboardWidgetPO, Long> {
 
     @Modifying
-    @Query(value = "delete from dashboard_widget d where d.dashboard_id = ?1", nativeQuery = true)
+    @Query(value = "delete from t_dashboard_widget d where d.dashboard_id = ?1", nativeQuery = true)
     void deleteByDashboardId(Long dashboardId);
 }

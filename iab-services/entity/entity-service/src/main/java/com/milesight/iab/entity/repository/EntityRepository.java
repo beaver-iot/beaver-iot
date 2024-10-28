@@ -12,7 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 public interface EntityRepository extends BaseJpaRepository<EntityPO, Long> {
 
     @Modifying
-    @Query(value = "delete from entity d where d.attach_target_id = ?1", nativeQuery = true)
+    @Query(value = "delete from t_entity d where d.attach_target_id = ?1", nativeQuery = true)
     void deleteByTargetId(String targetId);
 
 }
