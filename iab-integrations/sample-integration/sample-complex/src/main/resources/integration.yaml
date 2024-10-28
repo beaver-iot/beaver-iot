@@ -1,6 +1,6 @@
 
 integration:
-  demo-msc-integration:
+  demo-complex-integration:
      name: demo-complex-integration
      enabled: true
 #     flow-exchange-down-handler: direct:mscExchangeDownHandler

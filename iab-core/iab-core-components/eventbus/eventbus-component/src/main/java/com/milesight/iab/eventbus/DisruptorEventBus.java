@@ -81,7 +81,7 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
     }
 
     @Override
-    public Object handle(T event) {
+    public EventResponse handle(T event) {
 
         EventResponse eventResponse = new EventResponse();
 

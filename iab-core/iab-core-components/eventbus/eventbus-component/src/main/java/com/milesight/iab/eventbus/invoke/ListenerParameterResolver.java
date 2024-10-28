@@ -24,7 +24,7 @@ import java.util.Map;
 public class ListenerParameterResolver {
 
     public <T extends Event<? extends IdentityKey>> T resolveEvent(@Nullable Class<?> parameterTypes, T event, String[] matchMultiKeys){
-        if(ExchangePayload.class.isAssignableFrom(event.getPayload().getClass())){
+        if(parameterTypes != null && ExchangePayload.class.isAssignableFrom(parameterTypes)){
 
             //filter key
             ExchangePayload payload = (ExchangePayload) event.getPayload();
