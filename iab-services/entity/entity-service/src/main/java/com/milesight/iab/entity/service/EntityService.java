@@ -85,8 +85,6 @@ public class EntityService implements EntityServiceProvider {
     ExchangeFlowExecutor exchangeFlowExecutor;
     @Autowired
     private EntityManager entityManager;
-    @Autowired
-    EnhancePropertySourcesPropertyResolver enhancePropertySourcesPropertyResolver;
 
     private final Comparator<Byte[]> byteArrayComparator = (a, b) -> {
         if (a == b) return 0;
@@ -550,7 +548,7 @@ public class EntityService implements EntityServiceProvider {
             exchangeValueNode.fieldNames().forEachRemaining(exchangeKey -> {
                 try {
                     for (Field field : fields) {
-                        String realFieldName = enhancePropertySourcesPropertyResolver.resolveEntityNamePlaceholders(field);
+                        String realFieldName = new EnhancePropertySourcesPropertyResolver().resolveEntityNamePlaceholders(field);
                         if (realFieldName == null) {
                             continue;
                         }
