@@ -20,6 +20,7 @@ public class CustomOAuth2Exception {
 
     public static void exceptionResponse(HttpServletResponse response, Exception exception) throws IOException {
         String code = ErrorCode.AUTHENTICATION_FAILED.getErrorCode();
+        int httpStatus = ErrorCode.AUTHENTICATION_FAILED.getStatus();
         String msg;
         if (exception instanceof OAuth2AuthenticationException e) {
             String errorCode = e.getError().getErrorCode();
@@ -29,7 +30,7 @@ public class CustomOAuth2Exception {
             msg = OAuth2ErrorCodes.INVALID_REQUEST + ":" + exception.getMessage();
         }
         ResponseBody responseBody = ResponseBuilder.fail(code, msg);
-        OAuth2ResponseUtils.response(response, responseBody);
+        OAuth2ResponseUtils.response(response, httpStatus, responseBody);
     }
 
 }

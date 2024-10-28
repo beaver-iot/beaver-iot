@@ -12,7 +12,7 @@ public enum ErrorCode implements ErrorCodeSpec {
     REQUEST_TOO_FREQUENTLY(HttpStatus.TOO_MANY_REQUESTS.value(),"request_too_frequently"),
     PARAMETER_SYNTAX_ERROR(HttpStatus.BAD_REQUEST.value(),"parameter_syntax_error"),
     DATA_NO_FOUND(HttpStatus.NOT_FOUND.value(), "data_no_found"),
-    TOKEN_EXPIRED(HttpStatus.BAD_REQUEST.value(),"token_expired"),
+    TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED.value(),"token_expired"),
     FORBIDDEN_PERMISSION(HttpStatus.UNAUTHORIZED.value(),"forbidden_permission"),
     METHOD_NOT_ALLOWED(HttpStatus.BAD_REQUEST.value(),"method_not_allowed"),
     TOKEN_INVALID(HttpStatus.UNAUTHORIZED.value(),"token_invalid"),

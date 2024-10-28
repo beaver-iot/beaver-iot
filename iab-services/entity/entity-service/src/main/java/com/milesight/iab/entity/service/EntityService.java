@@ -17,6 +17,7 @@ import com.milesight.iab.context.integration.model.Entity;
 import com.milesight.iab.context.integration.model.ExchangePayload;
 import com.milesight.iab.context.integration.model.Integration;
 import com.milesight.iab.context.security.SecurityUserContext;
+import com.milesight.iab.context.support.EnhancePropertySourcesPropertyResolver;
 import com.milesight.iab.data.filterable.Filterable;
 import com.milesight.iab.device.dto.DeviceNameDTO;
 import com.milesight.iab.device.facade.IDeviceFacade;
@@ -84,6 +85,8 @@ public class EntityService implements EntityServiceProvider {
     ExchangeFlowExecutor exchangeFlowExecutor;
     @Autowired
     private EntityManager entityManager;
+    @Autowired
+    EnhancePropertySourcesPropertyResolver enhancePropertySourcesPropertyResolver;
 
     private final Comparator<Byte[]> byteArrayComparator = (a, b) -> {
         if (a == b) return 0;
@@ -547,8 +550,12 @@ public class EntityService implements EntityServiceProvider {
             exchangeValueNode.fieldNames().forEachRemaining(exchangeKey -> {
                 try {
                     for (Field field : fields) {
+                        String realFieldName = enhancePropertySourcesPropertyResolver.resolveEntityNamePlaceholders(field);
+                        if (realFieldName == null) {
+                            continue;
+                        }
                         String keyFieldName = exchangeKey.substring(exchangeKey.lastIndexOf(".") + 1);
-                        if (field.getName().equals(keyFieldName)) {
+                        if (realFieldName.equals(keyFieldName)) {
                             field.setAccessible(true);
                             field.set(instance, JsonUtils.cast(exchangeValueNode.get(exchangeKey), field.getType()));
                             break;

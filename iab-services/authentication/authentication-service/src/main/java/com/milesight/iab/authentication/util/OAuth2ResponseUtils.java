@@ -14,8 +14,8 @@ import java.nio.charset.StandardCharsets;
  */
 public class OAuth2ResponseUtils {
 
-    public static void response(HttpServletResponse response, ResponseBody responseBody) throws IOException {
-        response.setStatus(HttpServletResponse.SC_OK);
+    public static void response(HttpServletResponse response, int httpStatus, ResponseBody responseBody) throws IOException {
+        response.setStatus(httpStatus);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
         response.getWriter().write(JsonUtils.toJSON(responseBody));
