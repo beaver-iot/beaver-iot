@@ -401,11 +401,15 @@ public class EntityService implements EntityServiceProvider {
             if (payload instanceof Boolean) {
                 entityLatestPO.setValueBoolean((Boolean) payload);
             } else if (payload instanceof Integer) {
-                entityLatestPO.setValueInt((Integer) payload);
+                entityLatestPO.setValueInt(((Integer) payload).longValue());
+            } else if (payload instanceof Long) {
+                entityLatestPO.setValueInt((Long) payload);
             } else if (payload instanceof String) {
                 entityLatestPO.setValueString((String) payload);
             } else if (payload instanceof Float) {
-                entityLatestPO.setValueFloat((Float) payload);
+                entityLatestPO.setValueFloat(((Float) payload).doubleValue());
+            } else if (payload instanceof Double) {
+                entityLatestPO.setValueFloat((Double) payload);
             } else if (payload instanceof Byte[]) {
                 entityLatestPO.setValueBinary((Byte[]) payload);
             } else {

@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
@@ -266,8 +267,9 @@ public class MscDataSyncService {
         val lastSyncTimeKey = MscIntegrationConstants.InternalPropertyKey.getLastSyncTimeKey(device.getKey());
 
         int lastSyncTime = 0;
-        val lastSyncTimeObj = entityServiceProvider.findExchangeByKey(lastSyncTimeKey, ExchangePayload.class)
-                .getPayload(MscIntegrationConstants.InternalPropertyKey.LAST_SYNC_TIME);
+        val lastSyncTimeObj = Optional.ofNullable(entityServiceProvider.findExchangeByKey(lastSyncTimeKey, ExchangePayload.class))
+                .map(v -> v.getPayload(MscIntegrationConstants.InternalPropertyKey.LAST_SYNC_TIME))
+                .orElse(null);
         if (lastSyncTimeObj instanceof Number t) {
             lastSyncTime = t.intValue();
         }

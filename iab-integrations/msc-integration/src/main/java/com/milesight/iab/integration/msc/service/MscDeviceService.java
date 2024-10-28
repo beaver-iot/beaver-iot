@@ -147,6 +147,7 @@ public class MscDeviceService {
         device.setIdentifier(identifier);
         device.setAdditional(Map.of("deviceId", deviceId));
         device.setEntities(entities);
+        device.initializeProperties(MscIntegrationConstants.INTEGRATION_IDENTIFIER);
         deviceServiceProvider.save(device);
         return device;
     }

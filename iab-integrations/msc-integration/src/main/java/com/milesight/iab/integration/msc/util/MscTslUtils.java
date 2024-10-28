@@ -16,6 +16,7 @@ import com.milesight.iab.context.integration.enums.AccessMod;
 import com.milesight.iab.context.integration.enums.EntityValueType;
 import com.milesight.iab.context.integration.model.Entity;
 import com.milesight.iab.context.integration.model.ExchangePayload;
+import com.milesight.iab.integration.msc.constant.MscIntegrationConstants;
 import lombok.extern.slf4j.*;
 import lombok.*;
 import org.jetbrains.annotations.NotNull;
@@ -204,6 +205,9 @@ public class MscTslUtils {
                         val dataSpec = param.getDataSpec();
                         val valueType = checkParentExistsAndGetValueType(id, dataSpec, existsIdSet);
                         val name = param.getName();
+                        if (valueType == null) {
+                            return null;
+                        }
                         return new EntityBuilder()
                                 .identifier(id)
                                 .event(name)

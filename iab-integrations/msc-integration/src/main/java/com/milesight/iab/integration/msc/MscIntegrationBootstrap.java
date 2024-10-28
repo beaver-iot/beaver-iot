@@ -44,6 +44,7 @@ public class MscIntegrationBootstrap implements IntegrationBootstrap {
     public void onDestroy(Integration integrationConfig) {
         log.info("MSC integration stopping");
         mscDataFetchingService.stop();
+        // todo mark connection and webhook not ready?
         log.info("MSC integration stopped");
     }
 

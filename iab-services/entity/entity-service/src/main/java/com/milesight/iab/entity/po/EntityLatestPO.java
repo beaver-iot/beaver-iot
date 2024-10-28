@@ -22,8 +22,8 @@ public class EntityLatestPO {
     @Id
     private Long id;
     private Long entityId;
-    private Integer valueInt;
-    private Float valueFloat;
+    private Long valueInt;
+    private Double valueFloat;
     private Boolean valueBoolean;
     private String valueString;
     private Byte[] valueBinary;
