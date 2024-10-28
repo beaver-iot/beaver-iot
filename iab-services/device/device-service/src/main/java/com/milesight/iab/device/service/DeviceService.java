@@ -59,7 +59,7 @@ public class DeviceService {
         Integration integrationConfig = integrationServiceProvider.getIntegration(integrationIdentifier);
         if (integrationConfig == null) {
             throw ServiceException
-                    .with("INTEGRATION_NOT_FOUND", "integration " + integrationIdentifier + " not found!")
+                    .with(ErrorCode.DATA_NO_FOUND.getErrorCode(), "integration " + integrationIdentifier + " not found!")
                     .status(HttpStatus.BAD_REQUEST.value())
                     .build();
         }
@@ -75,7 +75,7 @@ public class DeviceService {
         String addDeviceEntityId = integrationConfig.getEntityIdentifierAddDevice();
         if (addDeviceEntityId == null) {
             throw ServiceException
-                    .with("INTEGRATION_NO_ADD_DEVICE", "integration " + integrationIdentifier + " cannot add device!")
+                    .with(ErrorCode.PARAMETER_VALIDATION_FAILED.getErrorCode(), "integration " + integrationIdentifier + " cannot add device!")
                     .status(HttpStatus.BAD_REQUEST.value())
                     .build();
         }
