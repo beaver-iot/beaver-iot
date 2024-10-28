@@ -16,7 +16,6 @@ public class BaseEntityBuilder<T extends BaseEntityBuilder> {
 
     protected String identifier;
     protected AccessMod accessMod;
-    protected boolean syncCall = true;
 
     protected EntityType type;
     protected EntityValueType valueType;
@@ -57,7 +56,6 @@ public class BaseEntityBuilder<T extends BaseEntityBuilder> {
     public T service(String name, boolean syncCall) {
         this.name = name;
         this.type = EntityType.SERVICE;
-        this.syncCall = syncCall;
         if(!StringUtils.hasLength(identifier)){
             this.identifier = name;
         }
@@ -77,7 +75,6 @@ public class BaseEntityBuilder<T extends BaseEntityBuilder> {
         entity.setName(name);
         entity.setIdentifier(identifier);
         entity.setAccessMod(accessMod);
-        entity.setSyncCall(syncCall);
         entity.setValueType(valueType);
         entity.setType(type);
         entity.setAttributes(attributes);

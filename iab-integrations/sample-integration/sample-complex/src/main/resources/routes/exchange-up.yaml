@@ -1,9 +1,9 @@
-- from:
-    uri: "undertow:http://0.0.0.0:8088/msc-integration/webhook-complex"
-    steps:
-#      - bean: "demoMscTokenValidator"
-      - bean: "demoMscExchangeTransformer"
-      - to: "direct:innerExchangeUpFlow"
+#- from:
+#    uri: "undertow:http://0.0.0.0:9088/msc-integration/webhook-complex"
+#    steps:
+##      - bean: "demoMscTokenValidator"
+#      - bean: "demoMscExchangeTransformer"
+#      - to: "direct:innerExchangeUpFlow"
 
 - from:
     uri: "timer://myTimer?period=500000"

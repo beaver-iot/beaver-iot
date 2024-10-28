@@ -15,12 +15,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.milesight.iab.context.constants.ExchangeContextKeys.*;
+
 /**
  * @author leon
  */
 public class ExchangePayload extends HashMap<String,Object> implements ExchangePayloadAccessor, EventContextAccessor, IdentityKey {
 
-    private transient Map<String,Object> context;
+    private transient Map<String,Object> context = new HashMap<>();
 
     private long timestamp;
 
@@ -102,14 +104,14 @@ public class ExchangePayload extends HashMap<String,Object> implements ExchangeP
         return new ExchangePayload(payload.getAllPayloads());
     }
 
-    public static <T extends ExchangePayloadAccessor> ExchangePayload createFrom(T payload, List<String> keys){
-        if(ObjectUtils.isEmpty(payload) || ObjectUtils.isEmpty(keys)){
+    public static <T extends ExchangePayloadAccessor> ExchangePayload createFrom(T payload, List<String> assignKeys){
+        if(ObjectUtils.isEmpty(payload) || ObjectUtils.isEmpty(assignKeys)){
             return new ExchangePayload(payload.getAllPayloads());
         }
 
         Map<String, Object> filteredMap = payload.getAllPayloads().entrySet()
                 .stream()
-                .filter(entry -> CollectionUtils.contains(keys.iterator(), entry.getKey()))
+                .filter(entry -> CollectionUtils.contains(assignKeys.iterator(), entry.getKey()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         return new ExchangePayload(filteredMap);
     }

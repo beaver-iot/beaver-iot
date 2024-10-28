@@ -21,7 +21,7 @@ public class DemoIntegrationEntities extends ExchangePayload {
     @Entity(type = EntityType.SERVICE)
     private String deviceSync;
 
-    @Entity(type = EntityType.SERVICE, syncCall = false)
+    @Entity(type = EntityType.SERVICE)
     private DemoGroupSettingEntities connect;
 
     @Data

@@ -1,5 +1,7 @@
 package com.milesight.iab.entity.rule;
 
+import com.milesight.iab.base.enums.ErrorCode;
+import com.milesight.iab.base.exception.ServiceException;
 import com.milesight.iab.context.api.EntityServiceProvider;
 import com.milesight.iab.context.integration.model.Entity;
 import com.milesight.iab.context.integration.model.EventContextAccessor;
@@ -15,6 +17,8 @@ import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.milesight.iab.context.constants.ExchangeContextKeys.EXCHANGE_KEY_ENTITIES;
 
 /**
  * @author leon
@@ -38,19 +42,15 @@ public class GenericExchangeValidator implements PredicateNode<ExchangePayload> 
             return false;
         }
 
-        Map<String, Entity> entityMap = new HashMap<>();
+        Map<String, Entity> entityMap = entityServiceProvider.findByKeys(allPayloads.keySet().toArray(String[]::new));
 
-        boolean isValid = allPayloads.keySet().stream().allMatch(k -> {
-            Entity entity = entityServiceProvider.findByKey(k);
-            entityMap.put(k, entity);
-            return validateEntity(entity);
-        });
+        boolean isValid = allPayloads.keySet().stream().allMatch(k -> validateEntity(entityMap.get(k)));
 
         if (!isValid) {
             return false;
         }
 
-        exchange.putContext(EventContextAccessor.EXCHANGE_KEY_ENTITIES, entityMap);
+        exchange.putContext(EXCHANGE_KEY_ENTITIES, entityMap);
 
         return true;
     }
@@ -58,16 +58,19 @@ public class GenericExchangeValidator implements PredicateNode<ExchangePayload> 
     private boolean validateEntity(Entity entity) {
 
         if (entity == null) {
-            log.info("ExchangeValidator matches failed, entity is empty ");
-            return false;
+            log.warn("ExchangeValidator matches failed, entity is empty ");
+//            return false;
+            throw new ServiceException(ErrorCode.DATA_NO_FOUND, "ExchangeValidator matches failed, entity is empty");
         }
         if (!entity.loadActiveIntegration().isPresent()) {
-            log.info("ExchangeValidator matches failed, activeIntegration is empty :{}", entity.getIntegrationId());
-            return false;
+            log.warn("ExchangeValidator matches failed, activeIntegration is empty :{}", entity.getIntegrationId());
+//            return false;
+            throw new ServiceException(ErrorCode.DATA_NO_FOUND, "ExchangeValidator matches failed, activeIntegration is empty " + entity.getIntegrationId());
         }
         if (StringUtils.hasText(entity.getDeviceKey()) && !entity.loadDevice().isPresent()) {
-            log.info("ExchangeValidator matches failed, device is empty : {}", entity.getDeviceKey());
-            return false;
+            log.warn("ExchangeValidator matches failed, device is empty : {}", entity.getDeviceKey());
+//            return false;
+            throw new ServiceException(ErrorCode.DATA_NO_FOUND, "ExchangeValidator matches failed, device is empty " + entity.getDeviceKey());
         }
         return true;
     }

@@ -35,7 +35,7 @@ public enum AnnotationEntityCache {
         try {
             return clazz.getMethod(getterName);
         } catch (NoSuchMethodException e) {
-            log.warn("No getter method found for field :" + fieldName + ",This cannot be used to receive ExchangePayload data");
+            log.info("No getter method found for field :" + fieldName + ",This cannot be used to receive ExchangePayload data");
         }
         return null;
     }

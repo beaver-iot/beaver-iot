@@ -1,5 +1,6 @@
 package com.milesight.iab.context.integration.entity.annotation;
 
+import com.milesight.iab.base.utils.StringUtils;
 import com.milesight.iab.context.constants.IntegrationConstants;
 import com.milesight.iab.context.integration.builder.AttributeBuilder;
 import com.milesight.iab.context.integration.builder.DeviceBuilder;
@@ -68,13 +69,11 @@ public class AnnotationEntityLoader implements EntityLoader {
                 EntityBuilder entityBuilder = new EntityBuilder(integration).identifier(resolvePlaceholders(entityAnnotation.identifier(), field, propertyResolver)).type(entityAnnotation.type()).attributes(resolveAttributes(entityAnnotation.attributes())).valueType(valueType);
                 switch (entityAnnotation.type()) {
                     case EVENT:
+                    case SERVICE:
                         entityBuilder.event(name);
                         break;
                     case PROPERTY:
                         entityBuilder.property(name, entityAnnotation.accessMod());
-                        break;
-                    case SERVICE:
-                        entityBuilder.service(name, entityAnnotation.syncCall());
                         break;
                     default:
                         break;
@@ -84,7 +83,6 @@ public class AnnotationEntityLoader implements EntityLoader {
                     children.forEach(entity -> {
                         entity.setType(entityAnnotation.type());
                         entity.setAccessMod(entityAnnotation.accessMod());
-                        entity.setSyncCall(entityAnnotation.syncCall());
                     });
                     entityBuilder.children(children);
                 }
@@ -112,7 +110,7 @@ public class AnnotationEntityLoader implements EntityLoader {
     }
 
     private String resolvePlaceholders(String value, Field field, EnhancePropertySourcesPropertyResolver propertyResolver) {
-        Map<String, Object> dynamicProperties = Map.of(REPLACE_HOLDER_FIELD_NAME, field.getName());
+        Map<String, Object> dynamicProperties = Map.of(REPLACE_HOLDER_FIELD_NAME, StringUtils.toUnderlineCase(field.getName()));
         return propertyResolver.resolvePlaceholders(value, dynamicProperties);
     }
 

@@ -9,6 +9,9 @@ import com.milesight.iab.rule.RuleEngineExecutor;
 import com.milesight.iab.rule.constants.RuleNodeNames;
 import lombok.extern.slf4j.Slf4j;
 
+import static com.milesight.iab.context.constants.ExchangeContextKeys.EXCHANGE_KEY_EVENT_TYPE;
+import static com.milesight.iab.context.constants.ExchangeContextKeys.EXCHANGE_KEY_SYNC_CALL;
+
 /**
  * @author leon
  */
@@ -55,10 +58,10 @@ public class GenericExchangeFlowExecutor implements ExchangeFlowExecutor {
 
     private void initializeEventContext(String eventType, ExchangePayload payload, boolean syncCall) {
         if(syncCall){
-            payload.putContext(EventContextAccessor.EXCHANGE_KEY_SYNC_CALL, true);
+            payload.putContext(EXCHANGE_KEY_SYNC_CALL, true);
         }else{
-            payload.putContext(EventContextAccessor.EXCHANGE_KEY_SYNC_CALL, false);
+            payload.putContext(EXCHANGE_KEY_SYNC_CALL, false);
         }
-        payload.putContext(EventContextAccessor.EXCHANGE_KEY_EVENT_TYPE, eventType);
+        payload.putContext(EXCHANGE_KEY_EVENT_TYPE, eventType);
     }
 }

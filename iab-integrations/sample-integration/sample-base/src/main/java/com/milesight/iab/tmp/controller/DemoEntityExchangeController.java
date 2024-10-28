@@ -2,8 +2,11 @@ package com.milesight.iab.tmp.controller;
 
 import com.milesight.iab.context.api.ExchangeFlowExecutor;
 import com.milesight.iab.context.integration.model.ExchangePayload;
+import com.milesight.iab.context.support.YamlPropertySourceFactory;
 import com.milesight.iab.eventbus.api.EventResponse;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.PropertySource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,9 +22,13 @@ public class DemoEntityExchangeController  {
     private ExchangeFlowExecutor exchangeFlowExecutor;
 
 
+    @SneakyThrows
     @GetMapping("/api/v1/entity/{id}/dynamic-form")
-    public String dynamicForm(){
-        return null;
+    public String dynamicForm() throws ClassNotFoundException {
+        Class<?> aClass = DemoEntityExchangeController.class.getClassLoader().loadClass("com.milesight.iab.sample.annotation.AnnotationSampleIntegrationBootstrap");
+
+        PropertySource<?> a = new YamlPropertySourceFactory().createJarPropertySource("a", aClass.getProtectionDomain().getCodeSource().getLocation().getPath());
+        return "a";
     }
 
     @PostMapping("/api/v1/entity/exchange-down")

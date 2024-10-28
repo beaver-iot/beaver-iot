@@ -15,10 +15,10 @@ import lombok.*;
 @IntegrationEntities
 public class MscServiceEntities extends ExchangePayload {
 
-    @Entity(type = EntityType.SERVICE, syncCall = false)
+    @Entity(type = EntityType.SERVICE)
     private AddDevice addDevice;
 
-    @Entity(type = EntityType.SERVICE, syncCall = false)
+    @Entity(type = EntityType.SERVICE)
     private DeleteDevice deleteDevice;
 
     @EqualsAndHashCode(callSuper = true)

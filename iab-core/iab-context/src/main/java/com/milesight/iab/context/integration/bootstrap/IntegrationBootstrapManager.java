@@ -4,8 +4,8 @@ import com.milesight.iab.base.exception.BootstrapException;
 import com.milesight.iab.base.exception.ConfigurationException;
 import com.milesight.iab.context.api.IntegrationServiceProvider;
 import com.milesight.iab.context.constants.IntegrationConstants;
-import com.milesight.iab.context.integration.entity.EntityLoader;
 import com.milesight.iab.context.integration.IntegrationContext;
+import com.milesight.iab.context.integration.entity.EntityLoader;
 import com.milesight.iab.context.integration.model.Integration;
 import com.milesight.iab.context.support.YamlPropertySourceFactory;
 import lombok.SneakyThrows;
@@ -14,15 +14,9 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.boot.context.properties.bind.BindResult;
 import org.springframework.boot.context.properties.bind.Binder;
-import org.springframework.context.annotation.DependsOn;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.env.StandardEnvironment;
-import org.springframework.core.io.FileUrlResource;
-import org.springframework.core.io.support.EncodedResource;
-import org.springframework.core.io.support.PropertySourceFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
@@ -36,7 +30,7 @@ import java.util.Map;
 @Slf4j
 public class IntegrationBootstrapManager implements SmartInitializingSingleton {
 
-    private PropertySourceFactory propertySourceFactory;
+    private YamlPropertySourceFactory propertySourceFactory;
     private IntegrationContext integrationContext = new IntegrationContext();
     private ObjectProvider<EntityLoader> entityLoaders;
     private ObjectProvider<IntegrationBootstrap> integrationBootstrapList;
@@ -52,31 +46,39 @@ public class IntegrationBootstrapManager implements SmartInitializingSingleton {
     public void onStarted() {
 
         integrationBootstrapList.orderedStream().forEach(integrationBootstrap -> {
+            try{
+                long currentTimeMillis = System.currentTimeMillis();
 
-            PropertySource<?> integrationPropertySource = loadIntegrationPropertySource(integrationBootstrap);
+                PropertySource<?> integrationPropertySource = loadIntegrationPropertySource(integrationBootstrap);
 
-            StandardEnvironment integrationEnvironment = createIntegrationEnvironment(integrationPropertySource);
+                StandardEnvironment integrationEnvironment = createIntegrationEnvironment(integrationPropertySource);
 
-            Integration integration = buildIntegrationConfig(integrationBootstrap.getClass(), integrationEnvironment);
+                Integration integration = buildIntegrationConfig(integrationBootstrap.getClass(), integrationEnvironment);
 
-            loadIntegrationEntityConfig(integration, integrationEnvironment);
+                loadIntegrationEntityConfig(integration, integrationEnvironment);
 
-            integrationBootstrap.onStarted(integration);
+                integrationBootstrap.onStarted(integration);
 
-            integration.initializeProperties();
+                integration.initializeProperties();
 
-            if (!integration.validate()) {
-                throw new BootstrapException("Failed to build integration config");
+                if (!integration.validate()) {
+                    throw new BootstrapException("Failed to build integration config");
+                }
+
+                integrationContext.cacheIntegration(integrationBootstrap, integration, integrationEnvironment);
+
+                int allDeviceEntitySize = integration.getInitialDevices().stream().mapToInt(device -> ObjectUtils.isEmpty(device.getEntities()) ? 0 : device.getEntities().size()).sum();
+
+                long cost = System.currentTimeMillis() - currentTimeMillis;
+
+                log.debug("Integration {} started, Contains device size {}, device entity size {}, and integrated entity size {}, cost : {}", integration.getName(), integration.getInitialDevices().size(), allDeviceEntitySize, integration.getInitialEntities().size(),cost);
+            }catch (Exception e) {
+                log.error("Failed to load integration yaml", e);
             }
-
-            integrationContext.cacheIntegration(integrationBootstrap, integration, integrationEnvironment);
-
-            int allDeviceEntitySize = integration.getInitialDevices().stream().mapToInt(device -> ObjectUtils.isEmpty(device.getEntities()) ? 0 : device.getEntities().size()).sum();
-
-            log.debug("Integration {} started, Contains device size {}, device entity size {}, and integrated entity size {}", integration.getName(), integration.getInitialDevices().size(), allDeviceEntitySize, integration.getInitialEntities().size());
         });
 
         integrationStorageProvider.batchSave(integrationContext.getAllIntegrations().values());
+
     }
 
     public IntegrationContext getIntegrationContext() {
@@ -86,14 +88,7 @@ public class IntegrationBootstrapManager implements SmartInitializingSingleton {
     private PropertySource<?> loadIntegrationPropertySource(IntegrationBootstrap integrationBootstrap) {
         try {
             String path = integrationBootstrap.getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
-            FileUrlResource fileUrlResource = new FileUrlResource(path + IntegrationConstants.INTEGRATION_YAML);
-            if (!fileUrlResource.exists()) {
-                fileUrlResource = new FileUrlResource(path + IntegrationConstants.INTEGRATION_YML);
-                if(!fileUrlResource.exists()){
-                    throw new BootstrapException("Integration yaml not found, please check integration.yaml");
-                }
-            }
-            return propertySourceFactory.createPropertySource(integrationBootstrap.getClass().getSimpleName(), new EncodedResource(fileUrlResource));
+            return propertySourceFactory.createJarPropertySource(integrationBootstrap.getClass().getSimpleName(), path);
         } catch (IOException e) {
             throw new ConfigurationException("Failed to load integration yaml", e);
         }

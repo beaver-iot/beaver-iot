@@ -14,7 +14,7 @@ import com.milesight.iab.context.integration.model.ExchangePayloadAccessor;
 public class DemoMscServiceEntities extends ExchangePayload {
 
     // business logic
-    @Entity(type = EntityType.SERVICE, syncCall = false)
+    @Entity(type = EntityType.SERVICE)
     private String connect;
 
     @Entity(type = EntityType.SERVICE)

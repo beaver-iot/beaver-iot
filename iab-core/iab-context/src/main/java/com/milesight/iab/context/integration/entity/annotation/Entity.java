@@ -21,8 +21,6 @@ public @interface Entity {
 
     AccessMod accessMod() default AccessMod.RW;
 
-    boolean syncCall() default true;
-
     EntityType type() default EntityType.PROPERTY;
 
     Attribute[] attributes() default {};

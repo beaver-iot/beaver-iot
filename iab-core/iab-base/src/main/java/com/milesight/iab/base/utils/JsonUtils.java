@@ -4,10 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.milesight.iab.base.exception.JSONException;
 import org.springframework.util.StringUtils;
@@ -26,7 +23,9 @@ public class JsonUtils {
             .configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true)
             .serializationInclusion(JsonInclude.Include.NON_NULL)
             .build();
-
+    static {
+        JSON.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
+    }
     public static ObjectMapper getObjectMapper() {
         return JSON;
     }

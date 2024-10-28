@@ -15,14 +15,11 @@ spring:
       hibernate.hbm2ddl.auto: create-drop
       hibernate.dialect: org.hibernate.dialect.H2Dialect
   datasource:
-    url: "${SPRING_DATASOURCE_URL:jdbc:h2:tcp://localhost/~/test}"
+#    url: "${SPRING_DATASOURCE_URL:jdbc:h2:tcp://localhost/~/test}"
+    url: "${SPRING_DATASOURCE_URL:jdbc:h2:mem:test}"
     username: "${SPRING_DATASOURCE_USERNAME:sa}"
     password: "${SPRING_DATASOURCE_PASSWORD:}"
     driverClassName: "${SPRING_DRIVER_CLASS_NAME:org.h2.Driver}"
-  liquibase:
-    enabled: false
-    contexts: init,dev,prod,test
-    change-log: 'classpath*:db/h2/changelog.yaml'
 
 camel:
   springboot:

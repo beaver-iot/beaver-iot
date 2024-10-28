@@ -9,11 +9,6 @@ import java.util.Map;
  */
 public interface EventContextAccessor {
 
-    static final String EXCHANGE_KEY_ENTITIES = "KEY_ENTITIES";
-
-    static final String EXCHANGE_KEY_SYNC_CALL = "KEY_SYNC_CALL";
-
-    static final String EXCHANGE_KEY_EVENT_TYPE = "KEY_EVENT_TYPE";
 
     Map<String, Object> getContext();
 

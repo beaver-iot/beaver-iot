@@ -12,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import static com.milesight.iab.context.constants.ExchangeContextKeys.EXCHANGE_KEY_EVENT_TYPE;
+
 /**
  * @author leon
  */
@@ -28,7 +30,7 @@ public class GenericEventHandlerAction implements TransformerNode<ExchangePayloa
 
         log.debug("GenericEventHandlerAction processor {}", exchange.toString());
 
-        String eventType = (String) exchange.getContext(EventContextAccessor.EXCHANGE_KEY_EVENT_TYPE);
+        String eventType = (String) exchange.getContext(EXCHANGE_KEY_EVENT_TYPE);
 
         return (EventResponse) eventBus.handle(ExchangeEvent.of(eventType, exchange));
     }

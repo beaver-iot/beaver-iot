@@ -56,7 +56,7 @@ public class PackagesScanner {
         } catch (Throwable e ) {
             log.warn("Failed to scan classpath for unlisted classes:" + e.getMessage());
         }
-        log.debug("Scan package {} has been executed, cost time:{}ms", packageStr, System.currentTimeMillis() - currentTimeMillis);
+        log.trace("Scan package {} has been executed, cost time:{}ms", packageStr, System.currentTimeMillis() - currentTimeMillis);
     }
     private boolean isExcludePackages(String path) {
         if(ObjectUtils.isEmpty(excludePackages)){

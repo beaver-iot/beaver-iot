@@ -7,6 +7,8 @@ import com.milesight.iab.rule.api.PredicateNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import static com.milesight.iab.context.constants.ExchangeContextKeys.EXCHANGE_KEY_SYNC_CALL;
+
 /**
  * @author leon
  */
@@ -18,7 +20,7 @@ public class GenericSyncCallPredicate implements PredicateNode<ExchangePayload> 
     @Override
     public boolean matches(ExchangePayload exchange) {
 
-        Boolean syncCall = exchange.getContext(EventContextAccessor.EXCHANGE_KEY_SYNC_CALL, false);
+        Boolean syncCall = exchange.getContext(EXCHANGE_KEY_SYNC_CALL, false);
 
         log.debug("SyncCallPredicate Predicate {}", syncCall);
 
