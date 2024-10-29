@@ -180,7 +180,7 @@ public class MscTslUtils {
         idToService.forEach((key, serviceSpec) -> {
             val parentEntity = new EntityBuilder()
                     .identifier(serviceSpec.getId())
-                    .event(serviceSpec.getName())
+                    .service(serviceSpec.getName(), TslServiceSpec.CallTypeEnum.SYNC.equals(serviceSpec.getCallType()))
                     .valueType(EntityValueType.OBJECT)
                     .build();
             entities.add(parentEntity);
