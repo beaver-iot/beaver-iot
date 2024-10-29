@@ -17,5 +17,12 @@ public class OAuth2Properties {
     private String clientId;
     private String clientSecret;
     private String[] ignoreUrls;
+    private RsaKey rsa;
+
+    @Data
+    public static class RsaKey {
+        private String publicKey;
+        private String privateKey;
+    }
 
 }

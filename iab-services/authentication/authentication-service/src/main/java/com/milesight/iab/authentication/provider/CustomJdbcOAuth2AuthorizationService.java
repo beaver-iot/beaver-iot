@@ -1,14 +1,8 @@
 package com.milesight.iab.authentication.provider;
 
-import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcOperations;
-import org.springframework.jdbc.core.PreparedStatementSetter;
-import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
-import org.springframework.util.Assert;
-
-import java.sql.Types;
 
 /**
  * @author loong
@@ -27,11 +21,12 @@ public class CustomJdbcOAuth2AuthorizationService extends JdbcOAuth2Authorizatio
 
     @Override
     public void removeByPrincipalName(String principalName) {
-        Assert.notNull(principalName, "principalName cannot be null");
-        SqlParameterValue[] parameters = new SqlParameterValue[] {
-                new SqlParameterValue(Types.VARCHAR, principalName) };
-        PreparedStatementSetter pss = new ArgumentPreparedStatementSetter(parameters);
-        getJdbcOperations().update(REMOVE_PRINCIPAL_SQL, pss);
+        //FIXME 暂允许同一个user生成多个有效token
+//        Assert.notNull(principalName, "principalName cannot be null");
+//        SqlParameterValue[] parameters = new SqlParameterValue[] {
+//                new SqlParameterValue(Types.VARCHAR, principalName) };
+//        PreparedStatementSetter pss = new ArgumentPreparedStatementSetter(parameters);
+//        getJdbcOperations().update(REMOVE_PRINCIPAL_SQL, pss);
     }
 
 }
