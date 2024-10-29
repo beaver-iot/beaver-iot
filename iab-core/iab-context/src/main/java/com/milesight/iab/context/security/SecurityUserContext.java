@@ -10,7 +10,7 @@ import java.util.Map;
  */
 public class SecurityUserContext {
 
-    public static final String USER_ID = "userId";
+    public static final String USER_ID = "USER_ID";
 
     private static final ThreadLocal<SecurityUser> securityUserThreadLocal = new ThreadLocal<>();
 

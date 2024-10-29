@@ -9,6 +9,7 @@ import com.milesight.iab.context.api.DeviceServiceProvider;
 import com.milesight.iab.context.api.EntityServiceProvider;
 import com.milesight.iab.context.api.ExchangeFlowExecutor;
 import com.milesight.iab.context.api.IntegrationServiceProvider;
+import com.milesight.iab.context.constants.ExchangeContextKeys;
 import com.milesight.iab.context.integration.enums.AccessMod;
 import com.milesight.iab.context.integration.enums.AttachTargetType;
 import com.milesight.iab.context.integration.enums.EntityType;
@@ -103,7 +104,7 @@ public class EntityService implements EntityServiceProvider {
         return Integer.compare(a.length, b.length);
     };
 
-    private EntityPO saveConvert(Entity entity, Map<String, Long> deviceKeyMap, Map<String, EntityPO> dataEntityIdMap) {
+    private EntityPO saveConvert(Entity entity, Map<String, Long> deviceKeyMap, Map<String, EntityPO> dataEntityKeyMap) {
         try {
             AttachTargetType attachTarget;
             String attachTargetId;
@@ -119,7 +120,7 @@ public class EntityService implements EntityServiceProvider {
             }
             EntityPO entityPO = new EntityPO();
             Long entityId = null;
-            EntityPO dataEntityPO = dataEntityIdMap.get(entity.getKey());
+            EntityPO dataEntityPO = dataEntityKeyMap.get(entity.getKey());
             if (dataEntityPO == null) {
                 entityId = SnowflakeUtil.nextId();
             } else {
@@ -280,13 +281,13 @@ public class EntityService implements EntityServiceProvider {
         }
         List<String> entityKeys = entityList.stream().map(Entity::getKey).filter(StringUtils::hasText).toList();
         List<EntityPO> dataEntityPOList = getByKeys(entityKeys);
-        Map<String, EntityPO> dataEntityIdMap = new HashMap<>();
+        Map<String, EntityPO> dataEntityKeyMap = new HashMap<>();
         if (dataEntityPOList != null && !dataEntityPOList.isEmpty()) {
-            dataEntityIdMap.putAll(dataEntityPOList.stream().collect(Collectors.toMap(EntityPO::getKey, Function.identity())));
+            dataEntityKeyMap.putAll(dataEntityPOList.stream().collect(Collectors.toMap(EntityPO::getKey, Function.identity())));
         }
         List<EntityPO> entityPOList = new ArrayList<>();
         entityList.forEach(t -> {
-            EntityPO entityPO = saveConvert(t, deviceKeyMap, dataEntityIdMap);
+            EntityPO entityPO = saveConvert(t, deviceKeyMap, dataEntityKeyMap);
             entityPOList.add(entityPO);
         });
         entityRepository.saveAll(entityPOList);
@@ -375,7 +376,7 @@ public class EntityService implements EntityServiceProvider {
         if (entityPOList == null || entityPOList.isEmpty()) {
             return;
         }
-        Map<String, EntityPO> entityIdMap = entityPOList.stream().collect(Collectors.toMap(EntityPO::getKey, Function.identity()));
+        Map<String, EntityPO> entityKeyMap = entityPOList.stream().collect(Collectors.toMap(EntityPO::getKey, Function.identity()));
         List<Long> entityIds = entityPOList.stream().map(EntityPO::getId).toList();
         List<EntityLatestPO> nowEntityLatestPOList = entityLatestRepository.findAll(filter -> filter.in(EntityLatestPO.Fields.entityId, entityIds.toArray()));
         Map<Long, EntityLatestPO> entityIdDataMap = new HashMap<>();
@@ -384,7 +385,7 @@ public class EntityService implements EntityServiceProvider {
         }
         List<EntityLatestPO> entityLatestPOList = new ArrayList<>();
         payloads.forEach((entityKey, payload) -> {
-            EntityPO entityPO = entityIdMap.get(entityKey);
+            EntityPO entityPO = entityKeyMap.get(entityKey);
             if (entityPO == null) {
                 return;
             }
@@ -437,9 +438,9 @@ public class EntityService implements EntityServiceProvider {
         if (entityPOList == null || entityPOList.isEmpty()) {
             return;
         }
-        Map<String, EntityPO> entityIdMap = entityPOList.stream().collect(Collectors.toMap(EntityPO::getKey, Function.identity()));
+        Map<String, EntityPO> entityKeyMap = entityPOList.stream().collect(Collectors.toMap(EntityPO::getKey, Function.identity()));
         List<EntityHistoryUnionQuery> entityHistoryUnionQueryList = payloads.keySet().stream().map(o -> {
-            EntityPO entityPO = entityIdMap.get(o);
+            EntityPO entityPO = entityKeyMap.get(o);
             if (entityPO == null) {
                 return null;
             }
@@ -456,7 +457,7 @@ public class EntityService implements EntityServiceProvider {
         }
         List<EntityHistoryPO> entityHistoryPOList = new ArrayList<>();
         payloads.forEach((entityKey, payload) -> {
-            EntityPO entityPO = entityIdMap.get(entityKey);
+            EntityPO entityPO = entityKeyMap.get(entityKey);
             if (entityPO == null) {
                 return;
             }
@@ -466,7 +467,7 @@ public class EntityService implements EntityServiceProvider {
             String unionId = entityId + ":" + exchangePayload.getTimestamp();
             EntityHistoryPO dataHistory = existUnionIdMap.get(unionId);
             Long historyId = null;
-            String operatorId = SecurityUserContext.getUserId();
+            String operatorId = exchangePayload.getContext(ExchangeContextKeys.EXCHANGE_KEY_USER_ID, null);
             if (dataHistory == null) {
                 historyId = SnowflakeUtil.nextId();
                 entityHistoryPO.setCreatedBy(operatorId);
@@ -1002,8 +1003,8 @@ public class EntityService implements EntityServiceProvider {
             return;
         }
         ExchangePayload payload = new ExchangePayload(exchange);
-        payload.putContext(SecurityUserContext.USER_ID, SecurityUserContext.getUserId());
-        exchangeFlowExecutor.asyncExchangeDown(payload);
+        payload.putContext(ExchangeContextKeys.EXCHANGE_KEY_USER_ID, SecurityUserContext.getUserId());
+        exchangeFlowExecutor.syncExchangeDown(payload);
     }
 
     public void serviceCall(ServiceCallRequest serviceCallRequest) {
@@ -1018,6 +1019,7 @@ public class EntityService implements EntityServiceProvider {
             return;
         }
         ExchangePayload payload = new ExchangePayload(exchange);
+        payload.putContext(ExchangeContextKeys.EXCHANGE_KEY_USER_ID, SecurityUserContext.getUserId());
         exchangeFlowExecutor.syncExchangeDown(payload);
     }
 

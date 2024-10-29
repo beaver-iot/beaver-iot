@@ -1,5 +1,7 @@
 package com.milesight.iab.context.constants;
 
+import com.milesight.iab.context.security.SecurityUserContext;
+
 /**
  * @author leon
  */
@@ -10,5 +12,7 @@ public class ExchangeContextKeys {
     public static final String EXCHANGE_KEY_SYNC_CALL = "KEY_SYNC_CALL";
 
     public static final String EXCHANGE_KEY_EVENT_TYPE = "KEY_EVENT_TYPE";
+
+    public static final String EXCHANGE_KEY_USER_ID = SecurityUserContext.USER_ID;
 
 }

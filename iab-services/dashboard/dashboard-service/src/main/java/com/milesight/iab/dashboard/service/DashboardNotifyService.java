@@ -18,13 +18,8 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class DashboardNotifyService {
 
-    @EventSubscribe(payloadKeyExpression = "*.device.*")
+    @EventSubscribe(payloadKeyExpression = ".*")
     public void onDeviceDashboardNotify(ExchangeEvent exchangeEvent) {
-        doDashboardNotify(exchangeEvent.getPayload());
-    }
-
-    @EventSubscribe(payloadKeyExpression = "*.integration.*")
-    public void onIntegrationDashboardNotify(ExchangeEvent exchangeEvent) {
         doDashboardNotify(exchangeEvent.getPayload());
     }
 
