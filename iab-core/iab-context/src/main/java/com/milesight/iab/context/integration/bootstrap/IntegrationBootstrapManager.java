@@ -11,9 +11,10 @@ import com.milesight.iab.context.support.YamlPropertySourceFactory;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.beans.factory.SmartInitializingSingleton;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.context.properties.bind.BindResult;
 import org.springframework.boot.context.properties.bind.Binder;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.env.StandardEnvironment;
@@ -21,7 +22,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,7 +29,8 @@ import java.util.Map;
  * @author leon
  */
 @Slf4j
-public class IntegrationBootstrapManager implements SmartInitializingSingleton {
+@Order(0)
+public class IntegrationBootstrapManager implements CommandLineRunner{
 
     private YamlPropertySourceFactory propertySourceFactory;
     private IntegrationContext integrationContext = new IntegrationContext();
@@ -83,12 +84,14 @@ public class IntegrationBootstrapManager implements SmartInitializingSingleton {
             }
         });
 
+        log.info("IntegrationBootstrapManager started, contains integrations : {}", integrationContext.getAllIntegrations().keySet());
     }
 
     public IntegrationContext getIntegrationContext() {
         return integrationContext;
     }
 
+    @SneakyThrows
     private PropertySource<?> loadIntegrationPropertySource(IntegrationBootstrap integrationBootstrap) {
         try {
             String path = integrationBootstrap.getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
@@ -156,7 +159,7 @@ public class IntegrationBootstrapManager implements SmartInitializingSingleton {
     }
 
     @Override
-    public void afterSingletonsInstantiated() {
+    public void run(String... args) throws Exception {
         onStarted();
     }
 }
