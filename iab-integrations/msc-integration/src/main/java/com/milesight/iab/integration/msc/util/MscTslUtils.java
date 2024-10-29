@@ -16,9 +16,8 @@ import com.milesight.iab.context.integration.enums.AccessMod;
 import com.milesight.iab.context.integration.enums.EntityValueType;
 import com.milesight.iab.context.integration.model.Entity;
 import com.milesight.iab.context.integration.model.ExchangePayload;
-import com.milesight.iab.integration.msc.constant.MscIntegrationConstants;
-import lombok.extern.slf4j.*;
-import lombok.*;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -284,9 +283,9 @@ public class MscTslUtils {
             case STRING, ENUM, FILE, IMAGE:
                 return EntityValueType.STRING;
             case INT, LONG, DATE, LOCAL_TIME:
-                return EntityValueType.INT;
+                return EntityValueType.LONG;
             case FLOAT, DOUBLE:
-                return EntityValueType.FLOAT;
+                return EntityValueType.DOUBLE;
             case BOOL:
                 return EntityValueType.BOOLEAN;
             case STRUCT:

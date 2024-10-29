@@ -12,6 +12,7 @@ import com.milesight.iab.context.api.IntegrationServiceProvider;
 import com.milesight.iab.context.integration.enums.AccessMod;
 import com.milesight.iab.context.integration.enums.AttachTargetType;
 import com.milesight.iab.context.integration.enums.EntityType;
+import com.milesight.iab.context.integration.enums.EntityValueType;
 import com.milesight.iab.context.integration.model.Device;
 import com.milesight.iab.context.integration.model.Entity;
 import com.milesight.iab.context.integration.model.ExchangePayload;
@@ -527,7 +528,7 @@ public class EntityService implements EntityServiceProvider {
             } else if (entityLatestPO.getValueLong() != null) {
                 value = entityLatestPO.getValueLong();
             } else if (entityLatestPO.getValueDouble() != null) {
-                value = entityLatestPO.getValueDouble();
+                value = entityLatestPO.getValueDouble().doubleValue();
             } else if (entityLatestPO.getValueString() != null) {
                 value = entityLatestPO.getValueString();
             } else if (entityLatestPO.getValueBinary() != null) {
@@ -781,14 +782,19 @@ public class EntityService implements EntityServiceProvider {
             EntityHistoryResponse response = new EntityHistoryResponse();
             if (entityHistoryPO.getValueBoolean() != null) {
                 response.setValue(entityHistoryPO.getValueBoolean());
+                response.setValueType(EntityValueType.BOOLEAN);
             } else if (entityHistoryPO.getValueLong() != null) {
                 response.setValue(entityHistoryPO.getValueLong().toString());
+                response.setValueType(EntityValueType.LONG);
             } else if (entityHistoryPO.getValueDouble() != null) {
-                response.setValue(entityHistoryPO.getValueDouble());
+                response.setValue(entityHistoryPO.getValueDouble().doubleValue());
+                response.setValueType(EntityValueType.DOUBLE);
             } else if (entityHistoryPO.getValueString() != null) {
                 response.setValue(entityHistoryPO.getValueString());
+                response.setValueType(EntityValueType.STRING);
             } else if (entityHistoryPO.getValueBinary() != null) {
                 response.setValue(entityHistoryPO.getValueBinary());
+                response.setValueType(EntityValueType.BINARY);
             }
             response.setTimestamp(entityHistoryPO.getTimestamp().toString());
             return response;
@@ -811,45 +817,60 @@ public class EntityService implements EntityServiceProvider {
                 EntityHistoryPO lastEntityHistoryPO = entityHistoryPOList.get(entityHistoryPOList.size() - 1);
                 if (lastEntityHistoryPO.getValueBoolean() != null) {
                     entityAggregateResponse.setValue(lastEntityHistoryPO.getValueBoolean());
+                    entityAggregateResponse.setValueType(EntityValueType.BOOLEAN);
                 } else if (lastEntityHistoryPO.getValueLong() != null) {
                     entityAggregateResponse.setValue(lastEntityHistoryPO.getValueLong().toString());
+                    entityAggregateResponse.setValueType(EntityValueType.LONG);
                 } else if (lastEntityHistoryPO.getValueDouble() != null) {
-                    entityAggregateResponse.setValue(lastEntityHistoryPO.getValueDouble());
+                    entityAggregateResponse.setValue(lastEntityHistoryPO.getValueDouble().doubleValue());
+                    entityAggregateResponse.setValueType(EntityValueType.DOUBLE);
                 } else if (lastEntityHistoryPO.getValueString() != null) {
                     entityAggregateResponse.setValue(lastEntityHistoryPO.getValueString());
+                    entityAggregateResponse.setValueType(EntityValueType.STRING);
                 } else if (lastEntityHistoryPO.getValueBinary() != null) {
                     entityAggregateResponse.setValue(lastEntityHistoryPO.getValueBinary());
+                    entityAggregateResponse.setValueType(EntityValueType.BINARY);
                 }
                 break;
             case MIN:
                 if (oneEntityHistoryPO.getValueBoolean() != null) {
                     EntityHistoryPO minEntityHistoryPO = entityHistoryPOList.stream().min(Comparator.comparing(EntityHistoryPO::getValueBoolean)).get();
                     entityAggregateResponse.setValue(minEntityHistoryPO.getValueBoolean());
+                    entityAggregateResponse.setValueType(EntityValueType.BOOLEAN);
                 } else if (oneEntityHistoryPO.getValueLong() != null) {
                     EntityHistoryPO minEntityHistoryPO = entityHistoryPOList.stream().min(Comparator.comparing(EntityHistoryPO::getValueLong)).get();
                     entityAggregateResponse.setValue(minEntityHistoryPO.getValueLong().toString());
+                    entityAggregateResponse.setValueType(EntityValueType.LONG);
                 } else if (oneEntityHistoryPO.getValueDouble() != null) {
                     EntityHistoryPO minEntityHistoryPO = entityHistoryPOList.stream().min(Comparator.comparing(EntityHistoryPO::getValueDouble)).get();
-                    entityAggregateResponse.setValue(minEntityHistoryPO.getValueDouble());
+                    entityAggregateResponse.setValue(minEntityHistoryPO.getValueDouble().doubleValue());
+                    entityAggregateResponse.setValueType(EntityValueType.DOUBLE);
                 } else if (oneEntityHistoryPO.getValueString() != null) {
                     EntityHistoryPO minEntityHistoryPO = entityHistoryPOList.stream().min(Comparator.comparing(EntityHistoryPO::getValueString)).get();
                     entityAggregateResponse.setValue(minEntityHistoryPO.getValueString());
+                    entityAggregateResponse.setValueType(EntityValueType.STRING);
                 } else if (oneEntityHistoryPO.getValueBinary() != null) {
                     EntityHistoryPO minEntityHistoryPO = entityHistoryPOList.stream().min(Comparator.comparing(EntityHistoryPO::getValueBinary, byteArrayComparator)).get();
                     entityAggregateResponse.setValue(minEntityHistoryPO.getValueBinary());
+                    entityAggregateResponse.setValueType(EntityValueType.BINARY);
                 }
                 break;
             case MAX:
                 if (oneEntityHistoryPO.getValueBoolean() != null) {
                     entityAggregateResponse.setValue(entityHistoryPOList.stream().max(Comparator.comparing(EntityHistoryPO::getValueBoolean)).get().getValueBoolean());
+                    entityAggregateResponse.setValueType(EntityValueType.BOOLEAN);
                 } else if (oneEntityHistoryPO.getValueLong() != null) {
                     entityAggregateResponse.setValue(entityHistoryPOList.stream().max(Comparator.comparing(EntityHistoryPO::getValueLong)).get().getValueLong().toString());
+                    entityAggregateResponse.setValueType(EntityValueType.LONG);
                 } else if (oneEntityHistoryPO.getValueDouble() != null) {
-                    entityAggregateResponse.setValue(entityHistoryPOList.stream().max(Comparator.comparing(EntityHistoryPO::getValueDouble)).get().getValueDouble());
+                    entityAggregateResponse.setValue(entityHistoryPOList.stream().max(Comparator.comparing(EntityHistoryPO::getValueDouble)).get().getValueDouble().doubleValue());
+                    entityAggregateResponse.setValueType(EntityValueType.DOUBLE);
                 } else if (oneEntityHistoryPO.getValueString() != null) {
                     entityAggregateResponse.setValue(entityHistoryPOList.stream().max(Comparator.comparing(EntityHistoryPO::getValueString)).get().getValueString());
+                    entityAggregateResponse.setValueType(EntityValueType.STRING);
                 } else if (oneEntityHistoryPO.getValueBinary() != null) {
                     entityAggregateResponse.setValue(entityHistoryPOList.stream().max(Comparator.comparing(EntityHistoryPO::getValueBinary, byteArrayComparator)).get().getValueBinary());
+                    entityAggregateResponse.setValueType(EntityValueType.BINARY);
                 }
                 break;
             case AVG:
@@ -865,11 +886,13 @@ public class EntityService implements EntityServiceProvider {
                     } else {
                         entityAggregateResponse.setValue("0");
                     }
+                    entityAggregateResponse.setValueType(EntityValueType.LONG);
                 } else if (oneEntityHistoryPO.getValueDouble() != null) {
                     BigDecimal sum = entityHistoryPOList.stream().map(EntityHistoryPO::getValueDouble).reduce(BigDecimal.ZERO, BigDecimal::add);
                     BigDecimal count = new BigDecimal(entityHistoryPOList.size());
                     BigDecimal avg = sum.divide(count, 8, RoundingMode.HALF_EVEN);
                     entityAggregateResponse.setValue(avg.doubleValue());
+                    entityAggregateResponse.setValueType(EntityValueType.DOUBLE);
                 } else if (oneEntityHistoryPO.getValueString() != null) {
                     throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
                 } else if (oneEntityHistoryPO.getValueBinary() != null) {
@@ -885,8 +908,10 @@ public class EntityService implements EntityServiceProvider {
                             .sum();
                     String sumAsString = String.valueOf(sum);
                     entityAggregateResponse.setValue(sumAsString);
+                    entityAggregateResponse.setValueType(EntityValueType.LONG);
                 } else if (oneEntityHistoryPO.getValueDouble() != null) {
-                    entityAggregateResponse.setValue(entityHistoryPOList.stream().map(EntityHistoryPO::getValueDouble).reduce(BigDecimal.ZERO, BigDecimal::add));
+                    entityAggregateResponse.setValue(entityHistoryPOList.stream().map(EntityHistoryPO::getValueDouble).reduce(BigDecimal.ZERO, BigDecimal::add).doubleValue());
+                    entityAggregateResponse.setValueType(EntityValueType.DOUBLE);
                 } else if (oneEntityHistoryPO.getValueString() != null) {
                     throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
                 } else if (oneEntityHistoryPO.getValueBinary() != null) {
@@ -902,19 +927,19 @@ public class EntityService implements EntityServiceProvider {
             List<EntityAggregateResponse.CountResult> countResult = new ArrayList<>();
             if (oneEntityHistoryPO.getValueBoolean() != null) {
                 Map<Boolean, Long> entityHistoryPOGroup = entityHistoryPOList.stream().collect(Collectors.groupingBy(EntityHistoryPO::getValueBoolean, Collectors.counting()));
-                entityHistoryPOGroup.forEach((key, value) -> countResult.add(new EntityAggregateResponse.CountResult(key, value)));
+                entityHistoryPOGroup.forEach((key, value) -> countResult.add(new EntityAggregateResponse.CountResult(key, EntityValueType.BOOLEAN, value)));
             } else if (oneEntityHistoryPO.getValueLong() != null) {
                 Map<String, Long> entityHistoryPOGroup = entityHistoryPOList.stream().collect(Collectors.groupingBy(t -> t.getValueLong().toString(), Collectors.counting()));
-                entityHistoryPOGroup.forEach((key, value) -> countResult.add(new EntityAggregateResponse.CountResult(key, value)));
+                entityHistoryPOGroup.forEach((key, value) -> countResult.add(new EntityAggregateResponse.CountResult(key, EntityValueType.LONG, value)));
             } else if (oneEntityHistoryPO.getValueDouble() != null) {
-                Map<BigDecimal, Long> entityHistoryPOGroup = entityHistoryPOList.stream().collect(Collectors.groupingBy(EntityHistoryPO::getValueDouble, Collectors.counting()));
-                entityHistoryPOGroup.forEach((key, value) -> countResult.add(new EntityAggregateResponse.CountResult(key, value)));
+                Map<Double, Long> entityHistoryPOGroup = entityHistoryPOList.stream().collect(Collectors.groupingBy(t -> t.getValueDouble().doubleValue(), Collectors.counting()));
+                entityHistoryPOGroup.forEach((key, value) -> countResult.add(new EntityAggregateResponse.CountResult(key, EntityValueType.DOUBLE, value)));
             } else if (oneEntityHistoryPO.getValueString() != null) {
                 Map<String, Long> entityHistoryPOGroup = entityHistoryPOList.stream().collect(Collectors.groupingBy(EntityHistoryPO::getValueString, Collectors.counting()));
-                entityHistoryPOGroup.forEach((key, value) -> countResult.add(new EntityAggregateResponse.CountResult(key, value)));
+                entityHistoryPOGroup.forEach((key, value) -> countResult.add(new EntityAggregateResponse.CountResult(key, EntityValueType.STRING, value)));
             } else if (oneEntityHistoryPO.getValueBinary() != null) {
                 Map<Byte[], Long> entityHistoryPOGroup = entityHistoryPOList.stream().collect(Collectors.groupingBy(EntityHistoryPO::getValueBinary, Collectors.counting()));
-                entityHistoryPOGroup.forEach((key, value) -> countResult.add(new EntityAggregateResponse.CountResult(key, value)));
+                entityHistoryPOGroup.forEach((key, value) -> countResult.add(new EntityAggregateResponse.CountResult(key, EntityValueType.BINARY, value)));
             }
             entityAggregateResponse.setCountResult(countResult);
         }
@@ -926,14 +951,19 @@ public class EntityService implements EntityServiceProvider {
         EntityLatestResponse entityLatestResponse = new EntityLatestResponse();
         if (entityLatestPO.getValueBoolean() != null) {
             entityLatestResponse.setValue(entityLatestPO.getValueBoolean());
+            entityLatestResponse.setValueType(EntityValueType.BOOLEAN);
         } else if (entityLatestPO.getValueLong() != null) {
             entityLatestResponse.setValue(entityLatestPO.getValueLong().toString());
+            entityLatestResponse.setValueType(EntityValueType.LONG);
         } else if (entityLatestPO.getValueDouble() != null) {
-            entityLatestResponse.setValue(entityLatestPO.getValueDouble());
+            entityLatestResponse.setValue(entityLatestPO.getValueDouble().doubleValue());
+            entityLatestResponse.setValueType(EntityValueType.DOUBLE);
         } else if (entityLatestPO.getValueString() != null) {
             entityLatestResponse.setValue(entityLatestPO.getValueString());
+            entityLatestResponse.setValueType(EntityValueType.STRING);
         } else if (entityLatestPO.getValueBinary() != null) {
             entityLatestResponse.setValue(entityLatestPO.getValueBinary());
+            entityLatestResponse.setValueType(EntityValueType.BINARY);
         }
         entityLatestResponse.setUpdatedAt(entityLatestPO.getUpdatedAt() == null ? null : entityLatestPO.getUpdatedAt().toString());
         return entityLatestResponse;

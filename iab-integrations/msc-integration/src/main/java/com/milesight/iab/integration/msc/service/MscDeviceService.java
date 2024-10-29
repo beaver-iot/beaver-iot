@@ -170,7 +170,7 @@ public class MscDeviceService {
         entities.add(new EntityBuilder()
                 .identifier(MscIntegrationConstants.InternalPropertyKey.LAST_SYNC_TIME)
                 .property(MscIntegrationConstants.InternalPropertyKey.LAST_SYNC_TIME, AccessMod.R)
-                .valueType(EntityValueType.INT)
+                .valueType(EntityValueType.LONG)
                 .build());
     }
 
