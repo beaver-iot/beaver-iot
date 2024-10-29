@@ -114,6 +114,7 @@ public class IntegrationService {
                             .id(entity.getId().toString())
                             .key(entity.getKey())
                             .type(entity.getType())
+                            .name(entity.getName())
                             .valueType(entity.getValueType())
                             .valueAttribute(entity.getAttributes())
                             .value(finalEntityValues.get(entity.getKey()))
