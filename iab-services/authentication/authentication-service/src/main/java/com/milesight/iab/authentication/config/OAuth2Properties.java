@@ -13,8 +13,16 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "oauth2")
 public class OAuth2Properties {
 
+    private String registeredClientId;
     private String clientId;
     private String clientSecret;
     private String[] ignoreUrls;
+    private RsaKey rsa;
+
+    @Data
+    public static class RsaKey {
+        private String publicKey;
+        private String privateKey;
+    }
 
 }

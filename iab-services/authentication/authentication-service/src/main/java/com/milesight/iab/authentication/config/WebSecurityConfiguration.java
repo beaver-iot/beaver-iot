@@ -5,6 +5,8 @@ import com.milesight.iab.authentication.exception.CustomOAuth2AccessDeniedHandle
 import com.milesight.iab.authentication.exception.CustomOAuth2ExceptionEntryPoint;
 import com.milesight.iab.authentication.filter.AuthenticationFilter;
 import com.milesight.iab.authentication.handler.CustomOAuth2AccessTokenResponseHandler;
+import com.milesight.iab.authentication.provider.CustomJdbcOAuth2AuthorizationService;
+import com.milesight.iab.authentication.provider.CustomOAuth2AuthorizationService;
 import com.milesight.iab.authentication.provider.CustomOAuth2PasswordAuthenticationConverter;
 import com.milesight.iab.authentication.provider.CustomOAuth2PasswordAuthenticationProvider;
 import com.milesight.iab.authentication.util.OAuth2EndpointUtils;
@@ -32,8 +34,6 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
-import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService;
-import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
@@ -54,13 +54,16 @@ import org.springframework.security.oauth2.server.authorization.web.authenticati
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.UUID;
+import java.util.Base64;
 
 /**
  * @author loong
@@ -150,7 +153,7 @@ public class WebSecurityConfiguration {
         ClientSettings clientSettings = ClientSettings.builder()
                 .requireAuthorizationConsent(false)
                 .build();
-        RegisteredClient registeredClient = RegisteredClient.withId(UUID.randomUUID().toString())
+        RegisteredClient registeredClient = RegisteredClient.withId(oAuth2Properties.getRegisteredClientId())
                 .clientId(oAuth2Properties.getClientId())
                 .clientSecret("{noop}" + oAuth2Properties.getClientSecret())
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
@@ -164,9 +167,9 @@ public class WebSecurityConfiguration {
     }
 
     @Bean
-    public OAuth2AuthorizationService authorizationService() {
+    public CustomOAuth2AuthorizationService authorizationService() {
 //        return new InMemoryOAuth2AuthorizationService();
-        return new JdbcOAuth2AuthorizationService(jdbcTemplate, registeredClientRepository());
+        return new CustomJdbcOAuth2AuthorizationService(jdbcTemplate, registeredClientRepository());
     }
 
     @Bean
@@ -192,12 +195,13 @@ public class WebSecurityConfiguration {
 
     @Bean
     public JWKSource<SecurityContext> jwkSource() {
-        KeyPair keyPair = generateRsaKey();
-        RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
-        RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
+//        KeyPair keyPair = generateRsaKey();
+//        RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
+//        RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
+        RSAPublicKey publicKey = loadPublicKeyFromPem(oAuth2Properties.getRsa().getPublicKey());
+        RSAPrivateKey privateKey = loadPrivateKeyFromPem(oAuth2Properties.getRsa().getPrivateKey());
         RSAKey rsaKey = new RSAKey.Builder(publicKey)
                 .privateKey(privateKey)
-                .keyID(UUID.randomUUID().toString())
                 .build();
         JWKSet jwkSet = new JWKSet(rsaKey);
         return new ImmutableJWKSet<>(jwkSet);
@@ -213,6 +217,34 @@ public class WebSecurityConfiguration {
             throw new IllegalStateException(ex);
         }
         return keyPair;
+    }
+
+    private static RSAPublicKey loadPublicKeyFromPem(String pem) {
+        String publicKeyPEM = pem.replace("-----BEGIN PUBLIC KEY-----", "")
+                .replace("-----END PUBLIC KEY-----", "")
+                .replaceAll("\\s", "");
+        byte[] encoded = Base64.getDecoder().decode(publicKeyPEM);
+        X509EncodedKeySpec spec = new X509EncodedKeySpec(encoded);
+        try {
+            KeyFactory kf = KeyFactory.getInstance("RSA");
+            return (RSAPublicKey) kf.generatePublic(spec);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load public key", e);
+        }
+    }
+
+    private static RSAPrivateKey loadPrivateKeyFromPem(String pem) {
+        String privateKeyPEM = pem.replace("-----BEGIN PRIVATE KEY-----", "")
+                .replace("-----END PRIVATE KEY-----", "")
+                .replaceAll("\\s", "");
+        byte[] encoded = Base64.getDecoder().decode(privateKeyPEM);
+        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(encoded);
+        try {
+            KeyFactory kf = KeyFactory.getInstance("RSA");
+            return (RSAPrivateKey) kf.generatePrivate(spec);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load private key", e);
+        }
     }
 
     //    @Bean

@@ -1,5 +1,6 @@
 package com.milesight.iab.integration.msc.entity;
 
+import com.milesight.iab.context.integration.entity.annotation.Attribute;
 import com.milesight.iab.context.integration.entity.annotation.Entities;
 import com.milesight.iab.context.integration.entity.annotation.Entity;
 import com.milesight.iab.context.integration.entity.annotation.IntegrationEntities;
@@ -29,7 +30,7 @@ public class MscServiceEntities extends ExchangePayload {
     @Entities
     public static class AddDevice extends ExchangePayload {
 
-        @Entity
+        @Entity(attributes = {@Attribute(minLength = 12, maxLength = 16)})
         private String sn;
 
     }

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/public/integration/msc")
+@RequestMapping("/public/integration/msc")
 public class MscIntegrationPublicController {
 
     @Autowired

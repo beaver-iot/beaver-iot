@@ -1,12 +1,14 @@
 package com.milesight.iab.integration.msc.entity;
 
 import com.milesight.iab.base.utils.StringUtils;
+import com.milesight.iab.context.integration.entity.annotation.Attribute;
 import com.milesight.iab.context.integration.entity.annotation.Entities;
 import com.milesight.iab.context.integration.entity.annotation.Entity;
 import com.milesight.iab.context.integration.entity.annotation.IntegrationEntities;
 import com.milesight.iab.context.integration.enums.AccessMod;
 import com.milesight.iab.context.integration.model.ExchangePayload;
 import com.milesight.iab.integration.msc.constant.MscIntegrationConstants;
+import com.milesight.iab.integration.msc.model.IntegrationStatus;
 import lombok.*;
 import lombok.experimental.*;
 
@@ -26,14 +28,14 @@ public class MscConnectionPropertiesEntities extends ExchangePayload {
     /**
      * The status of the connection.<br/>
      * Possible values:<br/>
-     * CONNECTED<br/>
-     * NOT_CONNECTED<br/>
+     * READY<br/>
+     * NOT_READY<br/>
      * ERROR<br/>
      */
-    @Entity(accessMod = AccessMod.R)
+    @Entity(accessMod = AccessMod.R, attributes = {@Attribute(enumClass = IntegrationStatus.class)})
     private String openapiStatus;
 
-    @Entity(accessMod = AccessMod.R)
+    @Entity(accessMod = AccessMod.R, attributes = {@Attribute(enumClass = IntegrationStatus.class)})
     private String webhookStatus;
 
     @Entity
@@ -54,13 +56,13 @@ public class MscConnectionPropertiesEntities extends ExchangePayload {
     @Entities
     public static class Openapi extends ExchangePayload {
 
-        @Entity
+        @Entity(attributes = {@Attribute(minLength = 1)})
         private String serverUrl;
 
-        @Entity
+        @Entity(attributes = {@Attribute(minLength = 1)})
         private String clientId;
 
-        @Entity
+        @Entity(attributes = {@Attribute(minLength = 1)})
         private String clientSecret;
 
     }
@@ -77,7 +79,7 @@ public class MscConnectionPropertiesEntities extends ExchangePayload {
         @Entity
         private Boolean enabled;
 
-        @Entity
+        @Entity(attributes = {@Attribute(minLength = 1)})
         private String secretKey;
 
     }
@@ -94,7 +96,7 @@ public class MscConnectionPropertiesEntities extends ExchangePayload {
         @Entity
         private Boolean enabled;
 
-        @Entity
+        @Entity(attributes = {@Attribute(min = 30, max = 86400)})
         private Integer period;
 
     }
