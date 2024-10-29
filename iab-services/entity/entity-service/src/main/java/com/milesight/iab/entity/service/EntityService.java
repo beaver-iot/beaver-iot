@@ -404,10 +404,16 @@ public class EntityService implements EntityServiceProvider {
             entityLatestPO.setEntityId(entityId);
             if (payload instanceof Boolean) {
                 entityLatestPO.setValueBoolean((Boolean) payload);
+            } else if (payload instanceof Integer) {
+                entityLatestPO.setValueLong(((Integer) payload).longValue());
             } else if (payload instanceof Long) {
                 entityLatestPO.setValueLong((Long) payload);
             } else if (payload instanceof String) {
                 entityLatestPO.setValueString((String) payload);
+            } else if (payload instanceof Float) {
+                entityLatestPO.setValueDouble(BigDecimal.valueOf(((Float) payload).doubleValue()));
+            } else if (payload instanceof Double) {
+                entityLatestPO.setValueDouble(BigDecimal.valueOf((Double) payload));
             } else if (payload instanceof BigDecimal) {
                 entityLatestPO.setValueDouble((BigDecimal) payload);
             } else if (payload instanceof Byte[]) {
@@ -474,10 +480,16 @@ public class EntityService implements EntityServiceProvider {
             entityHistoryPO.setEntityId(entityId);
             if (payload instanceof Boolean) {
                 entityHistoryPO.setValueBoolean((Boolean) payload);
+            } else if (payload instanceof Integer) {
+                entityHistoryPO.setValueLong(((Integer) payload).longValue());
             } else if (payload instanceof Long) {
                 entityHistoryPO.setValueLong((Long) payload);
             } else if (payload instanceof String) {
                 entityHistoryPO.setValueString((String) payload);
+            } else if (payload instanceof Float) {
+                entityHistoryPO.setValueDouble(BigDecimal.valueOf(((Float) payload).doubleValue()));
+            } else if (payload instanceof Double) {
+                entityHistoryPO.setValueDouble(BigDecimal.valueOf((Double) payload));
             } else if (payload instanceof BigDecimal) {
                 entityHistoryPO.setValueDouble((BigDecimal) payload);
             } else if (payload instanceof Byte[]) {
