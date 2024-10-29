@@ -77,13 +77,13 @@ public class DashboardService {
         dashboardRepository.save(dashboardPO);
 
         List<DashboardWidgetDTO> dashboardWidgetDTOList = updateDashboardRequest.getWidgets();
+        List<DashboardWidgetPO> dataDashboardWidgetPOList = dashboardWidgetRepository.findAll(filter -> filter.eq(DashboardWidgetPO.Fields.dashboardId, dashboardId));
+        Map<String, DashboardWidgetPO> dashboardWidgetPOMap = new HashMap<>();
+        if (dataDashboardWidgetPOList != null && !dataDashboardWidgetPOList.isEmpty()) {
+            dashboardWidgetPOMap.putAll(dataDashboardWidgetPOList.stream().collect(Collectors.toMap(t -> String.valueOf(t.getId()), Function.identity())));
+        }
+        List<DashboardWidgetPO> dashboardWidgetPOList = new ArrayList<>();
         if (dashboardWidgetDTOList != null && !dashboardWidgetDTOList.isEmpty()) {
-            List<DashboardWidgetPO> dataDashboardWidgetPOList = dashboardWidgetRepository.findAll(filter -> filter.eq(DashboardWidgetPO.Fields.dashboardId, dashboardId));
-            Map<String, DashboardWidgetPO> dashboardWidgetPOMap = new HashMap<>();
-            if (dataDashboardWidgetPOList != null && !dataDashboardWidgetPOList.isEmpty()) {
-                dashboardWidgetPOMap.putAll(dataDashboardWidgetPOList.stream().collect(Collectors.toMap(t -> String.valueOf(t.getId()), Function.identity())));
-            }
-            List<DashboardWidgetPO> dashboardWidgetPOList = new ArrayList<>();
             dashboardWidgetDTOList.forEach(dashboardWidgetDTO -> {
                 String widgetId = dashboardWidgetDTO.getWidgetId();
                 Map<String, Object> data = dashboardWidgetDTO.getData();
@@ -101,17 +101,17 @@ public class DashboardService {
                     }
                 }
             });
-            List<Long> dashboardWidgetIdList = dashboardWidgetPOList.stream().map(DashboardWidgetPO::getId).toList();
-            List<Long> deleteDashboardWidgetIdList = new ArrayList<>();
-            if (dataDashboardWidgetPOList != null && !dataDashboardWidgetPOList.isEmpty()) {
-                deleteDashboardWidgetIdList.addAll(dataDashboardWidgetPOList.stream().map(DashboardWidgetPO::getId).filter(id -> !dashboardWidgetIdList.contains(id)).toList());
-            }
-            if (!deleteDashboardWidgetIdList.isEmpty()) {
-                dashboardWidgetRepository.deleteAllById(deleteDashboardWidgetIdList);
-            }
-            if (!dashboardWidgetPOList.isEmpty()) {
-                dashboardWidgetRepository.saveAll(dashboardWidgetPOList);
-            }
+        }
+        List<Long> dashboardWidgetIdList = dashboardWidgetPOList.stream().map(DashboardWidgetPO::getId).toList();
+        List<Long> deleteDashboardWidgetIdList = new ArrayList<>();
+        if (dataDashboardWidgetPOList != null && !dataDashboardWidgetPOList.isEmpty()) {
+            deleteDashboardWidgetIdList.addAll(dataDashboardWidgetPOList.stream().map(DashboardWidgetPO::getId).filter(id -> !dashboardWidgetIdList.contains(id)).toList());
+        }
+        if (!deleteDashboardWidgetIdList.isEmpty()) {
+            dashboardWidgetRepository.deleteAllById(deleteDashboardWidgetIdList);
+        }
+        if (!dashboardWidgetPOList.isEmpty()) {
+            dashboardWidgetRepository.saveAll(dashboardWidgetPOList);
         }
     }
 

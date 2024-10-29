@@ -94,7 +94,7 @@ public class EntityService implements EntityServiceProvider {
     @Autowired
     private EntityManager entityManager;
 
-    private final Comparator<Byte[]> byteArrayComparator = (a, b) -> {
+    private final Comparator<byte[]> byteArrayComparator = (a, b) -> {
         if (a == b) return 0;
         if (a == null) return -1;
         if (b == null) return 1;
@@ -489,7 +489,7 @@ public class EntityService implements EntityServiceProvider {
             } else if (entityValueType == EntityValueType.DOUBLE) {
                 entityHistoryPO.setValueDouble(new BigDecimal(String.valueOf(payload)));
             } else if (entityValueType == EntityValueType.BINARY) {
-                entityHistoryPO.setValueBinary((Byte[]) payload);
+                entityHistoryPO.setValueBinary((byte[]) payload);
             } else {
                 throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
             }
@@ -960,7 +960,7 @@ public class EntityService implements EntityServiceProvider {
                 )));
                 entityHistoryPOGroup.forEach((key, value) -> countResult.add(new EntityAggregateResponse.CountResult(key, EntityValueType.STRING, value)));
             } else if (oneEntityHistoryPO.getValueBinary() != null) {
-                Map<Byte[], Integer> entityHistoryPOGroup = entityHistoryPOList.stream().collect(Collectors.groupingBy(EntityHistoryPO::getValueBinary, Collectors.collectingAndThen(
+                Map<byte[], Integer> entityHistoryPOGroup = entityHistoryPOList.stream().collect(Collectors.groupingBy(EntityHistoryPO::getValueBinary, Collectors.collectingAndThen(
                         Collectors.counting(),
                         Long::intValue
                 )));
