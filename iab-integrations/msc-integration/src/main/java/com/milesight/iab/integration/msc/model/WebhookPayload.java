@@ -1,7 +1,6 @@
 package com.milesight.iab.integration.msc.model;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.milesight.iab.context.integration.entity.annotation.IntegrationEntities;
 import com.milesight.iab.context.integration.model.ExchangePayload;
 import lombok.*;
 
