@@ -8,6 +8,7 @@ import com.milesight.iab.eventbus.annotations.EventSubscribe;
 import com.milesight.iab.eventbus.api.Event;
 import com.milesight.iab.integration.msc.constant.MscIntegrationConstants;
 import com.milesight.iab.integration.msc.entity.MscConnectionPropertiesEntities;
+import com.milesight.iab.integration.msc.model.IntegrationStatus;
 import com.milesight.iab.integration.msc.model.WebhookPayload;
 import com.milesight.msc.sdk.utils.HMacUtils;
 import com.milesight.msc.sdk.utils.TimeUtils;
@@ -56,7 +57,7 @@ public class MscWebhookService {
             mac = HMacUtils.getMac(webhookSettings.getSecretKey());
         }
         if (!enabled) {
-            entityServiceProvider.saveExchange(ExchangePayload.create(WEBHOOK_STATUS_KEY, MscIntegrationConstants.IntegrationStatus.NOT_READY));
+            entityServiceProvider.saveExchange(ExchangePayload.create(WEBHOOK_STATUS_KEY, IntegrationStatus.NOT_READY.name()));
         }
     }
 
@@ -134,7 +135,7 @@ public class MscWebhookService {
 
         // save data
         dataSyncService.saveHistoryData(device.getKey(), properties, webhookPayload.getEventCreatedTime() * 1000);
-        entityServiceProvider.saveExchange(ExchangePayload.create(WEBHOOK_STATUS_KEY, MscIntegrationConstants.IntegrationStatus.READY));
+        entityServiceProvider.saveExchange(ExchangePayload.create(WEBHOOK_STATUS_KEY, IntegrationStatus.READY.name()));
     }
 
     public boolean isSignatureValid(String signature, String requestTimestamp, String requestNonce) {

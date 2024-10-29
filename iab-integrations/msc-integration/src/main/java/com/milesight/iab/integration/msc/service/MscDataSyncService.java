@@ -12,6 +12,7 @@ import com.milesight.iab.eventbus.annotations.EventSubscribe;
 import com.milesight.iab.eventbus.api.Event;
 import com.milesight.iab.integration.msc.constant.MscIntegrationConstants;
 import com.milesight.iab.integration.msc.entity.MscConnectionPropertiesEntities;
+import com.milesight.iab.integration.msc.model.IntegrationStatus;
 import com.milesight.iab.integration.msc.util.MscTslUtils;
 import com.milesight.msc.sdk.utils.TimeUtils;
 import lombok.*;
@@ -76,7 +77,7 @@ public class MscDataSyncService {
     @EventSubscribe(payloadKeyExpression = "msc-integration.integration.openapiStatus", eventType = ExchangeEvent.EventType.UP)
     public void onOpenapiStatusUpdate(Event<MscConnectionPropertiesEntities> event) {
         val status = event.getPayload().getOpenapiStatus();
-        if (MscIntegrationConstants.IntegrationStatus.READY.equals(status)) {
+        if (IntegrationStatus.READY.name().equals(status)) {
             syncAllDataExecutor.submit(this::syncAllData);
         }
     }

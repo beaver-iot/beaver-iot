@@ -5,8 +5,8 @@ import com.milesight.iab.context.integration.model.ExchangePayload;
 import com.milesight.iab.context.integration.model.event.ExchangeEvent;
 import com.milesight.iab.eventbus.annotations.EventSubscribe;
 import com.milesight.iab.eventbus.api.Event;
-import com.milesight.iab.integration.msc.constant.MscIntegrationConstants;
 import com.milesight.iab.integration.msc.entity.MscConnectionPropertiesEntities;
+import com.milesight.iab.integration.msc.model.IntegrationStatus;
 import com.milesight.msc.sdk.MscClient;
 import com.milesight.msc.sdk.config.Credentials;
 import lombok.*;
@@ -35,7 +35,7 @@ public class MscConnectionService implements IMscClientProvider {
         if (isConfigChanged(event)) {
             val openapiSettings = event.getPayload();
             initConnection(openapiSettings);
-            entityServiceProvider.saveExchange(new ExchangePayload(Map.of(OPENAPI_STATUS_KEY, MscIntegrationConstants.IntegrationStatus.NOT_READY)));
+            entityServiceProvider.saveExchange(new ExchangePayload(Map.of(OPENAPI_STATUS_KEY, IntegrationStatus.NOT_READY.name())));
         }
         testConnection();
     }
@@ -53,10 +53,10 @@ public class MscConnectionService implements IMscClientProvider {
     private void testConnection() {
         try {
             mscClient.test();
-            entityServiceProvider.saveExchange(new ExchangePayload(Map.of(OPENAPI_STATUS_KEY, MscIntegrationConstants.IntegrationStatus.READY)));
+            entityServiceProvider.saveExchange(new ExchangePayload(Map.of(OPENAPI_STATUS_KEY, IntegrationStatus.READY.name())));
         } catch (Exception e) {
             log.error("Error occurs while testing connection", e);
-            entityServiceProvider.saveExchange(new ExchangePayload(Map.of(OPENAPI_STATUS_KEY, MscIntegrationConstants.IntegrationStatus.ERROR)));
+            entityServiceProvider.saveExchange(new ExchangePayload(Map.of(OPENAPI_STATUS_KEY, IntegrationStatus.ERROR.name())));
         }
     }
 
@@ -101,7 +101,7 @@ public class MscConnectionService implements IMscClientProvider {
             }
         } catch (Exception e) {
             log.error("Error occurs while initializing connection", e);
-            entityServiceProvider.saveExchange(new ExchangePayload(Map.of(OPENAPI_STATUS_KEY, MscIntegrationConstants.IntegrationStatus.NOT_READY)));
+            entityServiceProvider.saveExchange(new ExchangePayload(Map.of(OPENAPI_STATUS_KEY, IntegrationStatus.NOT_READY.name())));
         }
     }
 
