@@ -26,6 +26,5 @@ CREATE TABLE `t_dashboard_widget_template`
     updated_at BIGINT
 );
 
---changeset loong:dashboard_v1.0.0_20241025_163400
 INSERT INTO `t_dashboard` (id, name, created_at, updated_at)
 VALUES (1, 'IoT Dashboard', 1729845293630, NULL);

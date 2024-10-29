@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.experimental.FieldNameConstants;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.math.BigDecimal;
+
 /**
  * @author loong
  * @date 2024/10/16 14:28
@@ -22,8 +24,8 @@ public class EntityLatestPO {
     @Id
     private Long id;
     private Long entityId;
-    private Long valueInt;
-    private Double valueFloat;
+    private Long valueLong;
+    private BigDecimal valueDouble;
     private Boolean valueBoolean;
     private String valueString;
     private Byte[] valueBinary;

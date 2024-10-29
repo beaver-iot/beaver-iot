@@ -10,6 +10,8 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.math.BigDecimal;
+
 /**
  * @author loong
  * @date 2024/10/16 14:30
@@ -24,8 +26,8 @@ public class EntityHistoryPO {
     @Id
     private Long id;
     private Long entityId;
-    private Integer valueInt;
-    private Float valueFloat;
+    private Long valueLong;
+    private BigDecimal valueDouble;
     private Boolean valueBoolean;
     private String valueString;
     private Byte[] valueBinary;

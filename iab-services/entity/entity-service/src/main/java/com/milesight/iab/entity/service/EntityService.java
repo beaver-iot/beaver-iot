@@ -49,6 +49,8 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -400,16 +402,12 @@ public class EntityService implements EntityServiceProvider {
             entityLatestPO.setEntityId(entityId);
             if (payload instanceof Boolean) {
                 entityLatestPO.setValueBoolean((Boolean) payload);
-            } else if (payload instanceof Integer) {
-                entityLatestPO.setValueInt(((Integer) payload).longValue());
             } else if (payload instanceof Long) {
-                entityLatestPO.setValueInt((Long) payload);
+                entityLatestPO.setValueLong((Long) payload);
             } else if (payload instanceof String) {
                 entityLatestPO.setValueString((String) payload);
-            } else if (payload instanceof Float) {
-                entityLatestPO.setValueFloat(((Float) payload).doubleValue());
-            } else if (payload instanceof Double) {
-                entityLatestPO.setValueFloat((Double) payload);
+            } else if (payload instanceof BigDecimal) {
+                entityLatestPO.setValueDouble((BigDecimal) payload);
             } else if (payload instanceof Byte[]) {
                 entityLatestPO.setValueBinary((Byte[]) payload);
             } else {
@@ -474,12 +472,12 @@ public class EntityService implements EntityServiceProvider {
             entityHistoryPO.setEntityId(entityId);
             if (payload instanceof Boolean) {
                 entityHistoryPO.setValueBoolean((Boolean) payload);
-            } else if (payload instanceof Integer) {
-                entityHistoryPO.setValueInt((Integer) payload);
+            } else if (payload instanceof Long) {
+                entityHistoryPO.setValueLong((Long) payload);
             } else if (payload instanceof String) {
                 entityHistoryPO.setValueString((String) payload);
-            } else if (payload instanceof Float) {
-                entityHistoryPO.setValueFloat((Float) payload);
+            } else if (payload instanceof BigDecimal) {
+                entityHistoryPO.setValueDouble((BigDecimal) payload);
             } else if (payload instanceof Byte[]) {
                 entityHistoryPO.setValueBinary((Byte[]) payload);
             } else {
@@ -525,10 +523,10 @@ public class EntityService implements EntityServiceProvider {
             Object value = null;
             if (entityLatestPO.getValueBoolean() != null) {
                 value = entityLatestPO.getValueBoolean();
-            } else if (entityLatestPO.getValueInt() != null) {
-                value = entityLatestPO.getValueInt();
-            } else if (entityLatestPO.getValueFloat() != null) {
-                value = entityLatestPO.getValueFloat();
+            } else if (entityLatestPO.getValueLong() != null) {
+                value = entityLatestPO.getValueLong();
+            } else if (entityLatestPO.getValueDouble() != null) {
+                value = entityLatestPO.getValueDouble();
             } else if (entityLatestPO.getValueString() != null) {
                 value = entityLatestPO.getValueString();
             } else if (entityLatestPO.getValueBinary() != null) {
@@ -782,10 +780,10 @@ public class EntityService implements EntityServiceProvider {
             EntityHistoryResponse response = new EntityHistoryResponse();
             if (entityHistoryPO.getValueBoolean() != null) {
                 response.setValue(entityHistoryPO.getValueBoolean());
-            } else if (entityHistoryPO.getValueInt() != null) {
-                response.setValue(entityHistoryPO.getValueInt());
-            } else if (entityHistoryPO.getValueFloat() != null) {
-                response.setValue(entityHistoryPO.getValueFloat());
+            } else if (entityHistoryPO.getValueLong() != null) {
+                response.setValue(entityHistoryPO.getValueLong());
+            } else if (entityHistoryPO.getValueDouble() != null) {
+                response.setValue(entityHistoryPO.getValueDouble());
             } else if (entityHistoryPO.getValueString() != null) {
                 response.setValue(entityHistoryPO.getValueString());
             } else if (entityHistoryPO.getValueBinary() != null) {
@@ -812,10 +810,10 @@ public class EntityService implements EntityServiceProvider {
                 EntityHistoryPO lastEntityHistoryPO = entityHistoryPOList.get(entityHistoryPOList.size() - 1);
                 if (lastEntityHistoryPO.getValueBoolean() != null) {
                     entityAggregateResponse.setValue(lastEntityHistoryPO.getValueBoolean());
-                } else if (lastEntityHistoryPO.getValueInt() != null) {
-                    entityAggregateResponse.setValue(lastEntityHistoryPO.getValueInt());
-                } else if (lastEntityHistoryPO.getValueFloat() != null) {
-                    entityAggregateResponse.setValue(lastEntityHistoryPO.getValueFloat());
+                } else if (lastEntityHistoryPO.getValueLong() != null) {
+                    entityAggregateResponse.setValue(lastEntityHistoryPO.getValueLong());
+                } else if (lastEntityHistoryPO.getValueDouble() != null) {
+                    entityAggregateResponse.setValue(lastEntityHistoryPO.getValueDouble());
                 } else if (lastEntityHistoryPO.getValueString() != null) {
                     entityAggregateResponse.setValue(lastEntityHistoryPO.getValueString());
                 } else if (lastEntityHistoryPO.getValueBinary() != null) {
@@ -826,12 +824,12 @@ public class EntityService implements EntityServiceProvider {
                 if (oneEntityHistoryPO.getValueBoolean() != null) {
                     EntityHistoryPO minEntityHistoryPO = entityHistoryPOList.stream().min(Comparator.comparing(EntityHistoryPO::getValueBoolean)).get();
                     entityAggregateResponse.setValue(minEntityHistoryPO.getValueBoolean());
-                } else if (oneEntityHistoryPO.getValueInt() != null) {
-                    EntityHistoryPO minEntityHistoryPO = entityHistoryPOList.stream().min(Comparator.comparing(EntityHistoryPO::getValueInt)).get();
-                    entityAggregateResponse.setValue(minEntityHistoryPO.getValueInt());
-                } else if (oneEntityHistoryPO.getValueFloat() != null) {
-                    EntityHistoryPO minEntityHistoryPO = entityHistoryPOList.stream().min(Comparator.comparing(EntityHistoryPO::getValueFloat)).get();
-                    entityAggregateResponse.setValue(minEntityHistoryPO.getValueFloat());
+                } else if (oneEntityHistoryPO.getValueLong() != null) {
+                    EntityHistoryPO minEntityHistoryPO = entityHistoryPOList.stream().min(Comparator.comparing(EntityHistoryPO::getValueLong)).get();
+                    entityAggregateResponse.setValue(minEntityHistoryPO.getValueLong());
+                } else if (oneEntityHistoryPO.getValueDouble() != null) {
+                    EntityHistoryPO minEntityHistoryPO = entityHistoryPOList.stream().min(Comparator.comparing(EntityHistoryPO::getValueDouble)).get();
+                    entityAggregateResponse.setValue(minEntityHistoryPO.getValueDouble());
                 } else if (oneEntityHistoryPO.getValueString() != null) {
                     EntityHistoryPO minEntityHistoryPO = entityHistoryPOList.stream().min(Comparator.comparing(EntityHistoryPO::getValueString)).get();
                     entityAggregateResponse.setValue(minEntityHistoryPO.getValueString());
@@ -843,10 +841,10 @@ public class EntityService implements EntityServiceProvider {
             case MAX:
                 if (oneEntityHistoryPO.getValueBoolean() != null) {
                     entityAggregateResponse.setValue(entityHistoryPOList.stream().max(Comparator.comparing(EntityHistoryPO::getValueBoolean)).get().getValueBoolean());
-                } else if (oneEntityHistoryPO.getValueInt() != null) {
-                    entityAggregateResponse.setValue(entityHistoryPOList.stream().max(Comparator.comparing(EntityHistoryPO::getValueInt)).get().getValueInt());
-                } else if (oneEntityHistoryPO.getValueFloat() != null) {
-                    entityAggregateResponse.setValue(entityHistoryPOList.stream().max(Comparator.comparing(EntityHistoryPO::getValueFloat)).get().getValueFloat());
+                } else if (oneEntityHistoryPO.getValueLong() != null) {
+                    entityAggregateResponse.setValue(entityHistoryPOList.stream().max(Comparator.comparing(EntityHistoryPO::getValueLong)).get().getValueLong());
+                } else if (oneEntityHistoryPO.getValueDouble() != null) {
+                    entityAggregateResponse.setValue(entityHistoryPOList.stream().max(Comparator.comparing(EntityHistoryPO::getValueDouble)).get().getValueDouble());
                 } else if (oneEntityHistoryPO.getValueString() != null) {
                     entityAggregateResponse.setValue(entityHistoryPOList.stream().max(Comparator.comparing(EntityHistoryPO::getValueString)).get().getValueString());
                 } else if (oneEntityHistoryPO.getValueBinary() != null) {
@@ -856,10 +854,13 @@ public class EntityService implements EntityServiceProvider {
             case AVG:
                 if (oneEntityHistoryPO.getValueBoolean() != null) {
                     throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
-                } else if (oneEntityHistoryPO.getValueInt() != null) {
-                    entityAggregateResponse.setValue(entityHistoryPOList.stream().mapToInt(EntityHistoryPO::getValueInt).average());
-                } else if (oneEntityHistoryPO.getValueFloat() != null) {
-                    entityAggregateResponse.setValue(entityHistoryPOList.stream().mapToDouble(EntityHistoryPO::getValueFloat).average());
+                } else if (oneEntityHistoryPO.getValueLong() != null) {
+                    entityAggregateResponse.setValue(entityHistoryPOList.stream().mapToLong(EntityHistoryPO::getValueLong).average());
+                } else if (oneEntityHistoryPO.getValueDouble() != null) {
+                    BigDecimal sum = entityHistoryPOList.stream().map(EntityHistoryPO::getValueDouble).reduce(BigDecimal.ZERO, BigDecimal::add);
+                    BigDecimal count = new BigDecimal(entityHistoryPOList.size());
+                    BigDecimal avg = sum.divide(count, 8, RoundingMode.HALF_EVEN);
+                    entityAggregateResponse.setValue(avg.doubleValue());
                 } else if (oneEntityHistoryPO.getValueString() != null) {
                     throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
                 } else if (oneEntityHistoryPO.getValueBinary() != null) {
@@ -869,10 +870,10 @@ public class EntityService implements EntityServiceProvider {
             case SUM:
                 if (oneEntityHistoryPO.getValueBoolean() != null) {
                     throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
-                } else if (oneEntityHistoryPO.getValueInt() != null) {
-                    entityAggregateResponse.setValue(entityHistoryPOList.stream().mapToInt(EntityHistoryPO::getValueInt).sum());
-                } else if (oneEntityHistoryPO.getValueFloat() != null) {
-                    entityAggregateResponse.setValue(entityHistoryPOList.stream().mapToDouble(EntityHistoryPO::getValueFloat).sum());
+                } else if (oneEntityHistoryPO.getValueLong() != null) {
+                    entityAggregateResponse.setValue(entityHistoryPOList.stream().mapToLong(EntityHistoryPO::getValueLong).sum());
+                } else if (oneEntityHistoryPO.getValueDouble() != null) {
+                    entityAggregateResponse.setValue(entityHistoryPOList.stream().map(EntityHistoryPO::getValueDouble).reduce(BigDecimal.ZERO, BigDecimal::add));
                 } else if (oneEntityHistoryPO.getValueString() != null) {
                     throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
                 } else if (oneEntityHistoryPO.getValueBinary() != null) {
@@ -889,11 +890,11 @@ public class EntityService implements EntityServiceProvider {
             if (oneEntityHistoryPO.getValueBoolean() != null) {
                 Map<Boolean, Long> entityHistoryPOGroup = entityHistoryPOList.stream().collect(Collectors.groupingBy(EntityHistoryPO::getValueBoolean, Collectors.counting()));
                 entityHistoryPOGroup.forEach((key, value) -> countResult.add(new EntityAggregateResponse.CountResult(key, value)));
-            } else if (oneEntityHistoryPO.getValueInt() != null) {
-                Map<Integer, Long> entityHistoryPOGroup = entityHistoryPOList.stream().collect(Collectors.groupingBy(EntityHistoryPO::getValueInt, Collectors.counting()));
+            } else if (oneEntityHistoryPO.getValueLong() != null) {
+                Map<Long, Long> entityHistoryPOGroup = entityHistoryPOList.stream().collect(Collectors.groupingBy(EntityHistoryPO::getValueLong, Collectors.counting()));
                 entityHistoryPOGroup.forEach((key, value) -> countResult.add(new EntityAggregateResponse.CountResult(key, value)));
-            } else if (oneEntityHistoryPO.getValueFloat() != null) {
-                Map<Float, Long> entityHistoryPOGroup = entityHistoryPOList.stream().collect(Collectors.groupingBy(EntityHistoryPO::getValueFloat, Collectors.counting()));
+            } else if (oneEntityHistoryPO.getValueDouble() != null) {
+                Map<BigDecimal, Long> entityHistoryPOGroup = entityHistoryPOList.stream().collect(Collectors.groupingBy(EntityHistoryPO::getValueDouble, Collectors.counting()));
                 entityHistoryPOGroup.forEach((key, value) -> countResult.add(new EntityAggregateResponse.CountResult(key, value)));
             } else if (oneEntityHistoryPO.getValueString() != null) {
                 Map<String, Long> entityHistoryPOGroup = entityHistoryPOList.stream().collect(Collectors.groupingBy(EntityHistoryPO::getValueString, Collectors.counting()));
@@ -912,10 +913,10 @@ public class EntityService implements EntityServiceProvider {
         EntityLatestResponse entityLatestResponse = new EntityLatestResponse();
         if (entityLatestPO.getValueBoolean() != null) {
             entityLatestResponse.setValue(entityLatestPO.getValueBoolean());
-        } else if (entityLatestPO.getValueInt() != null) {
-            entityLatestResponse.setValue(entityLatestPO.getValueInt());
-        } else if (entityLatestPO.getValueFloat() != null) {
-            entityLatestResponse.setValue(entityLatestPO.getValueFloat());
+        } else if (entityLatestPO.getValueLong() != null) {
+            entityLatestResponse.setValue(entityLatestPO.getValueLong());
+        } else if (entityLatestPO.getValueDouble() != null) {
+            entityLatestResponse.setValue(entityLatestPO.getValueDouble());
         } else if (entityLatestPO.getValueString() != null) {
             entityLatestResponse.setValue(entityLatestPO.getValueString());
         } else if (entityLatestPO.getValueBinary() != null) {

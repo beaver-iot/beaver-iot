@@ -23,8 +23,8 @@ CREATE TABLE "t_entity_latest"
 (
     id            BIGINT PRIMARY KEY,
     entity_id     BIGINT not null,
-    value_int     INTEGER,
-    value_float   FLOAT,
+    value_long    BIGINT,
+    value_double  DECIMAL,
     value_boolean BOOLEAN,
     value_string  VARCHAR(255),
     value_binary  BYTEA,
@@ -37,8 +37,8 @@ CREATE TABLE "t_entity_history"
 (
     id            BIGINT PRIMARY KEY,
     entity_id     BIGINT not null,
-    value_int     INTEGER,
-    value_float   FLOAT,
+    value_long    BIGINT,
+    value_double  DECIMAL,
     value_boolean BOOLEAN,
     value_string  VARCHAR(255),
     value_binary  BYTEA,
