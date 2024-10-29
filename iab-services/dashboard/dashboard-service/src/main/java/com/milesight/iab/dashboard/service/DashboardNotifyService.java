@@ -4,7 +4,6 @@ import com.milesight.iab.base.utils.JsonUtils;
 import com.milesight.iab.context.integration.model.ExchangePayload;
 import com.milesight.iab.context.integration.model.event.ExchangeEvent;
 import com.milesight.iab.context.integration.model.event.WebSocketEvent;
-import com.milesight.iab.context.security.SecurityUserContext;
 import com.milesight.iab.eventbus.annotations.EventSubscribe;
 import com.milesight.iab.websocket.WebSocketContext;
 import lombok.extern.slf4j.Slf4j;
@@ -26,13 +25,9 @@ public class DashboardNotifyService {
     private void doDashboardNotify(ExchangePayload exchangePayload) {
         try {
             log.info("onDashboardNotify:{}", exchangePayload);
-            if (exchangePayload.getContext(SecurityUserContext.USER_ID) == null) {
-                log.error("onDashboardNotify userId is null");
-                return;
-            }
-            String userId = exchangePayload.getContext(SecurityUserContext.USER_ID).toString();
+            //FIXME send message to user that has entity show in dashboard
             WebSocketEvent webSocketEvent = WebSocketEvent.of(WebSocketEvent.EventType.EXCHANGE, exchangePayload);
-            WebSocketContext.sendMessage(userId, JsonUtils.toJSON(webSocketEvent));
+            WebSocketContext.sendAllMessage(JsonUtils.toJSON(webSocketEvent));
         } catch (Exception e) {
             log.error("onDashboardNotify error:{}", e.getMessage(), e);
         }
