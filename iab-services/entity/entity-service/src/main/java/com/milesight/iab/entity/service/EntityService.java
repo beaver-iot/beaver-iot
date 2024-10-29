@@ -43,7 +43,7 @@ import com.milesight.iab.entity.repository.EntityHistoryRepository;
 import com.milesight.iab.entity.repository.EntityLatestRepository;
 import com.milesight.iab.entity.repository.EntityRepository;
 import jakarta.persistence.EntityManager;
-import lombok.*;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -246,7 +246,7 @@ public class EntityService implements EntityServiceProvider {
         }
         List<Entity> allEntityList = new ArrayList<>();
         allEntityList.add(entity);
-        if(!CollectionUtils.isEmpty(entity.getChildren())){
+        if (!CollectionUtils.isEmpty(entity.getChildren())) {
             allEntityList.addAll(entity.getChildren());
         }
 
@@ -936,19 +936,34 @@ public class EntityService implements EntityServiceProvider {
         if (aggregateType == AggregateType.COUNT) {
             List<EntityAggregateResponse.CountResult> countResult = new ArrayList<>();
             if (oneEntityHistoryPO.getValueBoolean() != null) {
-                Map<Boolean, Long> entityHistoryPOGroup = entityHistoryPOList.stream().collect(Collectors.groupingBy(EntityHistoryPO::getValueBoolean, Collectors.counting()));
+                Map<Boolean, Integer> entityHistoryPOGroup = entityHistoryPOList.stream().collect(Collectors.groupingBy(EntityHistoryPO::getValueBoolean, Collectors.collectingAndThen(
+                        Collectors.counting(),
+                        Long::intValue
+                )));
                 entityHistoryPOGroup.forEach((key, value) -> countResult.add(new EntityAggregateResponse.CountResult(key, EntityValueType.BOOLEAN, value)));
             } else if (oneEntityHistoryPO.getValueLong() != null) {
-                Map<String, Long> entityHistoryPOGroup = entityHistoryPOList.stream().collect(Collectors.groupingBy(t -> t.getValueLong().toString(), Collectors.counting()));
+                Map<String, Integer> entityHistoryPOGroup = entityHistoryPOList.stream().collect(Collectors.groupingBy(t -> t.getValueLong().toString(), Collectors.collectingAndThen(
+                        Collectors.counting(),
+                        Long::intValue
+                )));
                 entityHistoryPOGroup.forEach((key, value) -> countResult.add(new EntityAggregateResponse.CountResult(key, EntityValueType.LONG, value)));
             } else if (oneEntityHistoryPO.getValueDouble() != null) {
-                Map<Double, Long> entityHistoryPOGroup = entityHistoryPOList.stream().collect(Collectors.groupingBy(t -> t.getValueDouble().doubleValue(), Collectors.counting()));
+                Map<Double, Integer> entityHistoryPOGroup = entityHistoryPOList.stream().collect(Collectors.groupingBy(t -> t.getValueDouble().doubleValue(), Collectors.collectingAndThen(
+                        Collectors.counting(),
+                        Long::intValue
+                )));
                 entityHistoryPOGroup.forEach((key, value) -> countResult.add(new EntityAggregateResponse.CountResult(key, EntityValueType.DOUBLE, value)));
             } else if (oneEntityHistoryPO.getValueString() != null) {
-                Map<String, Long> entityHistoryPOGroup = entityHistoryPOList.stream().collect(Collectors.groupingBy(EntityHistoryPO::getValueString, Collectors.counting()));
+                Map<String, Integer> entityHistoryPOGroup = entityHistoryPOList.stream().collect(Collectors.groupingBy(EntityHistoryPO::getValueString, Collectors.collectingAndThen(
+                        Collectors.counting(),
+                        Long::intValue
+                )));
                 entityHistoryPOGroup.forEach((key, value) -> countResult.add(new EntityAggregateResponse.CountResult(key, EntityValueType.STRING, value)));
             } else if (oneEntityHistoryPO.getValueBinary() != null) {
-                Map<Byte[], Long> entityHistoryPOGroup = entityHistoryPOList.stream().collect(Collectors.groupingBy(EntityHistoryPO::getValueBinary, Collectors.counting()));
+                Map<Byte[], Integer> entityHistoryPOGroup = entityHistoryPOList.stream().collect(Collectors.groupingBy(EntityHistoryPO::getValueBinary, Collectors.collectingAndThen(
+                        Collectors.counting(),
+                        Long::intValue
+                )));
                 entityHistoryPOGroup.forEach((key, value) -> countResult.add(new EntityAggregateResponse.CountResult(key, EntityValueType.BINARY, value)));
             }
             entityAggregateResponse.setCountResult(countResult);

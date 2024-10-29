@@ -127,10 +127,10 @@ public class DashboardService {
             return new ArrayList<>();
         }
         List<DashboardResponse> dashboardResponseList = DashboardConvert.INSTANCE.convertResponseList(dashboardPOList);
-        List<Long> dashboardIdList = dashboardResponseList.stream().map(DashboardResponse::getDashboardId).toList();
+        List<Long> dashboardIdList = dashboardResponseList.stream().map(t -> Long.parseLong(t.getDashboardId())).toList();
         List<DashboardWidgetDTO> dashboardWidgetDTOList = getWidgetsByDashBoards(dashboardIdList);
         Map<Long, List<DashboardWidgetDTO>> dashboardWidgetMap = dashboardWidgetDTOList.stream().filter(dashboardWidgetDTO -> dashboardWidgetDTO.getDashboardId() != null).collect(Collectors.groupingBy(DashboardWidgetDTO::getDashboardId));
-        dashboardResponseList.forEach(dashboardResponse -> dashboardResponse.setWidgets(dashboardWidgetMap.get(dashboardResponse.getDashboardId())));
+        dashboardResponseList.forEach(dashboardResponse -> dashboardResponse.setWidgets(dashboardWidgetMap.get(Long.parseLong(dashboardResponse.getDashboardId()))));
         return dashboardResponseList;
     }
 
