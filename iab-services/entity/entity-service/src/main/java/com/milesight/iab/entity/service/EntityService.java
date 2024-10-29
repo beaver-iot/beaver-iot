@@ -1,6 +1,7 @@
 package com.milesight.iab.entity.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.milesight.iab.base.enums.ErrorCode;
 import com.milesight.iab.base.exception.ServiceException;
 import com.milesight.iab.base.utils.JsonUtils;
@@ -42,6 +43,7 @@ import com.milesight.iab.entity.repository.EntityHistoryRepository;
 import com.milesight.iab.entity.repository.EntityLatestRepository;
 import com.milesight.iab.entity.repository.EntityRepository;
 import jakarta.persistence.EntityManager;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -414,7 +416,7 @@ public class EntityService implements EntityServiceProvider {
             } else if (entityValueType == EntityValueType.DOUBLE) {
                 entityLatestPO.setValueDouble(new BigDecimal(String.valueOf(payload)));
             } else if (entityValueType == EntityValueType.BINARY) {
-                entityLatestPO.setValueBinary((Byte[]) payload);
+                entityLatestPO.setValueBinary((byte[]) payload);
             } else {
                 throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
             }
@@ -503,11 +505,13 @@ public class EntityService implements EntityServiceProvider {
         if (!StringUtils.hasText(key)) {
             return null;
         }
-        return findExchangeValuesByKeys(Collections.singletonList(key));
+        return findExchangeValuesByKeys(Collections.singletonList(key)).get(key);
     }
 
     @Override
-    public JsonNode findExchangeValuesByKeys(List<String> keys) {
+    @NonNull
+    public Map<String, JsonNode> findExchangeValuesByKeys(List<String> keys) {
+        Map<String, JsonNode> resultMap = new HashMap<>();
         List<EntityPO> allEntities = new ArrayList<>();
         List<EntityPO> entityPOList = getByKeys(keys);
         List<EntityPO> childrenEntities = getByParentKeys(keys);
@@ -518,31 +522,31 @@ public class EntityService implements EntityServiceProvider {
             allEntities.addAll(childrenEntities);
         }
         if (allEntities.isEmpty()) {
-            return null;
+            return resultMap;
         }
         List<Long> entityIds = allEntities.stream().map(EntityPO::getId).toList();
         Map<Long, String> entityKeyMap = allEntities.stream().collect(Collectors.toMap(EntityPO::getId, EntityPO::getKey));
         List<EntityLatestPO> entityLatestPOList = entityLatestRepository.findAll(filter -> filter.in(EntityLatestPO.Fields.entityId, entityIds.toArray()));
         if (entityLatestPOList == null || entityLatestPOList.isEmpty()) {
-            return null;
+            return resultMap;
         }
-        Map<String, Object> resultMap = new HashMap<>();
         entityLatestPOList.forEach(entityLatestPO -> {
-            Object value = null;
+            JsonNode value = null;
+            JsonNodeFactory nodeFactory = JsonUtils.getObjectMapper().getNodeFactory();
             if (entityLatestPO.getValueBoolean() != null) {
-                value = entityLatestPO.getValueBoolean();
+                value = nodeFactory.booleanNode(entityLatestPO.getValueBoolean());
             } else if (entityLatestPO.getValueLong() != null) {
-                value = entityLatestPO.getValueLong();
+                value = nodeFactory.numberNode(entityLatestPO.getValueLong());
             } else if (entityLatestPO.getValueDouble() != null) {
-                value = entityLatestPO.getValueDouble().doubleValue();
+                value = nodeFactory.numberNode(entityLatestPO.getValueDouble());
             } else if (entityLatestPO.getValueString() != null) {
-                value = entityLatestPO.getValueString();
+                value = nodeFactory.textNode(entityLatestPO.getValueString());
             } else if (entityLatestPO.getValueBinary() != null) {
-                value = entityLatestPO.getValueBinary();
+                value = nodeFactory.binaryNode(entityLatestPO.getValueBinary());
             }
             resultMap.put(entityKeyMap.get(entityLatestPO.getEntityId()), value);
         });
-        return JsonUtils.toJsonNode(resultMap);
+        return resultMap;
     }
 
     @Override
@@ -550,15 +554,15 @@ public class EntityService implements EntityServiceProvider {
         if (!StringUtils.hasText(key)) {
             return null;
         }
-        JsonNode exchangeValueNode = findExchangeValueByKey(key);
-        if (exchangeValueNode == null || exchangeValueNode.isEmpty()) {
+        Map<String, JsonNode> exchangeValues = findExchangeValuesByKeys(Collections.singletonList(key));
+        if (exchangeValues.isEmpty()) {
             return null;
         }
         try {
             T instance = entitiesClazz.getDeclaredConstructor().newInstance();
             Field[] fields = entitiesClazz.getDeclaredFields();
 
-            exchangeValueNode.fieldNames().forEachRemaining(exchangeKey -> {
+            exchangeValues.keySet().forEach(exchangeKey -> {
                 try {
                     for (Field field : fields) {
                         String realFieldName = new EnhancePropertySourcesPropertyResolver().resolveEntityNamePlaceholders(field);
@@ -568,7 +572,7 @@ public class EntityService implements EntityServiceProvider {
                         String keyFieldName = exchangeKey.substring(exchangeKey.lastIndexOf(".") + 1);
                         if (realFieldName.equals(keyFieldName)) {
                             field.setAccessible(true);
-                            field.set(instance, JsonUtils.cast(exchangeValueNode.get(exchangeKey), field.getType()));
+                            field.set(instance, JsonUtils.cast(exchangeValues.get(exchangeKey), field.getType()));
                             break;
                         }
                     }

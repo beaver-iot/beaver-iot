@@ -28,7 +28,7 @@ public class EntityLatestPO {
     private BigDecimal valueDouble;
     private Boolean valueBoolean;
     private String valueString;
-    private Byte[] valueBinary;
+    private byte[] valueBinary;
     private Long timestamp;
     private Long updatedAt;
 

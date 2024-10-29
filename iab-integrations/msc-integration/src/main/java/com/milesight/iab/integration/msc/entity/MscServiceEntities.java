@@ -20,6 +20,9 @@ public class MscServiceEntities extends ExchangePayload {
     private AddDevice addDevice;
 
     @Entity(type = EntityType.SERVICE)
+    private SyncDevice syncDevice;
+
+    @Entity(type = EntityType.SERVICE)
     private DeleteDevice deleteDevice;
 
     @EqualsAndHashCode(callSuper = true)
@@ -41,6 +44,15 @@ public class MscServiceEntities extends ExchangePayload {
     @NoArgsConstructor
     @Entities
     public static class DeleteDevice extends ExchangePayload {
+
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @Entities
+    public static class SyncDevice extends ExchangePayload {
 
     }
 

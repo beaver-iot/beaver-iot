@@ -2,6 +2,7 @@ package com.milesight.iab.integration.msc.service;
 
 import com.milesight.iab.context.api.DeviceServiceProvider;
 import com.milesight.iab.context.api.EntityServiceProvider;
+import com.milesight.iab.context.api.ExchangeFlowExecutor;
 import com.milesight.iab.context.integration.model.ExchangePayload;
 import com.milesight.iab.context.integration.model.event.ExchangeEvent;
 import com.milesight.iab.eventbus.annotations.EventSubscribe;
@@ -36,6 +37,9 @@ public class MscWebhookService {
     private EntityServiceProvider entityServiceProvider;
 
     @Autowired
+    private ExchangeFlowExecutor exchangeFlowExecutor;
+
+    @Autowired
     private DeviceServiceProvider deviceServiceProvider;
 
     @Lazy
@@ -57,11 +61,11 @@ public class MscWebhookService {
             mac = HMacUtils.getMac(webhookSettings.getSecretKey());
         }
         if (!enabled) {
-            entityServiceProvider.saveExchange(ExchangePayload.create(WEBHOOK_STATUS_KEY, IntegrationStatus.NOT_READY.name()));
+            exchangeFlowExecutor.syncExchangeDown(ExchangePayload.create(WEBHOOK_STATUS_KEY, IntegrationStatus.NOT_READY.name()));
         }
     }
 
-    @EventSubscribe(payloadKeyExpression ="msc-integration.integration.webhook", eventType = ExchangeEvent.EventType.UP)
+    @EventSubscribe(payloadKeyExpression ="msc-integration.integration.webhook", eventType = ExchangeEvent.EventType.DOWN)
     public void onWebhookPropertiesUpdate(Event<MscConnectionPropertiesEntities.Webhook> event) {
         this.enabled = Boolean.TRUE.equals(event.getPayload().getEnabled());
         if (event.getPayload().getSecretKey() != null && !event.getPayload().getSecretKey().isEmpty()) {
@@ -134,8 +138,8 @@ public class MscWebhookService {
         }
 
         // save data
-        dataSyncService.saveHistoryData(device.getKey(), properties, webhookPayload.getEventCreatedTime() * 1000);
-        entityServiceProvider.saveExchange(ExchangePayload.create(WEBHOOK_STATUS_KEY, IntegrationStatus.READY.name()));
+        dataSyncService.saveHistoryData(device.getKey(), properties, webhookPayload.getEventCreatedTime() * 1000, true);
+        exchangeFlowExecutor.asyncExchangeUp(ExchangePayload.create(WEBHOOK_STATUS_KEY, IntegrationStatus.READY.name()));
     }
 
     public boolean isSignatureValid(String signature, String requestTimestamp, String requestNonce) {
