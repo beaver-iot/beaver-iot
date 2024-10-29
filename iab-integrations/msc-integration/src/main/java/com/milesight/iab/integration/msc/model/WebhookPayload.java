@@ -1,17 +1,15 @@
 package com.milesight.iab.integration.msc.model;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.milesight.iab.context.integration.model.ExchangePayload;
 import lombok.*;
 
 import javax.annotation.Nullable;
 
-@EqualsAndHashCode(callSuper = true)
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class WebhookPayload extends ExchangePayload {
+public class WebhookPayload {
 
     private String eventId;
 
