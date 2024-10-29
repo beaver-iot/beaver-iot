@@ -82,7 +82,7 @@ public class DeviceService {
 
         // call service for adding
         ExchangePayload payload = createDeviceRequest.getParamEntities();
-        payload.putContext("deviceName", createDeviceRequest.getName());
+        payload.putContext("device_name", createDeviceRequest.getName());
 
         // Must return a device
         exchangeFlowExecutor.syncExchangeDown(payload);
