@@ -101,7 +101,7 @@ public class Entity implements IdentityKey {
     public void validate() {
         Assert.notNull(identifier, "Entity identifier must not be null");
         Assert.notNull(type, "EntityType must not be null");
-        Assert.notNull(valueType, "EntityValueType must not be null");
+        Assert.notNull(valueType, "Entity ValueType must not be null");
         Assert.notNull(name, "Entity name must not be null");
     }
 }

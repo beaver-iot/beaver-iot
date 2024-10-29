@@ -99,8 +99,14 @@ public class ExchangePayload extends HashMap<String,Object> implements ExchangeP
         return new ExchangePayload(values);
     }
 
-    public static <T extends ExchangePayloadAccessor> ExchangePayload createFrom(T payload){
-        return new ExchangePayload(payload.getAllPayloads());
+    public static ExchangePayload create(Map<String,Object> values, Map<String,Object> context) {
+        ExchangePayload exchangePayload = new ExchangePayload(values);
+        exchangePayload.setContext(context);
+        return exchangePayload;
+    }
+
+    public static <T extends ExchangePayload> ExchangePayload createFrom(T payload){
+        return create(payload.getAllPayloads(), payload.getContext());
     }
 
     public static <T extends ExchangePayloadAccessor> ExchangePayload createFrom(T payload, List<String> assignKeys){

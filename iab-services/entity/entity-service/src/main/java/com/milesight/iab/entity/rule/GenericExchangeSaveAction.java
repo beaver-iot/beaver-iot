@@ -32,19 +32,19 @@ public class GenericExchangeSaveAction implements ProcessorNode<ExchangePayload>
         // Save event entities， only save history
         Map<String, Object> eventEntities = exchange.getPayloadsByEntityType(EntityType.EVENT);
         if (!ObjectUtils.isEmpty(eventEntities)) {
-            entityServiceProvider.saveExchangeHistory(new ExchangePayload(eventEntities));
+            entityServiceProvider.saveExchangeHistory(ExchangePayload.create(eventEntities, exchange.getContext()));
         }
 
         // Save property entities
         Map<String, Object> propertyEntities = exchange.getPayloadsByEntityType(EntityType.PROPERTY);
         if (!ObjectUtils.isEmpty(propertyEntities)) {
-            entityServiceProvider.saveExchange(new ExchangePayload(propertyEntities));
+            entityServiceProvider.saveExchange(ExchangePayload.create(propertyEntities, exchange.getContext()));
         }
 
         // Save service entities， only save history
         Map<String, Object> serviceEntities = exchange.getPayloadsByEntityType(EntityType.SERVICE);
         if (!ObjectUtils.isEmpty(serviceEntities)) {
-            entityServiceProvider.saveExchangeHistory(new ExchangePayload(serviceEntities));
+            entityServiceProvider.saveExchangeHistory(ExchangePayload.create(serviceEntities, exchange.getContext()));
         }
 
     }
