@@ -21,7 +21,7 @@ public class CustomJdbcOAuth2AuthorizationService extends JdbcOAuth2Authorizatio
 
     @Override
     public void removeByPrincipalName(String principalName) {
-        //FIXME 暂允许同一个user生成多个有效token
+        //FIXME Temporarily allow the same user to generate multiple valid tokens
 //        Assert.notNull(principalName, "principalName cannot be null");
 //        SqlParameterValue[] parameters = new SqlParameterValue[] {
 //                new SqlParameterValue(Types.VARCHAR, principalName) };
