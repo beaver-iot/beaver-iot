@@ -407,7 +407,9 @@ public class EntityService implements EntityServiceProvider {
             EntityLatestPO entityLatestPO = new EntityLatestPO();
             entityLatestPO.setId(entityLatestId);
             entityLatestPO.setEntityId(entityId);
-            if (entityValueType == EntityValueType.BOOLEAN) {
+            if (entityValueType == EntityValueType.OBJECT) {
+                // do nothing
+            } if (entityValueType == EntityValueType.BOOLEAN) {
                 entityLatestPO.setValueBoolean((Boolean) payload);
             } else if (entityValueType == EntityValueType.LONG) {
                 entityLatestPO.setValueLong(Long.valueOf(String.valueOf(payload)));
@@ -480,7 +482,9 @@ public class EntityService implements EntityServiceProvider {
             }
             entityHistoryPO.setId(historyId);
             entityHistoryPO.setEntityId(entityId);
-            if (entityValueType == EntityValueType.BOOLEAN) {
+            if (entityValueType == EntityValueType.OBJECT) {
+                // do nothing
+            } else if (entityValueType == EntityValueType.BOOLEAN) {
                 entityHistoryPO.setValueBoolean((Boolean) payload);
             } else if (entityValueType == EntityValueType.LONG) {
                 entityHistoryPO.setValueLong(Long.valueOf(String.valueOf(payload)));
