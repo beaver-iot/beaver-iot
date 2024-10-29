@@ -16,7 +16,6 @@ import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
-import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AccessTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2ClientAuthenticationToken;
@@ -38,10 +37,10 @@ public class CustomOAuth2PasswordAuthenticationProvider implements Authenticatio
     private final UserDetailsService userDetailService;
     private final PasswordEncoder passwordEncoder;
 
-    private final OAuth2AuthorizationService authorizationService;
+    private final CustomOAuth2AuthorizationService authorizationService;
     private final OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator;
 
-    public CustomOAuth2PasswordAuthenticationProvider(OAuth2AuthorizationService authorizationService,
+    public CustomOAuth2PasswordAuthenticationProvider(CustomOAuth2AuthorizationService authorizationService,
                                                       OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator,
                                                       UserDetailsService userDetailService,
                                                       PasswordEncoder passwordEncoder) {
@@ -120,6 +119,8 @@ public class CustomOAuth2PasswordAuthenticationProvider implements Authenticatio
         }
 
         authorization = authorizationBuilder.build();
+
+        this.authorizationService.removeByPrincipalName(principal.getName());
 
         this.authorizationService.save(authorization);
 

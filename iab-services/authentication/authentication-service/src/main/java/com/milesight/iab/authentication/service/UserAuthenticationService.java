@@ -1,6 +1,7 @@
 package com.milesight.iab.authentication.service;
 
 import com.milesight.iab.authentication.config.OAuth2Properties;
+import com.milesight.iab.authentication.provider.CustomOAuth2AuthorizationService;
 import com.milesight.iab.authentication.util.OAuth2EndpointUtils;
 import com.milesight.iab.context.security.SecurityUserContext;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,7 +10,6 @@ import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
-import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 public class UserAuthenticationService {
 
     @Autowired
-    OAuth2AuthorizationService authorizationService;
+    CustomOAuth2AuthorizationService authorizationService;
     @Autowired
     JwtDecoder jwtDecoder;
     @Autowired

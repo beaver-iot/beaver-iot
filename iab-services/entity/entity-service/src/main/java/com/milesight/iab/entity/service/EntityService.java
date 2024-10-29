@@ -375,7 +375,7 @@ public class EntityService implements EntityServiceProvider {
         if (entityPOList == null || entityPOList.isEmpty()) {
             return;
         }
-        Map<String, Long> entityIdMap = entityPOList.stream().collect(Collectors.toMap(EntityPO::getKey, EntityPO::getId));
+        Map<String, EntityPO> entityIdMap = entityPOList.stream().collect(Collectors.toMap(EntityPO::getKey, Function.identity()));
         List<Long> entityIds = entityPOList.stream().map(EntityPO::getId).toList();
         List<EntityLatestPO> nowEntityLatestPOList = entityLatestRepository.findAll(filter -> filter.in(EntityLatestPO.Fields.entityId, entityIds.toArray()));
         Map<Long, EntityLatestPO> entityIdDataMap = new HashMap<>();
@@ -384,10 +384,12 @@ public class EntityService implements EntityServiceProvider {
         }
         List<EntityLatestPO> entityLatestPOList = new ArrayList<>();
         payloads.forEach((entityKey, payload) -> {
-            Long entityId = entityIdMap.get(entityKey);
-            if (entityId == null) {
+            EntityPO entityPO = entityIdMap.get(entityKey);
+            if (entityPO == null) {
                 return;
             }
+            Long entityId = entityPO.getId();
+            EntityValueType entityValueType = entityPO.getValueType();
             EntityLatestPO dataEntityLatest = entityIdDataMap.get(entityId);
             Long entityLatestId = null;
             if (dataEntityLatest == null) {
@@ -402,21 +404,15 @@ public class EntityService implements EntityServiceProvider {
             EntityLatestPO entityLatestPO = new EntityLatestPO();
             entityLatestPO.setId(entityLatestId);
             entityLatestPO.setEntityId(entityId);
-            if (payload instanceof Boolean) {
+            if (entityValueType == EntityValueType.BOOLEAN) {
                 entityLatestPO.setValueBoolean((Boolean) payload);
-            } else if (payload instanceof Integer) {
-                entityLatestPO.setValueLong(((Integer) payload).longValue());
-            } else if (payload instanceof Long) {
-                entityLatestPO.setValueLong((Long) payload);
-            } else if (payload instanceof String) {
+            } else if (entityValueType == EntityValueType.LONG) {
+                entityLatestPO.setValueLong(Long.valueOf(String.valueOf(payload)));
+            } else if (entityValueType == EntityValueType.STRING) {
                 entityLatestPO.setValueString((String) payload);
-            } else if (payload instanceof Float) {
-                entityLatestPO.setValueDouble(BigDecimal.valueOf(((Float) payload).doubleValue()));
-            } else if (payload instanceof Double) {
-                entityLatestPO.setValueDouble(BigDecimal.valueOf((Double) payload));
-            } else if (payload instanceof BigDecimal) {
-                entityLatestPO.setValueDouble((BigDecimal) payload);
-            } else if (payload instanceof Byte[]) {
+            } else if (entityValueType == EntityValueType.DOUBLE) {
+                entityLatestPO.setValueDouble(new BigDecimal(String.valueOf(payload)));
+            } else if (entityValueType == EntityValueType.BINARY) {
                 entityLatestPO.setValueBinary((Byte[]) payload);
             } else {
                 throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
@@ -441,12 +437,13 @@ public class EntityService implements EntityServiceProvider {
         if (entityPOList == null || entityPOList.isEmpty()) {
             return;
         }
-        Map<String, Long> entityIdMap = entityPOList.stream().collect(Collectors.toMap(EntityPO::getKey, EntityPO::getId));
+        Map<String, EntityPO> entityIdMap = entityPOList.stream().collect(Collectors.toMap(EntityPO::getKey, Function.identity()));
         List<EntityHistoryUnionQuery> entityHistoryUnionQueryList = payloads.keySet().stream().map(o -> {
-            Long entityId = entityIdMap.get(o);
-            if (entityId == null) {
+            EntityPO entityPO = entityIdMap.get(o);
+            if (entityPO == null) {
                 return null;
             }
+            Long entityId = entityPO.getId();
             EntityHistoryUnionQuery entityHistoryUnionQuery = new EntityHistoryUnionQuery();
             entityHistoryUnionQuery.setEntityId(entityId);
             entityHistoryUnionQuery.setTimestamp(exchangePayload.getTimestamp());
@@ -459,10 +456,12 @@ public class EntityService implements EntityServiceProvider {
         }
         List<EntityHistoryPO> entityHistoryPOList = new ArrayList<>();
         payloads.forEach((entityKey, payload) -> {
-            Long entityId = entityIdMap.get(entityKey);
-            if (entityId == null) {
+            EntityPO entityPO = entityIdMap.get(entityKey);
+            if (entityPO == null) {
                 return;
             }
+            Long entityId = entityPO.getId();
+            EntityValueType entityValueType = entityPO.getValueType();
             EntityHistoryPO entityHistoryPO = new EntityHistoryPO();
             String unionId = entityId + ":" + exchangePayload.getTimestamp();
             EntityHistoryPO dataHistory = existUnionIdMap.get(unionId);
@@ -478,21 +477,15 @@ public class EntityService implements EntityServiceProvider {
             }
             entityHistoryPO.setId(historyId);
             entityHistoryPO.setEntityId(entityId);
-            if (payload instanceof Boolean) {
+            if (entityValueType == EntityValueType.BOOLEAN) {
                 entityHistoryPO.setValueBoolean((Boolean) payload);
-            } else if (payload instanceof Integer) {
-                entityHistoryPO.setValueLong(((Integer) payload).longValue());
-            } else if (payload instanceof Long) {
-                entityHistoryPO.setValueLong((Long) payload);
-            } else if (payload instanceof String) {
+            } else if (entityValueType == EntityValueType.LONG) {
+                entityHistoryPO.setValueLong(Long.valueOf(String.valueOf(payload)));
+            } else if (entityValueType == EntityValueType.STRING) {
                 entityHistoryPO.setValueString((String) payload);
-            } else if (payload instanceof Float) {
-                entityHistoryPO.setValueDouble(BigDecimal.valueOf(((Float) payload).doubleValue()));
-            } else if (payload instanceof Double) {
-                entityHistoryPO.setValueDouble(BigDecimal.valueOf((Double) payload));
-            } else if (payload instanceof BigDecimal) {
-                entityHistoryPO.setValueDouble((BigDecimal) payload);
-            } else if (payload instanceof Byte[]) {
+            } else if (entityValueType == EntityValueType.DOUBLE) {
+                entityHistoryPO.setValueDouble(new BigDecimal(String.valueOf(payload)));
+            } else if (entityValueType == EntityValueType.BINARY) {
                 entityHistoryPO.setValueBinary((Byte[]) payload);
             } else {
                 throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();

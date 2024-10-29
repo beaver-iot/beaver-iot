@@ -5,6 +5,8 @@ import com.milesight.iab.authentication.exception.CustomOAuth2AccessDeniedHandle
 import com.milesight.iab.authentication.exception.CustomOAuth2ExceptionEntryPoint;
 import com.milesight.iab.authentication.filter.AuthenticationFilter;
 import com.milesight.iab.authentication.handler.CustomOAuth2AccessTokenResponseHandler;
+import com.milesight.iab.authentication.provider.CustomJdbcOAuth2AuthorizationService;
+import com.milesight.iab.authentication.provider.CustomOAuth2AuthorizationService;
 import com.milesight.iab.authentication.provider.CustomOAuth2PasswordAuthenticationConverter;
 import com.milesight.iab.authentication.provider.CustomOAuth2PasswordAuthenticationProvider;
 import com.milesight.iab.authentication.util.OAuth2EndpointUtils;
@@ -32,8 +34,6 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
-import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService;
-import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
@@ -150,7 +150,7 @@ public class WebSecurityConfiguration {
         ClientSettings clientSettings = ClientSettings.builder()
                 .requireAuthorizationConsent(false)
                 .build();
-        RegisteredClient registeredClient = RegisteredClient.withId(UUID.randomUUID().toString())
+        RegisteredClient registeredClient = RegisteredClient.withId(oAuth2Properties.getRegisteredClientId())
                 .clientId(oAuth2Properties.getClientId())
                 .clientSecret("{noop}" + oAuth2Properties.getClientSecret())
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
@@ -164,9 +164,9 @@ public class WebSecurityConfiguration {
     }
 
     @Bean
-    public OAuth2AuthorizationService authorizationService() {
+    public CustomOAuth2AuthorizationService authorizationService() {
 //        return new InMemoryOAuth2AuthorizationService();
-        return new JdbcOAuth2AuthorizationService(jdbcTemplate, registeredClientRepository());
+        return new CustomJdbcOAuth2AuthorizationService(jdbcTemplate, registeredClientRepository());
     }
 
     @Bean
