@@ -6,6 +6,7 @@ import com.milesight.iab.context.api.EntityServiceProvider;
 import com.milesight.iab.context.api.ExchangeFlowExecutor;
 import com.milesight.iab.context.api.IntegrationServiceProvider;
 import com.milesight.iab.context.integration.enums.AttachTargetType;
+import com.milesight.iab.context.integration.model.Device;
 import com.milesight.iab.context.integration.model.Entity;
 import com.milesight.iab.context.integration.model.ExchangePayload;
 import com.milesight.iab.context.integration.model.Integration;
@@ -128,8 +129,8 @@ public class DeviceService {
             return;
         }
 
-        List<DevicePO> devices = deviceRepository.findByIdIn(deviceIdList.stream().map(Long::valueOf).collect(Collectors.toList()));
-        Set<String> foundIds = devices.stream().map(id -> id.getId().toString()).collect(Collectors.toSet());
+        List<DevicePO> devicePOList = deviceRepository.findByIdIn(deviceIdList.stream().map(Long::valueOf).collect(Collectors.toList()));
+        Set<String> foundIds = devicePOList.stream().map(id -> id.getId().toString()).collect(Collectors.toSet());
 
         // check whether all devices exist
         if (!new HashSet<>(deviceIdList).containsAll(foundIds)) {
@@ -139,15 +140,17 @@ public class DeviceService {
                     .build();
         }
 
-        devices.stream().map((DevicePO device) -> {
+        List<Device> devices = deviceServiceHelper.convertPO(devicePOList);
+
+        devices.stream().map((Device device) -> {
             // check ability to delete device
-            Integration integrationConfig = getIntegrationConfig(device.getIntegration());
+            Integration integrationConfig = getIntegrationConfig(device.getIntegrationId());
             ExchangePayload payload = new ExchangePayload();
             String deleteDeviceServiceKey = integrationConfig.getEntityKeyDeleteDevice();
             if (deleteDeviceServiceKey == null) {
                 throw ServiceException
                         .with(ErrorCode.METHOD_NOT_ALLOWED)
-                        .detailMessage("integration " + device.getIntegration() + " cannot delete device!")
+                        .detailMessage("integration " + device.getIntegrationId() + " cannot delete device!")
                         .build();
             }
 
@@ -171,6 +174,7 @@ public class DeviceService {
 
         // set entities
         List<Entity> entities = entityServiceProvider.findByTargetId(AttachTargetType.DEVICE, deviceId.toString());
+        deviceDetailResponse.setIdentifier(findResult.get().getIdentifier());
         deviceDetailResponse.setEntities(entities
                 .stream().flatMap((Entity pEntity) -> {
                     ArrayList<Entity> flatEntities = new ArrayList<>();
