@@ -17,6 +17,7 @@ import com.milesight.iab.dashboard.repository.DashboardRepository;
 import com.milesight.iab.dashboard.repository.DashboardWidgetRepository;
 import com.milesight.iab.dashboard.repository.DashboardWidgetTemplateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -122,7 +123,7 @@ public class DashboardService {
     }
 
     public List<DashboardResponse> getDashboards() {
-        List<DashboardPO> dashboardPOList = dashboardRepository.findAll();
+        List<DashboardPO> dashboardPOList = dashboardRepository.findAll(Sort.by(Sort.Order.asc(DashboardPO.Fields.createdAt)));
         if (dashboardPOList == null || dashboardPOList.isEmpty()) {
             return new ArrayList<>();
         }
