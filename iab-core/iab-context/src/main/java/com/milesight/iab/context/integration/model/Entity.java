@@ -31,7 +31,6 @@ public class Entity implements IdentityKey {
     private String name;
     private String identifier;
     private AccessMod accessMod;
-    private boolean syncCall = true;
     private EntityValueType valueType;
     private EntityType type;
     private Map<String,Object> attributes;
