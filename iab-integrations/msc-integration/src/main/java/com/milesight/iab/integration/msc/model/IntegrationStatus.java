@@ -1,11 +1,12 @@
 package com.milesight.iab.integration.msc.model;
 
+import com.milesight.iab.base.enums.EnumCode;
 import lombok.*;
 
 
 @Getter
 @RequiredArgsConstructor
-public enum IntegrationStatus {
+public enum IntegrationStatus implements EnumCode {
     READY,
     NOT_READY,
     ERROR,
@@ -13,6 +14,16 @@ public enum IntegrationStatus {
 
     @Override
     public String toString() {
+        return name();
+    }
+
+    @Override
+    public String getCode() {
+        return name();
+    }
+
+    @Override
+    public String getValue() {
         return name();
     }
 }
