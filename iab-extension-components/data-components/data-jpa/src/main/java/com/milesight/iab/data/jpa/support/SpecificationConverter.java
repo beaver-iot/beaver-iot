@@ -13,6 +13,7 @@ import jakarta.persistence.criteria.Root;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.Pair;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +63,11 @@ public class SpecificationConverter {
                         break;
                     case LE:
                         predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get(compareCondition.getName()), (Comparable) compareCondition.getValue()));
+                        break;
+                    case CASE_IGNORE_LIKE:
+                        if(!ObjectUtils.isEmpty(compareCondition.getValue())){
+                            predicates.add(criteriaBuilder.like(criteriaBuilder.upper(root.get(compareCondition.getName())), "%" + compareCondition.getValue().toString().toUpperCase() + "%"));
+                        }
                         break;
                     case LIKE:
                         predicates.add(criteriaBuilder.like(root.get(compareCondition.getName()), "%" + compareCondition.getValue() + "%"));

@@ -24,6 +24,16 @@ public class SearchFilter extends CompositeCondition implements Filterable{
     }
 
     @Override
+    public Filterable likeIgnoreCase(String name, String value) {
+        return addCompareCondition(!ObjectUtils.isEmpty(value), SearchOperator.CASE_IGNORE_LIKE, name, value);
+    }
+
+    @Override
+    public Filterable likeIgnoreCase(boolean condition, String name, String value) {
+        return addCompareCondition(condition, SearchOperator.CASE_IGNORE_LIKE, name, value);
+    }
+
+    @Override
     public Filterable like(String name, String value) {
         return addCompareCondition(!ObjectUtils.isEmpty(value), SearchOperator.LIKE, name, value);
     }

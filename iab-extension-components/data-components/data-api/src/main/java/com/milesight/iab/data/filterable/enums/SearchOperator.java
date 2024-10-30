@@ -11,6 +11,7 @@ public enum SearchOperator {
     GE,
     LT,
     LE,
+    CASE_IGNORE_LIKE,
     LIKE,
     NOT_LIKE,
     LIKE_LEFT,

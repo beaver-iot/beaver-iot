@@ -11,6 +11,10 @@ import java.util.function.Consumer;
  */
 public interface Filterable {
 
+    Filterable likeIgnoreCase(String name, String value);
+
+    Filterable likeIgnoreCase(boolean condition, String name, String value);
+
     Filterable like(String name, String value);
 
     Filterable like(boolean condition, String name, String value);
