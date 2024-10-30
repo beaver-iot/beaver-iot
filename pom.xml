@@ -127,6 +127,7 @@
                             <configuration>
                                 <skip>${repack.skip}</skip>
                                 <classifier>exec</classifier>
+                                <finalName>${project.artifactId}</finalName>
                                 <layout>ZIP</layout>
                                 <excludeDevtools>${devtools.exclude}</excludeDevtools>
                                 <excludeGroupIds>${excludeGroupIds}</excludeGroupIds>
