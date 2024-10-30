@@ -366,7 +366,7 @@ public class MscTslUtils {
                 log.debug("Ignored invalid key: {}, prefix is {}", key, entityKeyPublicPrefix);
                 return;
             }
-            val paths  = key.substring(entityKeyPublicPrefix.length()).split("[.|@]");
+            val paths  = key.substring(entityKeyPublicPrefix.length() + 1).split("[.|@]");
             if (paths.length == 0) {
                 log.debug("Ignored invalid key: {}", key);
                 return;

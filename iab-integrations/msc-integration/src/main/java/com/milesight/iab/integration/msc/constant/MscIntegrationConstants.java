@@ -6,7 +6,7 @@ public interface MscIntegrationConstants {
 
     interface InternalPropertyKey {
 
-        String LAST_SYNC_TIME = "last_sync_time";
+        String LAST_SYNC_TIME = "_#last_sync_time#_";
 
         static String getLastSyncTimeKey(String deviceKey) {
             return String.format("%s.%s", deviceKey, LAST_SYNC_TIME);
