@@ -76,6 +76,7 @@ public class MscDeviceService {
         val deviceId = (String) device.getAdditional().get(DEVICE_ID_KEY);
         val serviceGroups = MscTslUtils.convertExchangePayloadMapToGroupedJsonNode(
                 objectMapper, device.getKey(), servicePayload);
+        serviceGroups.entrySet().removeIf(entry -> MscIntegrationConstants.InternalPropertyIdentifier.Pattern.match(entry.getKey()));
         if (serviceGroups.isEmpty()) {
             return;
         }
@@ -95,7 +96,7 @@ public class MscDeviceService {
         }
         val properties = MscTslUtils.convertExchangePayloadMapToGroupedJsonNode(
                 objectMapper, device.getKey(), propertiesPayload);
-        properties.remove(MscIntegrationConstants.InternalPropertyKey.LAST_SYNC_TIME);
+        properties.entrySet().removeIf(entry -> MscIntegrationConstants.InternalPropertyIdentifier.Pattern.match(entry.getKey()));
         if (properties.isEmpty()) {
             return;
         }
@@ -182,10 +183,10 @@ public class MscDeviceService {
 
     private static void addAdditionalEntities(List<Entity> entities) {
         entities.add(new EntityBuilder()
-                .identifier(MscIntegrationConstants.InternalPropertyKey.LAST_SYNC_TIME)
-                .property(MscIntegrationConstants.InternalPropertyKey.LAST_SYNC_TIME, AccessMod.R)
+                .identifier(MscIntegrationConstants.InternalPropertyIdentifier.LAST_SYNC_TIME)
+                .property(MscIntegrationConstants.InternalPropertyIdentifier.LAST_SYNC_TIME, AccessMod.R)
                 .valueType(EntityValueType.LONG)
-                .attributes(Map.of("private", true))
+                .attributes(Map.of("internal", true))
                 .build());
     }
 
