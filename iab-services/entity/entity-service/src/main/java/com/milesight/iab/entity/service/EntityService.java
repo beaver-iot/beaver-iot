@@ -331,10 +331,26 @@ public class EntityService implements EntityServiceProvider {
         allEntityCountMap.putAll(countIntegrationEntitiesByIntegrationIds(integrationIds));
         List<DeviceNameDTO> integrationDevices = deviceFacade.getDeviceNameByIntegrations(integrationIds);
         if (integrationDevices != null && !integrationDevices.isEmpty()) {
+            Map<String, List<DeviceNameDTO>> integrationDeviceMap = integrationDevices.stream().collect(Collectors.groupingBy(t -> t.getIntegrationConfig().getId()));
             List<String> deviceIds = integrationDevices.stream().map(DeviceNameDTO::getId).map(String::valueOf).toList();
             List<EntityPO> deviceEntityPOList = entityRepository.findAll(filter -> filter.eq(EntityPO.Fields.attachTarget, AttachTargetType.DEVICE).in(EntityPO.Fields.attachTargetId, deviceIds.toArray()));
             if (deviceEntityPOList != null && !deviceEntityPOList.isEmpty()) {
-                allEntityCountMap.putAll(deviceEntityPOList.stream().collect(Collectors.groupingBy(EntityPO::getAttachTargetId, Collectors.counting())));
+                Map<String, Long> deviceEntityCountMap = deviceEntityPOList.stream().collect(Collectors.groupingBy(EntityPO::getAttachTargetId, Collectors.counting()));
+                integrationDeviceMap.forEach((integrationId, deviceList) -> {
+                    if(deviceList == null || deviceList.isEmpty()){
+                        return;
+                    }
+                    List<String> deviceIdList = deviceList.stream().map(DeviceNameDTO::getId).map(String::valueOf).toList();
+                    Long integrationDeviceCount = 0L;
+                    for (String deviceId : deviceIdList) {
+                        Long deviceCount = deviceEntityCountMap.get(deviceId);
+                        if (deviceCount != null) {
+                            integrationDeviceCount += deviceCount;
+                        }
+                    }
+                    Long entityCount = allEntityCountMap.get(integrationId) == null ? 0L : allEntityCountMap.get(integrationId);
+                    allEntityCountMap.put(integrationId, entityCount + integrationDeviceCount);
+                });
             }
         }
         return allEntityCountMap;

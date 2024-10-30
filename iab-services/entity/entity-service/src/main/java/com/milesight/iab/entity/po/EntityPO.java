@@ -47,7 +47,6 @@ public class EntityPO {
     private AttachTargetType attachTarget;
     private String attachTargetId;
     @Convert(converter = MapJsonConverter.class)
-    @Column(length = 2048)
     private Map<String, Object> valueAttribute;
     @Enumerated(EnumType.STRING)
     private EntityValueType valueType;
