@@ -2,6 +2,7 @@ package com.milesight.iab.device.service;
 
 import com.milesight.iab.base.enums.ErrorCode;
 import com.milesight.iab.base.exception.ServiceException;
+import com.milesight.iab.base.page.Sorts;
 import com.milesight.iab.context.api.EntityServiceProvider;
 import com.milesight.iab.context.api.ExchangeFlowExecutor;
 import com.milesight.iab.context.api.IntegrationServiceProvider;
@@ -105,6 +106,10 @@ public class DeviceService {
 
     public Page<DeviceResponseData> searchDevice(SearchDeviceRequest searchDeviceRequest) {
         // convert to `DeviceResponseData`
+        if (searchDeviceRequest.getSort().getOrders().isEmpty()) {
+            searchDeviceRequest.sort(new Sorts().desc(DevicePO.Fields.createdAt));
+        }
+
         return deviceRepository
                 .findAll(f -> f.like(StringUtils.hasText(searchDeviceRequest.getName()), DevicePO.Fields.name, searchDeviceRequest.getName()), searchDeviceRequest.toPageable())
                 .map(this::convertPOToResponseData);
