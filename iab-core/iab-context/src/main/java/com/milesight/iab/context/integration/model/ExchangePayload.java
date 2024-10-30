@@ -109,16 +109,16 @@ public class ExchangePayload extends HashMap<String,Object> implements ExchangeP
         return create(payload.getAllPayloads(), payload.getContext());
     }
 
-    public static <T extends ExchangePayloadAccessor> ExchangePayload createFrom(T payload, List<String> assignKeys){
+    public static <T extends ExchangePayload> ExchangePayload createFrom(T payload, List<String> assignKeys){
         if(ObjectUtils.isEmpty(payload) || ObjectUtils.isEmpty(assignKeys)){
-            return new ExchangePayload(payload.getAllPayloads());
+            return ExchangePayload.create(payload.getAllPayloads(), payload.getContext());
         }
 
         Map<String, Object> filteredMap = payload.getAllPayloads().entrySet()
                 .stream()
                 .filter(entry -> CollectionUtils.contains(assignKeys.iterator(), entry.getKey()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        return new ExchangePayload(filteredMap);
+        return ExchangePayload.create(filteredMap, payload.getContext());
     }
 
     public Map<String,Entity> getExchangeEntities() {

@@ -31,7 +31,7 @@ public class ListenerParameterResolver {
             ExchangePayload newPayload = ExchangePayload.createFrom(payload, List.of(matchMultiKeys));
 
             if(parameterTypes != null && ExchangePayload.class.isAssignableFrom(parameterTypes)){
-                newPayload = new ExchangePayloadProxy(newPayload, parameterTypes).proxy();
+                newPayload = new ExchangePayloadProxy(newPayload, (Class<? extends ExchangePayload>) parameterTypes).proxy();
             }
             return (T) ExchangeEvent.of(event.getEventType(), newPayload);
         }
@@ -39,8 +39,11 @@ public class ListenerParameterResolver {
     }
 
     @SneakyThrows
-    private Object newInstance(Class<?> parameterTypes) {
-        return parameterTypes.newInstance();
+    private Object newInstance(Class<? extends ExchangePayload> parameterTypes, ExchangePayload exchangePayload) {
+        ExchangePayload newInstance = parameterTypes.newInstance();
+        newInstance.setContext(exchangePayload.getContext());
+        newInstance.setTimestamp(exchangePayload.getTimestamp());
+        return newInstance;
     }
 
     public Class resolveActualEventType(Method method){
@@ -84,10 +87,10 @@ public class ListenerParameterResolver {
     }
 
     public class ExchangePayloadProxy {
-        private final Class<?> parameterTypes;
+        private final Class<? extends ExchangePayload> parameterTypes;
         private final ExchangePayload exchangePayload;
 
-        public ExchangePayloadProxy(ExchangePayload exchangePayload, Class<?> parameterTypes) {
+        public ExchangePayloadProxy(ExchangePayload exchangePayload, Class<? extends ExchangePayload> parameterTypes) {
             this.exchangePayload = exchangePayload;
             this.parameterTypes = parameterTypes;
         }
@@ -95,10 +98,12 @@ public class ListenerParameterResolver {
         public ExchangePayload proxy() {
             Map<String, Object> allPayloads = exchangePayload.getAllPayloads();
             ProxyFactory factory = new ProxyFactory();
-            factory.setTarget(newInstance(parameterTypes));
+            factory.setTarget(newInstance(parameterTypes, exchangePayload));
             factory.addAdvice((MethodInterceptor) invocation -> {
                 Method method = invocation.getMethod();
-                if ("toString".equals(method.getName()) || "equals".equals(method.getName())) {
+                if ("toString".equals(method.getName())) {
+                    return exchangePayload.toString();
+                }else if("hashCode".equals(method.getName()) || "equals".equals(method.getName())){
                     return invocation.proceed();
                 }
                 String cacheEntityKey = AnnotationEntityCache.INSTANCE.getEntityKeyByMethod(method);
