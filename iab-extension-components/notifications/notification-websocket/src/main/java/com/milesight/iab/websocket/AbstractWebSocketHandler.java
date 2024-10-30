@@ -55,6 +55,9 @@ public abstract class AbstractWebSocketHandler extends SimpleChannelInboundHandl
     @Override
     public final void channelInactive(ChannelHandlerContext ctx) throws Exception {
         disconnect(ctx);
+        if (!ctx.channel().isActive()) {
+            return;
+        }
         super.channelInactive(ctx);
     }
 
@@ -84,12 +87,18 @@ public abstract class AbstractWebSocketHandler extends SimpleChannelInboundHandl
         } else if (msg instanceof TextWebSocketFrame textWebSocketFrame) {
             handleTextMessage(ctx, textWebSocketFrame);
         }
+        if (!ctx.channel().isActive()) {
+            return;
+        }
         super.channelRead(ctx, msg);
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         exception(ctx, cause);
+        if (!ctx.channel().isActive()) {
+            return;
+        }
         super.exceptionCaught(ctx, cause);
     }
 
