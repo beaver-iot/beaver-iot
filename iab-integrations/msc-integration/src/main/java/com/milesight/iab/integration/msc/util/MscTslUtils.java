@@ -91,11 +91,11 @@ public class MscTslUtils {
                     .map(child -> {
                         val id = child.getId();
                         val dataSpec = child.getDataSpec();
+                        val name = child.getName();
                         val valueType = checkParentExistsAndGetValueType(id, dataSpec, existsIdSet);
                         if (valueType == null) {
                             return null;
                         }
-                        val name = child.getName();
                         val accessMod = AccessMod.valueOf(child.getAccessMode().name());
                         return new EntityBuilder()
                                 .identifier(id)
@@ -149,8 +149,11 @@ public class MscTslUtils {
                     .map(param -> {
                         val id = param.getId();
                         val dataSpec = param.getDataSpec();
-                        val valueType = checkParentExistsAndGetValueType(id, dataSpec, existsIdSet);
                         val name = param.getName();
+                        val valueType = checkParentExistsAndGetValueType(id, dataSpec, existsIdSet);
+                        if (valueType == null) {
+                            return null;
+                        }
                         return new EntityBuilder()
                                 .identifier(id)
                                 .event(name)
@@ -204,8 +207,8 @@ public class MscTslUtils {
                     .map(param -> {
                         val id = param.getId();
                         val dataSpec = param.getDataSpec();
-                        val valueType = checkParentExistsAndGetValueType(id, dataSpec, existsIdSet);
                         val name = param.getName();
+                        val valueType = checkParentExistsAndGetValueType(id, dataSpec, existsIdSet);
                         if (valueType == null) {
                             return null;
                         }
