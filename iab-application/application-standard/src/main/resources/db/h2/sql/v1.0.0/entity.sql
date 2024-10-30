@@ -11,7 +11,7 @@ CREATE TABLE `t_entity`
     parent           VARCHAR(512),
     attach_target    VARCHAR(255) not null,
     attach_target_id VARCHAR(255) not null,
-    value_attribute  VARCHAR(2048),
+    value_attribute  TEXT,
     value_type       VARCHAR(255) not null,
     created_at       BIGINT       not null,
     updated_at       BIGINT,

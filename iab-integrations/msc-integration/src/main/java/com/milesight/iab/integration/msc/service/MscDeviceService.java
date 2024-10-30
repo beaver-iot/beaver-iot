@@ -37,7 +37,6 @@ import java.util.Objects;
 @Service
 public class MscDeviceService {
 
-    public static final String DEVICE_ID_KEY = "deviceId";
     @Lazy
     @Autowired
     private IMscClientProvider mscClientProvider;
@@ -73,7 +72,7 @@ public class MscDeviceService {
         if (servicePayload.isEmpty()) {
             return;
         }
-        val deviceId = (String) device.getAdditional().get(DEVICE_ID_KEY);
+        val deviceId = (String) device.getAdditional().get(MscIntegrationConstants.DeviceAdditionalDataName.DEVICE_ID);
         val serviceGroups = MscTslUtils.convertExchangePayloadMapToGroupedJsonNode(
                 objectMapper, device.getKey(), servicePayload);
         serviceGroups.entrySet().removeIf(entry -> MscIntegrationConstants.InternalPropertyIdentifier.Pattern.match(entry.getKey()));
@@ -100,7 +99,7 @@ public class MscDeviceService {
         if (properties.isEmpty()) {
             return;
         }
-        val deviceId = (String) device.getAdditional().get(DEVICE_ID_KEY);
+        val deviceId = (String) device.getAdditional().get(MscIntegrationConstants.DeviceAdditionalDataName.DEVICE_ID);
         mscClientProvider.getMscClient().device().updateProperties(deviceId, TslPropertyDataUpdateRequest.builder()
                         .properties(properties)
                         .build())
@@ -160,7 +159,7 @@ public class MscDeviceService {
         val device = deviceServiceProvider.findByIdentifier(identifier, MscIntegrationConstants.INTEGRATION_IDENTIFIER);
         device.setName(deviceName);
         device.setIdentifier(identifier);
-        device.setAdditional(Map.of("deviceId", deviceId));
+        device.setAdditional(Map.of(MscIntegrationConstants.DeviceAdditionalDataName.DEVICE_ID, deviceId));
         device.setEntities(entities);
         device.initializeProperties(MscIntegrationConstants.INTEGRATION_IDENTIFIER);
         deviceServiceProvider.save(device);
