@@ -143,15 +143,15 @@ public class DeviceService {
             // check ability to delete device
             Integration integrationConfig = getIntegrationConfig(device.getIntegration());
             ExchangePayload payload = new ExchangePayload();
-            String deleteDeviceEntityIdentifier = integrationConfig.getEntityIdentifierDeleteDevice();
-            if (deleteDeviceEntityIdentifier == null) {
+            String deleteDeviceServiceKey = integrationConfig.getEntityKeyDeleteDevice();
+            if (deleteDeviceServiceKey == null) {
                 throw ServiceException
                         .with(ErrorCode.METHOD_NOT_ALLOWED)
                         .detailMessage("integration " + device.getIntegration() + " cannot delete device!")
                         .build();
             }
 
-            payload.put(deleteDeviceEntityIdentifier, "");
+            payload.put(deleteDeviceServiceKey, "");
             payload.putContext("device", device);
             return payload;
         }).forEach((ExchangePayload payload) -> {
