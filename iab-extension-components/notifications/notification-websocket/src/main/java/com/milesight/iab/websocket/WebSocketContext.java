@@ -31,12 +31,12 @@ public class WebSocketContext {
     }
 
     public static String getChannelByValue(ChannelHandlerContext ctx) {
-        return channelMap.entrySet().stream().filter(entry -> entry.getValue().equals(ctx)).map(Map.Entry::getKey).findFirst().orElse(null);
+        return channelMap.entrySet().stream().filter(entry -> entry.getValue().channel().id().asLongText().equals(ctx.channel().id().asLongText())).map(Map.Entry::getKey).findFirst().orElse(null);
     }
 
     public static void removeChannelByValue(ChannelHandlerContext ctx) {
         channelMap.forEach((key, channelHandlerContext) -> {
-            if (channelHandlerContext.equals(ctx)) {
+            if (channelHandlerContext.channel().id().asLongText().equals(ctx.channel().id().asLongText())) {
                 channelMap.remove(key);
             }
         });
