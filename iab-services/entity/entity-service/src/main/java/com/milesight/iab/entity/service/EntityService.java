@@ -702,7 +702,7 @@ public class EntityService implements EntityServiceProvider {
         boolean isExcludeChildren = entityQuery.getExcludeChildren() != null && entityQuery.getExcludeChildren();
         List<String> attachTargetIds = new ArrayList<>();
         if (StringUtils.hasText(entityQuery.getKeyword())) {
-            List<Integration> integrations = integrationServiceProvider.findIntegrations(f -> f.getName().contains(entityQuery.getKeyword()));
+            List<Integration> integrations = integrationServiceProvider.findIntegrations(f -> f.getName().toLowerCase().contains(entityQuery.getKeyword().toLowerCase()));
             if (integrations != null && !integrations.isEmpty()) {
                 List<String> integrationIds = integrations.stream().map(Integration::getId).toList();
                 attachTargetIds.addAll(integrationIds);
@@ -720,7 +720,7 @@ public class EntityService implements EntityServiceProvider {
         }
         Consumer<Filterable> filterable = f -> f.eq(entityQuery.getEntityType() != null, EntityPO.Fields.type, entityQuery.getEntityType())
                 .eq(isExcludeChildren, EntityPO.Fields.parent, null)
-                .or(f1 -> f1.like(StringUtils.hasText(entityQuery.getKeyword()), EntityPO.Fields.name, entityQuery.getKeyword())
+                .or(f1 -> f1.likeIgnoreCase(StringUtils.hasText(entityQuery.getKeyword()), EntityPO.Fields.name, entityQuery.getKeyword())
                         .in(!attachTargetIds.isEmpty(), EntityPO.Fields.attachTargetId, attachTargetIds.toArray()));
         Page<EntityPO> entityPOList = entityRepository.findAll(filterable, entityQuery.toPageable());
         if (entityPOList == null || entityPOList.getContent().isEmpty()) {
