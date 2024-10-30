@@ -12,9 +12,9 @@ import java.util.List;
 @Data
 public class DashboardResponse {
 
-    private Long dashboardId;
+    private String dashboardId;
     private String name;
     private List<DashboardWidgetDTO> widgets;
-    private Long createdAt;
+    private String createdAt;
 
 }

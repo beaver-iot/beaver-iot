@@ -37,10 +37,10 @@ public class WebSocketNettyRunner implements CommandLineRunner {
     public void run(String... args) throws Exception {
         ThreadPoolExecutor executor = createThreadPoolExecutor();
         executor.execute(() -> {
-            try{
+            try {
                 new WebSocketNettyServer().start(webSocketProperties.getPort(), webSocketChannelInitializer);
-            }catch (Exception e){
-                log.error("init websocket error:{}", e.getMessage(),e);
+            } catch (Exception e) {
+                log.error("init websocket error:{}", e.getMessage(), e);
             } finally {
                 executor.shutdown();
             }

@@ -24,9 +24,9 @@ public class EntityAggregateResponse {
     public static class CountResult implements Serializable {
         private Object value;
         private EntityValueType valueType;
-        private Long count;
+        private Integer count;
 
-        public CountResult(Object value, EntityValueType valueType, Long count) {
+        public CountResult(Object value, EntityValueType valueType, Integer count) {
             this.value = value;
             this.valueType = valueType;
             this.count = count;

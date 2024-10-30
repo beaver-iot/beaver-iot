@@ -48,6 +48,9 @@ public class DashboardWebsocketHandler extends AbstractWebSocketHandler {
 
     @Override
     public void handleTextMessage(ChannelHandlerContext ctx, TextWebSocketFrame msg) throws Exception {
+        //FIXME user entity key to subscribe
+        String userId = WebSocketContext.getChannelByValue(ctx);
+        log.info("userId:{}, handleTextMessage:{}", userId, msg.text());
     }
 
     @Override

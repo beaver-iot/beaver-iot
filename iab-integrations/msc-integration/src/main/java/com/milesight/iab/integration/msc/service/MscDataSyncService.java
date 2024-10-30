@@ -5,6 +5,7 @@ import com.milesight.cloud.sdk.client.model.DeviceDetailResponse;
 import com.milesight.cloud.sdk.client.model.DeviceSearchRequest;
 import com.milesight.iab.context.api.DeviceServiceProvider;
 import com.milesight.iab.context.api.EntityServiceProvider;
+import com.milesight.iab.context.api.ExchangeFlowExecutor;
 import com.milesight.iab.context.integration.model.Device;
 import com.milesight.iab.context.integration.model.ExchangePayload;
 import com.milesight.iab.context.integration.model.event.ExchangeEvent;
@@ -12,6 +13,7 @@ import com.milesight.iab.eventbus.annotations.EventSubscribe;
 import com.milesight.iab.eventbus.api.Event;
 import com.milesight.iab.integration.msc.constant.MscIntegrationConstants;
 import com.milesight.iab.integration.msc.entity.MscConnectionPropertiesEntities;
+import com.milesight.iab.integration.msc.entity.MscServiceEntities;
 import com.milesight.iab.integration.msc.model.IntegrationStatus;
 import com.milesight.iab.integration.msc.util.MscTslUtils;
 import com.milesight.msc.sdk.utils.TimeUtils;
@@ -31,8 +33,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -54,32 +58,47 @@ public class MscDataSyncService {
     @Autowired
     private EntityServiceProvider entityServiceProvider;
 
+    @Autowired
+    private ExchangeFlowExecutor exchangeFlowExecutor;
+
     private Timer timer;
 
     private int periodSeconds = 0;
 
-    // only two tasks allowed at a time (one running and one waiting)
+    // Only two existing tasks allowed at a time (one running and one waiting)
     private static final ExecutorService syncAllDataExecutor = new ThreadPoolExecutor(1, 1,
             0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(1),
-            (r, executor) -> log.info("Task exists. Ignored."));
+            (r, executor) -> {
+                throw new RejectedExecutionException("Another task is running.");
+            });
 
     private static final ExecutorService concurrentSyncDeviceDataExecutor = new ThreadPoolExecutor(2, 10,
             300L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
 
     private static final ConcurrentHashMap<String, Object> deviceIdentifierToTaskLock = new ConcurrentHashMap<>(128);
 
-    @EventSubscribe(payloadKeyExpression = "msc-integration.integration.scheduled-data-fetch", eventType = ExchangeEvent.EventType.UP)
+    @EventSubscribe(payloadKeyExpression = "msc-integration.integration.scheduled_data_fetch.*", eventType = ExchangeEvent.EventType.DOWN)
     public void onScheduledDataFetchPropertiesUpdate(Event<MscConnectionPropertiesEntities.ScheduledDataFetch> event) {
         periodSeconds = event.getPayload().getPeriod();
         restart();
     }
 
-    @EventSubscribe(payloadKeyExpression = "msc-integration.integration.openapiStatus", eventType = ExchangeEvent.EventType.UP)
+    @EventSubscribe(payloadKeyExpression = "msc-integration.integration.openapi_status", eventType = ExchangeEvent.EventType.DOWN)
     public void onOpenapiStatusUpdate(Event<MscConnectionPropertiesEntities> event) {
         val status = event.getPayload().getOpenapiStatus();
         if (IntegrationStatus.READY.name().equals(status)) {
-            syncAllDataExecutor.submit(this::syncAllData);
+            try {
+                syncAllDataExecutor.submit(this::syncDeltaData);
+            } catch (RejectedExecutionException  e) {
+                log.error("Task rejected: ", e);
+            }
         }
+    }
+
+    @SneakyThrows
+    @EventSubscribe(payloadKeyExpression = "msc-integration.integration.sync_device", eventType = ExchangeEvent.EventType.DOWN)
+    public void onSyncDevice(Event<MscServiceEntities.SyncDevice> event) {
+        syncAllDataExecutor.submit(this::syncAllData).get();
     }
 
 
@@ -128,22 +147,42 @@ public class MscDataSyncService {
         timer = new Timer();
 
         // setup timer
+        val periodMills = periodSeconds * 1000L;
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                syncAllDataExecutor.submit(() -> syncAllData());
+                try {
+                    syncAllDataExecutor.submit(() -> syncDeltaData());
+                } catch (RejectedExecutionException e) {
+                    log.error("Task rejected: ", e);
+                }
             }
-        }, 0, periodSeconds * 1000L);
+        }, periodMills, periodMills);
 
         log.info("timer started");
     }
 
-    private void syncAllData() {
-        log.info("Fetching data from MSC");
+    /**
+     * Pull data from MSC, all devices and part of history data which created after the last execution will be added to local storage.
+     */
+    private void syncDeltaData() {
+        log.info("Fetching delta data from MSC");
         try {
-            syncAllDeviceData();
+            syncAllDeviceData(true);
         } catch (Exception e) {
-            log.error("Error while fetching data from MSC", e);
+            log.error("Error while fetching delta data from MSC", e);
+        }
+    }
+
+    /**
+     * Pull all devices and all history data.
+     */
+    private void syncAllData() {
+        log.info("Fetching all data from MSC");
+        try {
+            syncAllDeviceData(false);
+        } catch (Exception e) {
+            log.error("Error while fetching all data from MSC", e);
         }
     }
 
@@ -173,18 +212,21 @@ public class MscDataSyncService {
     }
 
     @SneakyThrows
-    private void syncAllDeviceData() {
+    private void syncAllDeviceData(boolean delta) {
         if (mscClientProvider == null || mscClientProvider.getMscClient() == null) {
             log.warn("MscClient not initiated.");
             return;
         }
+        syncDevicesFromMsc();
+        syncDeviceHistoryDataFromMsc(delta);
+    }
 
+    private void syncDevicesFromMsc() throws IOException {
+        log.info("Sync devices from MSC.");
         val mscClient = mscClientProvider.getMscClient();
-
         val allDevices = deviceServiceProvider.findAll(MscIntegrationConstants.INTEGRATION_IDENTIFIER);
-        log.info("Found {} devices.", allDevices.size());
+        log.info("Found {} devices from local.", allDevices.size());
         val existingDevices = allDevices.stream().map(Device::getIdentifier).collect(Collectors.toSet());
-
         long pageNumber = 1;
         long pageSize = 10;
         long total = 0;
@@ -220,12 +262,31 @@ public class MscDataSyncService {
                 return syncDeviceData(new Task(type, identifier, details));
             }).toArray(CompletableFuture[]::new);
             CompletableFuture.allOf(syncDeviceTasks);
-
-            val removeDevicesTasks = existingDevices.stream()
-                    .map(identifier -> syncDeviceData(new Task(Task.Type.REMOVE_LOCAL_DEVICE, identifier, null)))
-                    .toArray(CompletableFuture[]::new);
-            CompletableFuture.allOf(removeDevicesTasks);
         }
+        log.info("Pull devices from MSC finished, total devices: {}", total);
+
+        val removeDevicesTasks = existingDevices.stream()
+                .map(identifier -> syncDeviceData(new Task(Task.Type.REMOVE_LOCAL_DEVICE, identifier, null)))
+                .toArray(CompletableFuture[]::new);
+        CompletableFuture.allOf(removeDevicesTasks);
+    }
+
+    private void syncDeviceHistoryDataFromMsc(boolean delta) {
+        log.info("Sync device history data from MSC.");
+        val allDevices = deviceServiceProvider.findAll(MscIntegrationConstants.INTEGRATION_IDENTIFIER);
+        log.info("Found {} devices from local.", allDevices.size());
+        allDevices.forEach(device -> {
+            try {
+                int lastSyncTime = 0;
+                if (delta) {
+                    lastSyncTime = getAndUpdateLastSyncTime(device);
+                }
+                syncPropertiesHistory(device, lastSyncTime);
+            } catch (Exception e) {
+                log.error("Error occurs while syncing device history data from MSC, device key: {}", device.getKey(), e);
+            }
+        });
+        log.info("Sync device history data from MSC finished, total devices: {}", allDevices.size());
     }
 
     public CompletableFuture<Boolean> syncDeviceData(Task task) {
@@ -244,13 +305,10 @@ public class MscDataSyncService {
                     case UPDATE_LOCAL_DEVICE -> device = updateLocalDevice(task);
                 }
 
-                if (task.type != Task.Type.REMOVE_LOCAL_DEVICE) {
-                    if (device == null) {
-                        log.warn("Add or update local device failed: {}", task.identifier);
-                        return false;
-                    }
-                    int lastSyncTime = getAndUpdateLastSyncTime(device);
-                    syncPropertiesHistory(device, lastSyncTime);
+                if (task.type != Task.Type.REMOVE_LOCAL_DEVICE && device == null) {
+                    log.warn("Add or update local device failed: {}", task.identifier);
+                    return false;
+
                 }
                 return true;
             } catch (Exception e) {
@@ -266,15 +324,10 @@ public class MscDataSyncService {
         // update last sync time
         val timestamp = TimeUtils.currentTimeSeconds();
         val lastSyncTimeKey = MscIntegrationConstants.InternalPropertyKey.getLastSyncTimeKey(device.getKey());
-
-        int lastSyncTime = 0;
-        val lastSyncTimeObj = Optional.ofNullable(entityServiceProvider.findExchangeByKey(lastSyncTimeKey, ExchangePayload.class))
-                .map(v -> v.getPayload(MscIntegrationConstants.InternalPropertyKey.LAST_SYNC_TIME))
-                .orElse(null);
-        if (lastSyncTimeObj instanceof Number t) {
-            lastSyncTime = t.intValue();
-        }
-        entityServiceProvider.saveExchange(ExchangePayload.create(lastSyncTimeKey, timestamp));
+        val lastSyncTime = Optional.ofNullable(entityServiceProvider.findExchangeValueByKey(lastSyncTimeKey))
+                .map(JsonNode::intValue)
+                .orElse(0);
+        exchangeFlowExecutor.syncExchangeDown(ExchangePayload.create(lastSyncTimeKey, timestamp));
         return lastSyncTime;
     }
 
@@ -282,12 +335,13 @@ public class MscDataSyncService {
     private void syncPropertiesHistory(Device device, int lastSyncTime) {
         // deviceId should not be null
         val deviceId = (String) device.getAdditional().get("deviceId");
-        long t24HoursBefore = TimeUtils.currentTimeSeconds() - TimeUnit.DAYS.toSeconds(1);
-        long startTime = Math.max(lastSyncTime, t24HoursBefore);
-        long endTime = TimeUtils.currentTimeSeconds();
+        long time24HoursBefore = TimeUtils.currentTimeSeconds() - TimeUnit.DAYS.toSeconds(1);
+        long startTime = Math.max(lastSyncTime, time24HoursBefore) * 1000;
+        long endTime = TimeUtils.currentTimeMillis();
         long pageSize = 100;
         String pageKey = null;
         boolean hasNextPage = true;
+        val isLatestData = new AtomicBoolean(true);
         while (hasNextPage) {
             val page = mscClientProvider.getMscClient()
                     .device()
@@ -303,23 +357,32 @@ public class MscDataSyncService {
             page.getData().getList().forEach(item -> {
                 val objectMapper = mscClientProvider.getMscClient().getObjectMapper();
                 val properties = objectMapper.convertValue(item.getProperties(), JsonNode.class);
-                saveHistoryData(device.getKey(), properties, item.getTs() == null ? TimeUtils.currentTimeMillis() : item.getTs());
+                saveHistoryData(device.getKey(), properties, item.getTs() == null ? TimeUtils.currentTimeMillis() : item.getTs(), isLatestData.get());
+                if (isLatestData.get()) {
+                    isLatestData.set(false);
+                }
             });
         }
     }
 
-    public void saveHistoryData(String deviceKey, JsonNode properties, long timestampMs) {
+    public void saveHistoryData(String deviceKey, JsonNode properties, long timestampMs, boolean isLatestData) {
         // todo support event and service
         val payload = MscTslUtils.convertJsonNodeToExchangePayload(deviceKey, properties);
         if (payload == null || payload.isEmpty()) {
             return;
         }
         payload.setTimestamp(timestampMs);
-        entityServiceProvider.saveExchangeHistory(payload);
+        log.debug("Save device history data: {}", payload);
+        if (!isLatestData) {
+            entityServiceProvider.saveExchangeHistory(payload);
+        } else {
+            exchangeFlowExecutor.asyncExchangeUp(payload);
+        }
     }
 
     @SneakyThrows
     private Device updateLocalDevice(Task task) {
+        log.info("Update local device: {}", task.identifier);
         val details = getDeviceDetails(task);
         val deviceId = details.getDeviceId();
         val thingSpec = mscDeviceService.getThingSpec(String.valueOf(deviceId));
@@ -328,6 +391,7 @@ public class MscDataSyncService {
 
     @SneakyThrows
     private Device addLocalDevice(Task task) {
+        log.info("Add local device: {}", task.identifier);
         val details = getDeviceDetails(task);
         val deviceId = details.getDeviceId();
         val thingSpec = mscDeviceService.getThingSpec(String.valueOf(deviceId));
@@ -355,11 +419,8 @@ public class MscDataSyncService {
     }
 
     private Device removeLocalDevice(String identifier) {
-        val device = deviceServiceProvider.findByIdentifier(identifier, MscIntegrationConstants.INTEGRATION_IDENTIFIER);
-        if (device != null) {
-            deviceServiceProvider.deleteById(device.getId());
-        }
-        return device;
+        // delete is unsupported currently
+        return null;
     }
 
 

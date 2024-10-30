@@ -20,7 +20,7 @@ public class DeviceController {
     @Autowired
     DeviceService deviceService;
 
-    @PostMapping("/")
+    @PostMapping
     public ResponseBody<String> createDevice(@RequestBody CreateDeviceRequest createDeviceRequest) {
         deviceService.createDevice(createDeviceRequest);
         return ResponseBuilder.success();

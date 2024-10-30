@@ -38,7 +38,10 @@ public class SecurityUserContext {
         if (securityUser == null) {
             return null;
         }
-        return getSecurityUser().getPayload().get(USER_ID).toString();
+        if (securityUser.getPayload().get(USER_ID) == null) {
+            return null;
+        }
+        return securityUser.getPayload().get(USER_ID).toString();
     }
 
 }

@@ -2,6 +2,7 @@ package com.milesight.iab.integration.msc.service;
 
 import com.milesight.iab.context.api.DeviceServiceProvider;
 import com.milesight.iab.context.api.EntityServiceProvider;
+import com.milesight.iab.context.api.ExchangeFlowExecutor;
 import com.milesight.iab.context.integration.model.ExchangePayload;
 import com.milesight.iab.context.integration.model.event.ExchangeEvent;
 import com.milesight.iab.eventbus.annotations.EventSubscribe;
@@ -14,11 +15,14 @@ import com.milesight.msc.sdk.utils.HMacUtils;
 import com.milesight.msc.sdk.utils.TimeUtils;
 import lombok.*;
 import lombok.extern.slf4j.*;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import javax.crypto.Mac;
+import java.util.List;
 
 
 @Slf4j
@@ -34,6 +38,9 @@ public class MscWebhookService {
 
     @Autowired
     private EntityServiceProvider entityServiceProvider;
+
+    @Autowired
+    private ExchangeFlowExecutor exchangeFlowExecutor;
 
     @Autowired
     private DeviceServiceProvider deviceServiceProvider;
@@ -57,11 +64,11 @@ public class MscWebhookService {
             mac = HMacUtils.getMac(webhookSettings.getSecretKey());
         }
         if (!enabled) {
-            entityServiceProvider.saveExchange(ExchangePayload.create(WEBHOOK_STATUS_KEY, IntegrationStatus.NOT_READY.name()));
+            exchangeFlowExecutor.syncExchangeDown(ExchangePayload.create(WEBHOOK_STATUS_KEY, IntegrationStatus.NOT_READY.name()));
         }
     }
 
-    @EventSubscribe(payloadKeyExpression ="msc-integration.integration.webhook", eventType = ExchangeEvent.EventType.UP)
+    @EventSubscribe(payloadKeyExpression ="msc-integration.integration.webhook", eventType = ExchangeEvent.EventType.DOWN)
     public void onWebhookPropertiesUpdate(Event<MscConnectionPropertiesEntities.Webhook> event) {
         this.enabled = Boolean.TRUE.equals(event.getPayload().getEnabled());
         if (event.getPayload().getSecretKey() != null && !event.getPayload().getSecretKey().isEmpty()) {
@@ -75,9 +82,13 @@ public class MscWebhookService {
                                   String webhookUuid,
                                   String requestTimestamp,
                                   String requestNonce,
-                                  WebhookPayload webhookPayload) {
+                                  List<WebhookPayload> webhookPayloads) {
 
-        log.debug("Received webhook data: {} {} {} {} {}", signature, webhookUuid, requestTimestamp, requestNonce, webhookPayload);
+        if (log.isDebugEnabled()) {
+            log.debug("Received webhook data: {} {} {} {} {}", signature, webhookUuid, requestTimestamp, requestNonce, webhookPayloads);
+        } else {
+            log.debug("Received webhook data, size: {}", webhookPayloads.size());
+        }
         if (!enabled) {
             log.debug("Webhook is disabled.");
             return;
@@ -94,17 +105,24 @@ public class MscWebhookService {
             return;
         }
 
-        val eventType = webhookPayload.getEventType();
-        if (eventType == null) {
-            log.warn("Event type not found: {}", webhookPayload);
-            return;
-        }
+        webhookPayloads.forEach(webhookPayload -> {
+            log.debug("Receive webhook payload: {}", webhookPayload);
+            val eventType = webhookPayload.getEventType();
+            if (eventType == null) {
+                log.warn("Event type not found");
+                return;
+            }
 
-        if ("device_data".equalsIgnoreCase(eventType)) {
-            handleDeviceData(webhookPayload);
-        } else {
-            log.debug("Ignored event type: {}", eventType);
-        }
+            if ("device_data".equalsIgnoreCase(eventType)) {
+                try {
+                    handleDeviceData(webhookPayload);
+                } catch (Exception e) {
+                    log.error("Handle webhook data failed", e);
+                }
+            } else {
+                log.debug("Ignored event type: {}", eventType);
+            }
+        });
     }
 
     private void handleDeviceData(WebhookPayload webhookPayload) {
@@ -134,8 +152,8 @@ public class MscWebhookService {
         }
 
         // save data
-        dataSyncService.saveHistoryData(device.getKey(), properties, webhookPayload.getEventCreatedTime() * 1000);
-        entityServiceProvider.saveExchange(ExchangePayload.create(WEBHOOK_STATUS_KEY, IntegrationStatus.READY.name()));
+        dataSyncService.saveHistoryData(device.getKey(), properties, webhookPayload.getEventCreatedTime() * 1000, true);
+        exchangeFlowExecutor.asyncExchangeUp(ExchangePayload.create(WEBHOOK_STATUS_KEY, IntegrationStatus.READY.name()));
     }
 
     public boolean isSignatureValid(String signature, String requestTimestamp, String requestNonce) {

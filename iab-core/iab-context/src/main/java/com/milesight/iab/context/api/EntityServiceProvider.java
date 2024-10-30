@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.milesight.iab.context.integration.enums.AttachTargetType;
 import com.milesight.iab.context.integration.model.Entity;
 import com.milesight.iab.context.integration.model.ExchangePayload;
+import lombok.*;
 
 import java.util.List;
 import java.util.Map;
@@ -37,7 +38,8 @@ public interface EntityServiceProvider {
 
     JsonNode findExchangeValueByKey(String key);
 
-    JsonNode findExchangeValuesByKeys(List<String> keys);
+    @NonNull
+    Map<String, JsonNode> findExchangeValuesByKeys(List<String> keys);
 
     <T> T findExchangeByKey(String key, Class<T> entitiesClazz);
 

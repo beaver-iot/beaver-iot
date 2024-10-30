@@ -46,7 +46,7 @@ public class MscDeviceService {
     private DeviceServiceProvider deviceServiceProvider;
 
     @SneakyThrows
-    @EventSubscribe(payloadKeyExpression = "msc-integration.device", eventType = ExchangeEvent.EventType.DOWN)
+    @EventSubscribe(payloadKeyExpression = "msc-integration.device.*", eventType = ExchangeEvent.EventType.DOWN)
     public void onDeviceExchangeEvent(ExchangeEvent event) {
         val exchangePayload = event.getPayload();
         val devices = exchangePayload.getExchangeEntities()
@@ -93,9 +93,9 @@ public class MscDeviceService {
     }
 
     @SneakyThrows
-    @EventSubscribe(payloadKeyExpression = "msc-integration.integration.add-device", eventType = ExchangeEvent.EventType.DOWN)
+    @EventSubscribe(payloadKeyExpression = "msc-integration.integration.add_device.*", eventType = ExchangeEvent.EventType.DOWN)
     public void onAddDevice(Event<MscServiceEntities.AddDevice> event) {
-        val deviceName = event.getPayload().getContext("name", "Device Name");
+        val deviceName = event.getPayload().getContext("device_name", "Device Name");
         if (mscClientProvider == null || mscClientProvider.getMscClient() == null) {
             log.warn("MscClient not initiated.");
             return;
@@ -111,12 +111,12 @@ public class MscDeviceService {
                 .body();
         if (addDeviceResponse == null || addDeviceResponse.getData() == null
                 || addDeviceResponse.getData().getDeviceId() == null) {
-            log.warn("Add device failed: {} {}", deviceName, identifier);
+            log.warn("Add device failed: '{}' '{}'", deviceName, identifier);
             return;
         }
 
         val deviceId = addDeviceResponse.getData().getDeviceId();
-        log.info("Device {} added to MSC with id {}", deviceName, deviceId);
+        log.info("Device '{}' added to MSC with id '{}'", deviceName, deviceId);
 
         final String deviceIdStr = String.valueOf(deviceId);
         val thingSpec = getThingSpec(deviceIdStr);
@@ -175,7 +175,7 @@ public class MscDeviceService {
     }
 
     @SneakyThrows
-    @EventSubscribe(payloadKeyExpression = "msc-integration.integration.delete-device", eventType = ExchangeEvent.EventType.DOWN)
+    @EventSubscribe(payloadKeyExpression = "msc-integration.integration.delete_device", eventType = ExchangeEvent.EventType.DOWN)
     public void onDeleteDevice(Event<MscServiceEntities.DeleteDevice> event) {
         if (mscClientProvider == null || mscClientProvider.getMscClient() == null) {
             log.warn("MscClient not initiated.");

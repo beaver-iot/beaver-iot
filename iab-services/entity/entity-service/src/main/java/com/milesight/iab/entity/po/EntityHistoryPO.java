@@ -30,7 +30,7 @@ public class EntityHistoryPO {
     private BigDecimal valueDouble;
     private Boolean valueBoolean;
     private String valueString;
-    private Byte[] valueBinary;
+    private byte[] valueBinary;
     private Long timestamp;
     @CreatedDate
     private Long createdAt;
