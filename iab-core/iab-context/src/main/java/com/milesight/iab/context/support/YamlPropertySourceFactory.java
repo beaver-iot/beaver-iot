@@ -1,5 +1,6 @@
 package com.milesight.iab.context.support;
 
+import com.milesight.iab.base.constants.StringConstant;
 import com.milesight.iab.base.exception.BootstrapException;
 import com.milesight.iab.context.constants.IntegrationConstants;
 import lombok.extern.slf4j.Slf4j;
@@ -34,21 +35,20 @@ public class YamlPropertySourceFactory extends DefaultPropertySourceFactory {
         }
         List<PropertySource<?>> sources = new YamlPropertySourceLoader().load(name, resource.getResource());
         return sources.get(0);
-
     }
 
     public PropertySource<?> createJarPropertySource(String name, String codeSourceLocationPath) throws IOException {
 
         log.debug("ready load integration.yaml, integration location: {}", codeSourceLocationPath);
 
-        if(codeSourceLocationPath.startsWith("nested")){
+        if(codeSourceLocationPath.contains(".jar")){
             return createNestedJarPropertySource(name, codeSourceLocationPath);
         }else{
-            FileUrlResource fileUrlResource = new FileUrlResource(codeSourceLocationPath + IntegrationConstants.INTEGRATION_YAML);
+            FileUrlResource fileUrlResource = new FileUrlResource(getFullLocationPath(codeSourceLocationPath , IntegrationConstants.INTEGRATION_YAML));
             if (!fileUrlResource.exists()) {
-                fileUrlResource = new FileUrlResource(codeSourceLocationPath + IntegrationConstants.INTEGRATION_YML);
+                fileUrlResource = new FileUrlResource(getFullLocationPath(codeSourceLocationPath , IntegrationConstants.INTEGRATION_YML));
                 if(!fileUrlResource.exists()){
-                    log.error("Integration yaml not found, please check integration.yaml ：" + path + IntegrationConstants.INTEGRATION_YAML);
+                    log.error("Integration yaml not found, please check integration.yaml ：" + getFullLocationPath(codeSourceLocationPath , IntegrationConstants.INTEGRATION_YAML));
                     throw new BootstrapException("Integration yaml not found, please check integration.yaml");
                 }
             }
@@ -56,21 +56,29 @@ public class YamlPropertySourceFactory extends DefaultPropertySourceFactory {
         }
     }
 
+    private String getFullLocationPath(String codeSourceLocationPath, String integrationFileName) {
+        return codeSourceLocationPath.endsWith(StringConstant.SLASH) ? codeSourceLocationPath + integrationFileName : codeSourceLocationPath + StringConstant.SLASH + integrationFileName;
+    }
+
     private PropertySource<?> createNestedJarPropertySource(String name, String codeSourceLocationPath) throws IOException {
-        codeSourceLocationPath = codeSourceLocationPath.replace("nested:", "jar:file:");
-        String[] nestedJarPaths = codeSourceLocationPath.split("!BOOT-INF");
-        Assert.isTrue(nestedJarPaths.length >= 2, "nested jar path error");
+        codeSourceLocationPath = codeSourceLocationPath.replace("!","");
+        codeSourceLocationPath = replaceJarSchema(codeSourceLocationPath);
+        String[] nestedJarPaths = codeSourceLocationPath.split("BOOT-INF");
         FileSystem rootJarFileSystem = FileSystems.newFileSystem(URI.create(nestedJarPaths[0]), Collections.emptyMap());
         FileSystem integrationJarFileSystem = null;
         InputStream inputStream = null;
-        if(nestedJarPaths[1].contains(".jar!")){
-            String realJarPath = "BOOT-INF" + removeJarSeparator(nestedJarPaths[1]);
-            Path jarFileSystemPath = rootJarFileSystem.getPath(realJarPath);
-            integrationJarFileSystem = FileSystems.newFileSystem(jarFileSystemPath, Collections.emptyMap());
-            inputStream = openInputStreamCanTry(integrationJarFileSystem, IntegrationConstants.INTEGRATION_YAML, IntegrationConstants.INTEGRATION_YML);
+        if(nestedJarPaths.length == 2){
+            if(nestedJarPaths[1].contains(".jar")){
+                String realJarPath = "BOOT-INF" + nestedJarPaths[1];
+                Path jarFileSystemPath = rootJarFileSystem.getPath(realJarPath);
+                integrationJarFileSystem = FileSystems.newFileSystem(jarFileSystemPath, Collections.emptyMap());
+                inputStream = openInputStreamCanTry(integrationJarFileSystem, IntegrationConstants.INTEGRATION_YAML, IntegrationConstants.INTEGRATION_YML);
+            }else{
+                String integrationPathPrefix = "BOOT-INF" + nestedJarPaths[1];
+                inputStream = openInputStreamCanTry(rootJarFileSystem, integrationPathPrefix + IntegrationConstants.INTEGRATION_YAML, integrationPathPrefix + IntegrationConstants.INTEGRATION_YML);
+            }
         }else{
-            String integrationPathPrefix = "BOOT-INF" + removeJarSeparator(nestedJarPaths[1]);
-            inputStream = openInputStreamCanTry(rootJarFileSystem, integrationPathPrefix + IntegrationConstants.INTEGRATION_YAML, integrationPathPrefix + IntegrationConstants.INTEGRATION_YML);
+            inputStream = openInputStreamCanTry(rootJarFileSystem, IntegrationConstants.INTEGRATION_YAML, IntegrationConstants.INTEGRATION_YML);
         }
 
         PropertySource<?> propertySource = createPropertySource(name, new EncodedResource(new InputStreamResource(inputStream), StandardCharsets.UTF_8));
@@ -80,6 +88,12 @@ public class YamlPropertySourceFactory extends DefaultPropertySourceFactory {
         closeFileSystem(rootJarFileSystem);
 
         return propertySource;
+    }
+
+    private String replaceJarSchema(String codeSourceLocationPath) {
+        return codeSourceLocationPath.startsWith("nested:") ?
+                codeSourceLocationPath.replace("nested:", "jar:file:"):
+                "jar:file:" + codeSourceLocationPath;
     }
 
     private void closeFileSystem(FileSystem fileSystem) throws IOException {
@@ -105,8 +119,8 @@ public class YamlPropertySourceFactory extends DefaultPropertySourceFactory {
         return inputStream;
     }
 
-    private String removeJarSeparator(String nestedJarPath) {
-       return nestedJarPath.replace("!/","");
-    }
+//    private String removeJarSeparator(String nestedJarPath) {
+//       return nestedJarPath.replace("!/","");
+//    }
 
 }

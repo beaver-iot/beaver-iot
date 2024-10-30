@@ -93,7 +93,7 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
         }
 
         for (Map.Entry<ListenerCacheKey, List<EventSubscribeInvoker>> listenerCacheKeyListEntry : listenerCacheKeyListMap.entrySet()) {
-            createConsumer(listenerCacheKeyListEntry.getKey(), listenerCacheKeyListEntry.getValue(),eventResponse).accept(event);
+            createSyncConsumer(listenerCacheKeyListEntry.getKey(), listenerCacheKeyListEntry.getValue(),eventResponse).accept(event);
         }
 
         return eventResponse;
@@ -132,17 +132,14 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
 
     public void fireAsyncSubscribe(){
         asyncSubscribeCache.forEach((k, v) -> {
-            List<Consumer<T>> allConsumers = v.entrySet().stream().map(entry -> createConsumer(entry.getKey(), entry.getValue(), null)).toList();
+            List<Consumer<T>> allConsumers = v.entrySet().stream().map(entry -> createAsyncConsumer(entry.getKey(), entry.getValue())).toList();
             subscribe(k, allConsumers.toArray(new Consumer[0]));
         });
     }
 
-    private Consumer<T> createConsumer(ListenerCacheKey cacheKey, List<EventSubscribeInvoker> invokers, @Nullable EventResponse eventResponses) {
+    private Consumer<T> createSyncConsumer(ListenerCacheKey cacheKey, List<EventSubscribeInvoker> invokers, @Nullable EventResponse eventResponses) {
         return event -> {
-            if(!cacheKey.matchEventType(event.getEventType())){
-                return;
-            }
-            String[] matchMultiKeys = cacheKey.matchMultiKeys(event.getPayloadKey());
+            String[] matchMultiKeys = filterMatchMultiKeys(event, cacheKey);
             if(ObjectUtils.isEmpty(matchMultiKeys)){
                 return;
             }
@@ -160,6 +157,29 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
                 }
             });
         };
+    }
+
+    private Consumer<T> createAsyncConsumer(ListenerCacheKey cacheKey, List<EventSubscribeInvoker> invokers) {
+        return event -> {
+            String[] matchMultiKeys = filterMatchMultiKeys(event, cacheKey);
+            if(ObjectUtils.isEmpty(matchMultiKeys)){
+                return;
+            }
+            invokers.forEach(invoker -> {
+                try {
+                    invoker.invoke(event, matchMultiKeys);
+                } catch (Exception e) {
+                    log.error("EventSubscribe method invoke error, method: {}" ,invoker, e);
+                }
+            });
+        };
+    }
+
+    private String[] filterMatchMultiKeys(T event, ListenerCacheKey cacheKey) {
+        if(!cacheKey.matchEventType(event.getEventType())){
+            return null;
+        }
+        return cacheKey.matchMultiKeys(event.getPayloadKey());
     }
 
     @Override
