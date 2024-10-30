@@ -4,6 +4,12 @@ public interface MscIntegrationConstants {
 
     String INTEGRATION_IDENTIFIER = "msc-integration";
 
+    interface DeviceAdditionalDataName {
+
+        String DEVICE_ID = "device_id";
+
+    }
+
     interface InternalPropertyIdentifier {
 
         interface Pattern {
