@@ -34,18 +34,20 @@ public class EntityPO {
 
     @Id
     private Long id;
-    @Column(name = "\"key\"")
+    @Column(name = "\"key\"",length = 512)
     private String key;
     private String name;
     @Enumerated(EnumType.STRING)
     private EntityType type;
     @Enumerated(EnumType.STRING)
     private AccessMod accessMod;
+    @Column(length = 512)
     private String parent;
     @Enumerated(EnumType.STRING)
     private AttachTargetType attachTarget;
     private String attachTargetId;
     @Convert(converter = MapJsonConverter.class)
+    @Column(length = 2048)
     private Map<String, Object> valueAttribute;
     @Enumerated(EnumType.STRING)
     private EntityValueType valueType;

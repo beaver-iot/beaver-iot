@@ -1,5 +1,6 @@
 package com.milesight.iab.entity.po;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
@@ -27,6 +28,7 @@ public class EntityLatestPO {
     private Long valueLong;
     private BigDecimal valueDouble;
     private Boolean valueBoolean;
+    @Column(length = 1024)
     private String valueString;
     private byte[] valueBinary;
     private Long timestamp;

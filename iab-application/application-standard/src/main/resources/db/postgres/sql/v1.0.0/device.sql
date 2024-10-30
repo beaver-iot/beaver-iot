@@ -4,7 +4,7 @@
 CREATE TABLE t_device
 (
     id              BIGINT       NOT NULL,                                       -- Device ID
-    key             VARCHAR(255) NOT NULL,                                       -- Device Key
+    key             VARCHAR(512) NOT NULL,                                       -- Device Key
     name            VARCHAR(255) NOT NULL,                                       -- Device Name
     integration     VARCHAR(127) NOT NULL,                                       -- Integration Id
     identifier      VARCHAR(127) NOT NULL,                                       -- Device External Identifier

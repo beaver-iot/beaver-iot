@@ -4,7 +4,7 @@
 CREATE TABLE t_device
 (
     id              BIGINT       NOT NULL,
-    `key`           VARCHAR(255) NOT NULL,
+    `key`           VARCHAR(512) NOT NULL,
     name            VARCHAR(255) NOT NULL,
     integration     VARCHAR(127) NOT NULL,
     identifier      VARCHAR(127) NOT NULL,
