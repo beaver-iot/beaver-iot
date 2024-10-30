@@ -49,6 +49,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -295,12 +296,20 @@ public class EntityService implements EntityServiceProvider {
         entityRepository.saveAll(entityPOList);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void deleteByTargetId(String targetId) {
         if (!StringUtils.hasText(targetId)) {
             return;
         }
+        List<EntityPO> entityPOList = entityRepository.findAll(filter -> filter.eq(EntityPO.Fields.attachTargetId, targetId));
+        if (entityPOList == null || entityPOList.isEmpty()) {
+            return;
+        }
+        List<Long> entityIdList = entityPOList.stream().map(EntityPO::getId).toList();
         entityRepository.deleteByTargetId(targetId);
+        entityHistoryRepository.deleteByEntityIds(entityIdList);
+        entityLatestRepository.deleteByEntityIds(entityIdList);
     }
 
     @Override
