@@ -107,7 +107,16 @@ public class Integration {
             return null;
         }
 
-        return IntegrationConstants.formatIntegrationEntityKey(this.getId(), this.getEntityIdentifierAddDevice());
+        return IntegrationConstants.formatIntegrationEntityKey(this.getId(), addDeviceServiceIdentifier);
+    }
+
+    public String getEntityKeyDeleteDevice() {
+        String deleteDeviceServiceIdentifier = this.getEntityIdentifierDeleteDevice();
+        if (deleteDeviceServiceIdentifier == null) {
+            return null;
+        }
+
+        return IntegrationConstants.formatIntegrationEntityKey(this.getId(), deleteDeviceServiceIdentifier);
     }
 
 }
