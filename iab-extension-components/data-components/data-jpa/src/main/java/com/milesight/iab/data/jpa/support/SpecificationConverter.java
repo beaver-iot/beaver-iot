@@ -12,6 +12,7 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.Pair;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -96,10 +97,12 @@ public class SpecificationConverter {
             }else if(condition instanceof CompositeCondition){
                 CompositeCondition compositeCondition = (CompositeCondition)condition;
                 List<Predicate> compositePredicates = toPredicateList(root, query, criteriaBuilder, compositeCondition.getConditions(), new ArrayList<>());
-                if(compositeCondition.getBooleanOperator() == BooleanOperator.AND) {
-                    predicates.add(criteriaBuilder.and(compositePredicates.toArray(new Predicate[0])));
-                }else{
-                    predicates.add(criteriaBuilder.or(compositePredicates.toArray(new Predicate[0])));
+                if(!CollectionUtils.isEmpty(compositePredicates)){
+                    if(compositeCondition.getBooleanOperator() == BooleanOperator.AND) {
+                        predicates.add(criteriaBuilder.and(compositePredicates.toArray(new Predicate[0])));
+                    }else{
+                        predicates.add(criteriaBuilder.or(compositePredicates.toArray(new Predicate[0])));
+                    }
                 }
             }else{
                 throw new RuntimeException("Unsupported condition type");
