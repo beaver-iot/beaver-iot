@@ -70,9 +70,15 @@ public class MscDeviceService {
     private void handleServicePayload(Device device, ExchangePayload exchangePayload) {
         val objectMapper = mscClientProvider.getMscClient().getObjectMapper();
         val servicePayload = exchangePayload.getPayloadsByEntityType(EntityType.SERVICE);
+        if (servicePayload.isEmpty()) {
+            return;
+        }
         val deviceId = (String) device.getAdditional().get(DEVICE_ID_KEY);
         val serviceGroups = MscTslUtils.convertExchangePayloadMapToGroupedJsonNode(
                 objectMapper, device.getKey(), servicePayload);
+        if (serviceGroups.isEmpty()) {
+            return;
+        }
         serviceGroups.forEach((serviceId, serviceProperties) ->
                 mscClientProvider.getMscClient().device().callService(deviceId, TslServiceCallRequest.builder()
                         .serviceId(serviceId)
@@ -84,10 +90,18 @@ public class MscDeviceService {
     private void handlePropertiesPayload(Device device, ExchangePayload exchangePayload) {
         val objectMapper = mscClientProvider.getMscClient().getObjectMapper();
         val propertiesPayload = exchangePayload.getPayloadsByEntityType(EntityType.PROPERTY);
+        if (propertiesPayload.isEmpty()) {
+            return;
+        }
+        val properties = MscTslUtils.convertExchangePayloadMapToGroupedJsonNode(
+                objectMapper, device.getKey(), propertiesPayload);
+        properties.remove(MscIntegrationConstants.InternalPropertyKey.LAST_SYNC_TIME);
+        if (properties.isEmpty()) {
+            return;
+        }
         val deviceId = (String) device.getAdditional().get(DEVICE_ID_KEY);
         mscClientProvider.getMscClient().device().updateProperties(deviceId, TslPropertyDataUpdateRequest.builder()
-                        .properties(MscTslUtils.convertExchangePayloadMapToGroupedJsonNode(
-                                objectMapper, device.getKey(), propertiesPayload))
+                        .properties(properties)
                         .build())
                 .execute();
     }
@@ -171,6 +185,7 @@ public class MscDeviceService {
                 .identifier(MscIntegrationConstants.InternalPropertyKey.LAST_SYNC_TIME)
                 .property(MscIntegrationConstants.InternalPropertyKey.LAST_SYNC_TIME, AccessMod.R)
                 .valueType(EntityValueType.LONG)
+                .attributes(Map.of("private", true))
                 .build());
     }
 

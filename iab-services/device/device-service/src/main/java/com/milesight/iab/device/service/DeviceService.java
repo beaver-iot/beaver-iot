@@ -25,11 +25,9 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -107,7 +105,7 @@ public class DeviceService {
     public Page<DeviceResponseData> searchDevice(SearchDeviceRequest searchDeviceRequest) {
         // convert to `DeviceResponseData`
         return deviceRepository
-                .findAll(f -> f.like(DevicePO.Fields.name, searchDeviceRequest.getName()), searchDeviceRequest.toPageable())
+                .findAll(f -> f.like(StringUtils.hasText(searchDeviceRequest.getName()), DevicePO.Fields.name, searchDeviceRequest.getName()), searchDeviceRequest.toPageable())
                 .map(this::convertPOToResponseData);
     }
 
@@ -131,7 +129,7 @@ public class DeviceService {
         }
 
         List<DevicePO> devices = deviceRepository.findByIdIn(deviceIdList.stream().map(Long::valueOf).collect(Collectors.toList()));
-        Set<Long> foundIds = devices.stream().map(DevicePO::getId).collect(Collectors.toSet());
+        Set<String> foundIds = devices.stream().map(id -> id.getId().toString()).collect(Collectors.toSet());
 
         // check whether all devices exist
         if (!new HashSet<>(deviceIdList).containsAll(foundIds)) {
@@ -172,18 +170,27 @@ public class DeviceService {
         BeanUtils.copyProperties(convertPOToResponseData(findResult.get()), deviceDetailResponse);
 
         // set entities
-        List<DeviceEntityData> deviceEntityDataList = entityServiceProvider
-                .findByTargetId(AttachTargetType.DEVICE, deviceId.toString())
-                .stream().map((Entity entity) -> DeviceEntityData
-                        .builder()
-                        .id(entity.getId().toString())
-                        .key(entity.getKey())
-                        .type(entity.getType())
-                        .valueType(entity.getValueType())
-                        .valueAttribute(entity.getAttributes())
-                        .build()
-                ).collect(Collectors.toList());
-        deviceDetailResponse.setEntities(deviceEntityDataList);
+        List<Entity> entities = entityServiceProvider.findByTargetId(AttachTargetType.DEVICE, deviceId.toString());
+        deviceDetailResponse.setEntities(entities
+                .stream().flatMap((Entity pEntity) -> {
+                    ArrayList<Entity> flatEntities = new ArrayList<>();
+                    flatEntities.add(pEntity);
+
+                    List<Entity> childrenEntities = pEntity.getChildren();
+                    if (childrenEntities != null) {
+                        flatEntities.addAll(childrenEntities);
+                    }
+
+                    return flatEntities.stream().map(entity -> DeviceEntityData
+                            .builder()
+                            .id(entity.getId().toString())
+                            .key(entity.getKey())
+                            .type(entity.getType())
+                            .name(entity.getName())
+                            .valueType(entity.getValueType())
+                            .valueAttribute(entity.getAttributes())
+                            .build());
+                }).toList());
         return deviceDetailResponse;
     }
 }

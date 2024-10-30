@@ -135,6 +135,7 @@ public class ExchangePayload extends HashMap<String,Object> implements ExchangeP
     }
 
     @Override
+    @NonNull
     public Map<String,Object> getPayloadsByEntityType(EntityType entityType) {
         if(ObjectUtils.isEmpty(keySet())){
             return Map.of();
