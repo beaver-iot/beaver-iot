@@ -19,6 +19,7 @@ import com.milesight.iab.eventbus.api.Event;
 import com.milesight.iab.integration.msc.constant.MscIntegrationConstants;
 import com.milesight.iab.integration.msc.entity.MscServiceEntities;
 import com.milesight.iab.integration.msc.util.MscTslUtils;
+import com.milesight.msc.sdk.error.MscApiException;
 import com.milesight.msc.sdk.error.MscSdkException;
 import lombok.*;
 import lombok.extern.slf4j.*;
@@ -206,8 +207,16 @@ public class MscDeviceService {
         if (deviceId == null) {
             return;
         }
-        mscClientProvider.getMscClient().device().delete(deviceId.toString())
-                .execute();
+        try {
+            mscClientProvider.getMscClient().device().delete(deviceId.toString())
+                    .execute();
+        } catch (MscApiException e) {
+            if (!"device_not_found".equals(e.getErrorResponse().getErrCode())) {
+                throw e;
+            } else {
+                log.warn("Device '{}' ({}) not found in MSC", device.getIdentifier(), deviceId);
+            }
+        }
         deviceServiceProvider.deleteById(device.getId());
     }
 
