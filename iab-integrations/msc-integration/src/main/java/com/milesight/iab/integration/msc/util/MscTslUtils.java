@@ -24,6 +24,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -104,7 +105,7 @@ public class MscTslUtils {
                                 .build();
                     })
                     .filter(entity -> entity != null && existsIdSet.contains(entity.getIdentifier()))
-                    .peek(MscTslUtils::standardizeEntityIdentifier)
+                    .peek(MscTslUtils::standardizeChildEntityIdentifier)
                     .toList());
         });
         return entities;
@@ -158,7 +159,7 @@ public class MscTslUtils {
                                 .build();
                     })
                     .filter(entity -> entity != null && existsIdSet.contains(entity.getIdentifier()))
-                    .peek(MscTslUtils::standardizeEntityIdentifier)
+                    .peek(MscTslUtils::standardizeChildEntityIdentifier)
                     .toList());
         });
         return entities;
@@ -178,9 +179,10 @@ public class MscTslUtils {
 
         //noinspection DuplicatedCode
         idToService.forEach((key, serviceSpec) -> {
+            val isSyncService = TslServiceSpec.CallTypeEnum.SYNC.equals(serviceSpec.getCallType());
             val parentEntity = new EntityBuilder()
                     .identifier(serviceSpec.getId())
-                    .service(serviceSpec.getName(), TslServiceSpec.CallTypeEnum.SYNC.equals(serviceSpec.getCallType()))
+                    .service(serviceSpec.getName(), isSyncService)
                     .valueType(EntityValueType.OBJECT)
                     .build();
             entities.add(parentEntity);
@@ -209,13 +211,13 @@ public class MscTslUtils {
                         }
                         return new EntityBuilder()
                                 .identifier(id)
-                                .event(name)
+                                .service(name, isSyncService)
                                 .valueType(valueType)
                                 .attributes(convertTslDataSpecToEntityAttributes(dataSpec))
                                 .build();
                     })
                     .filter(entity -> entity != null && existsIdSet.contains(entity.getIdentifier()))
-                    .peek(MscTslUtils::standardizeEntityIdentifier)
+                    .peek(MscTslUtils::standardizeChildEntityIdentifier)
                     .toList());
         });
         return entities;
@@ -244,8 +246,10 @@ public class MscTslUtils {
         return id;
     }
 
-    public static void standardizeEntityIdentifier(Entity child) {
-        child.setIdentifier(child.getIdentifier().replace('.', '@'));
+    private static void standardizeChildEntityIdentifier(Entity child) {
+        child.setIdentifier(child.getIdentifier()
+                .replace('.', '@')
+                .replaceFirst("@", "."));
     }
 
     private static Map<String, Object> convertTslDataSpecToEntityAttributes(TslDataSpec dataSpec) {
