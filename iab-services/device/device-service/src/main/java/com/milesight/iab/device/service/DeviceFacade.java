@@ -34,7 +34,7 @@ public class DeviceFacade implements IDeviceFacade {
     @Override
     public List<DeviceNameDTO> fuzzySearchDeviceByName(String name) {
         return deviceRepository
-                .findAll(f -> f.like(DevicePO.Fields.name, name))
+                .findAll(f -> f.likeIgnoreCase(DevicePO.Fields.name, name))
                 .stream()
                 .map(this::convertDevicePO)
                 .collect(Collectors.toList());
