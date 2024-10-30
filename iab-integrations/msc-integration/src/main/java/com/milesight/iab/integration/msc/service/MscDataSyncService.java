@@ -334,7 +334,7 @@ public class MscDataSyncService {
     @SneakyThrows
     private void syncPropertiesHistory(Device device, int lastSyncTime) {
         // deviceId should not be null
-        val deviceId = (String) device.getAdditional().get("deviceId");
+        val deviceId = (String) device.getAdditional().get(MscIntegrationConstants.DeviceAdditionalDataName.DEVICE_ID);
         long time24HoursBefore = TimeUtils.currentTimeSeconds() - TimeUnit.DAYS.toSeconds(1);
         long startTime = Math.max(lastSyncTime, time24HoursBefore) * 1000;
         long endTime = TimeUtils.currentTimeMillis();

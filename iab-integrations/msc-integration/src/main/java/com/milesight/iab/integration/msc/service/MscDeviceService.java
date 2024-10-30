@@ -145,7 +145,7 @@ public class MscDeviceService {
         val device = new DeviceBuilder(MscIntegrationConstants.INTEGRATION_IDENTIFIER, MscIntegrationConstants.INTEGRATION_IDENTIFIER)
                 .name(deviceName)
                 .identifier(identifier)
-                .additional(Map.of("deviceId", deviceId))
+                .additional(Map.of(MscIntegrationConstants.DeviceAdditionalDataName.DEVICE_ID, deviceId))
                 .entities(entities)
                 .build();
         deviceServiceProvider.save(device);
@@ -202,7 +202,7 @@ public class MscDeviceService {
         if (additionalData == null) {
             return;
         }
-        val deviceId = additionalData.get("deviceId");
+        val deviceId = additionalData.get(MscIntegrationConstants.DeviceAdditionalDataName.DEVICE_ID);
         if (deviceId == null) {
             return;
         }
