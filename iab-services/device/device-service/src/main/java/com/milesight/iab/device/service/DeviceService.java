@@ -171,6 +171,7 @@ public class DeviceService {
 
         // set entities
         List<Entity> entities = entityServiceProvider.findByTargetId(AttachTargetType.DEVICE, deviceId.toString());
+        deviceDetailResponse.setIdentifier(findResult.get().getIdentifier());
         deviceDetailResponse.setEntities(entities
                 .stream().flatMap((Entity pEntity) -> {
                     ArrayList<Entity> flatEntities = new ArrayList<>();

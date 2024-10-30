@@ -10,5 +10,6 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class DeviceDetailResponse extends DeviceResponseData {
+    private String identifier;
     List<DeviceEntityData> entities;
 }
