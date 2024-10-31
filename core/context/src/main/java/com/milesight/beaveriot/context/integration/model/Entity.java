@@ -75,6 +75,7 @@ public class Entity implements IdentityKey {
             children.forEach(entity -> {
                 entity.setDeviceKey(deviceKey);
                 entity.setIntegrationId(integrationId);
+                entity.setParentIdentifier(identifier);
             });
         }
     }
@@ -86,6 +87,7 @@ public class Entity implements IdentityKey {
         if(!CollectionUtils.isEmpty(children)){
             children.forEach(entity -> {
                 entity.setIntegrationId(integrationId);
+                entity.setParentIdentifier(identifier);
             });
         }
     }

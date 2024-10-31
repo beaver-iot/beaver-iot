@@ -94,6 +94,13 @@ public class Integration {
         initialEntities.addAll(addEntities);
     }
 
+    public void addInitialDevices(List<Device> devices) {
+        if(initialDevices == null){
+            initialDevices = new ArrayList<>();
+        }
+        initialDevices.addAll(devices);
+    }
+
     public void addInitialDevice(Device device) {
         if(initialDevices == null){
             initialDevices = new ArrayList<>();

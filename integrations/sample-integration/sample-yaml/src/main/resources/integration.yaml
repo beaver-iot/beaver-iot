@@ -30,7 +30,7 @@ integration:
         value_type: string
         type: service
         children:
-          - identifier: 'connect.url'
+          - identifier: 'url'
             name: connectUrl
             value_type: string
             type: service

@@ -7,6 +7,7 @@ import com.milesight.beaveriot.context.api.IntegrationServiceProvider;
 import com.milesight.beaveriot.context.constants.IntegrationConstants;
 import com.milesight.beaveriot.context.integration.entity.EntityLoader;
 import com.milesight.beaveriot.context.integration.model.Integration;
+import com.milesight.beaveriot.context.integration.model.config.IntegrationConfig;
 import com.milesight.beaveriot.context.support.YamlPropertySourceFactory;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -142,8 +143,8 @@ public class IntegrationBootstrapManager implements CommandLineRunner{
             throw new ConfigurationException("Integration information not configured correctly, There is one and only one integration configuration, please check integration.yaml");
         }
         String integrationId = (String) integrationRoot.get().keySet().iterator().next();
-        Integration integration = Binder.get(environment).bind(IntegrationConstants.INTEGRATION_PROPERTY_PREFIX + "." + integrationId, Integration.class).get();
-        integration.setId(integrationId);
+        IntegrationConfig integrationConfig = Binder.get(environment).bind(IntegrationConstants.INTEGRATION_PROPERTY_PREFIX + "." + integrationId, IntegrationConfig.class).get();
+        Integration integration = integrationConfig.toIntegration(integrationId);
         integration.setIntegrationClass(clazz);
         return integration;
     }

@@ -3,6 +3,7 @@ package com.milesight.beaveriot.context.integration.model;
 import com.milesight.beaveriot.context.integration.bootstrap.IntegrationBootstrap;
 import org.springframework.util.Assert;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -73,10 +74,22 @@ public class IntegrationBuilder {
         return this;
     }
 
+    public IntegrationBuilder initialDevices(List<Device> devices) {
+        Assert.notNull(integration, "integration can't be null, please set integration first");
+        integration.addInitialDevices(devices);
+        return this;
+    }
+
 
     public IntegrationBuilder initialEntity(Entity entity) {
         Assert.notNull(integration, "integration can't be null, please set integration first");
         integration.addInitialEntity(entity);
+        return this;
+    }
+
+    public IntegrationBuilder initialEntities(List<Entity> entities) {
+        Assert.notNull(integration, "integration can't be null, please set integration first");
+        integration.addInitialEntities(entities);
         return this;
     }
 
@@ -85,9 +98,9 @@ public class IntegrationBuilder {
         return new IntegrationConfigBuilder(this);
     }
 
-    public IntegrationBuilder integration(String name, String description) {
+    public IntegrationBuilder integration(String id, String name) {
         Assert.isNull(integration, "Integration can't repeat Settings");
-        this.integration = Integration.of(name, description);
+        this.integration = Integration.of(id, name);
         return this;
     }
 
@@ -112,6 +125,11 @@ public class IntegrationBuilder {
 
         public IntegrationConfigBuilder id(String id) {
             this.integrationBuilder.integration.setId(id);
+            return this;
+        }
+
+        public IntegrationConfigBuilder enabled(boolean enabled) {
+            this.integrationBuilder.integration.setEnabled(enabled);
             return this;
         }
 
@@ -142,6 +160,11 @@ public class IntegrationBuilder {
 
         public IntegrationConfigBuilder entityIdentifierDeleteDevice(String deleteDeviceEntityIdentifier) {
             this.integrationBuilder.integration.setEntityIdentifierDeleteDevice(deleteDeviceEntityIdentifier);
+            return this;
+        }
+
+        public IntegrationConfigBuilder flowExchangeDownHandler(String flowExchangeDownHandler) {
+            this.integrationBuilder.integration.setFlowExchangeDownHandler(flowExchangeDownHandler);
             return this;
         }
 
