@@ -4,16 +4,16 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.milesight.iab</groupId>
-    <artifactId>iot-app-builder</artifactId>
+    <groupId>com.milesight.beaveriot</groupId>
+    <artifactId>beaver-iot</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
-        <module>iab-application</module>
-        <module>iab-core</module>
-        <module>iab-services</module>
-        <module>iab-extension-components</module>
-        <module>iab-integrations</module>
+        <module>application</module>
+        <module>core</module>
+        <module>services</module>
+        <module>extension-components</module>
+        <module>integrations</module>
     </modules>
 
     <properties>
