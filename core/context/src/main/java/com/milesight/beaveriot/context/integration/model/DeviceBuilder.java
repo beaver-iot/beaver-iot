@@ -31,9 +31,6 @@ public class DeviceBuilder extends BaseDeviceBuilder<DeviceBuilder>{
         super(integrationId);
     }
 
-    public DeviceBuilder(){
-    }
-
     public static class IntegrationDeviceBuilder extends BaseDeviceBuilder<IntegrationDeviceBuilder>{
         protected IntegrationBuilder integrationBuilder;
         public IntegrationDeviceBuilder(IntegrationBuilder integrationBuilder) {

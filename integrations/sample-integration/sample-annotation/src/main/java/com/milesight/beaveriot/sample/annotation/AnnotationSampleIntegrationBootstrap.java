@@ -27,7 +27,7 @@ public class AnnotationSampleIntegrationBootstrap implements IntegrationBootstra
                 .children()
                 .valueType(EntityValueType.STRING).property("propChildren2", AccessMod.W).end()
                 .build();
-        Device device = new DeviceBuilder()
+        Device device = new DeviceBuilder(integrationConfig.getId())
                 .name("deviceDemo1")
                 .identifier("deviceDemo1")
                 .entity(entityConfig)

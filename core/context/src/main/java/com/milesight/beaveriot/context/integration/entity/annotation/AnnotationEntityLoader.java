@@ -42,7 +42,7 @@ public class AnnotationEntityLoader implements EntityLoader {
             if (clazz.isAnnotationPresent(DeviceEntities.class)) {
                 // parse DeviceEntities annotation
                 DeviceEntities deviceEntitiesAnno = clazz.getAnnotation(DeviceEntities.class);
-                DeviceBuilder deviceBuilder = new DeviceBuilder().name(deviceEntitiesAnno.name()).identifier(deviceEntitiesAnno.identifier()).additional(resolveKeyValue(deviceEntitiesAnno.additional()));
+                DeviceBuilder deviceBuilder = new DeviceBuilder(integration.getId()).name(deviceEntitiesAnno.name()).identifier(deviceEntitiesAnno.identifier()).additional(resolveKeyValue(deviceEntitiesAnno.additional()));
                 String deviceKey = IntegrationConstants.formatIntegrationDeviceKey(integration.getId(), deviceEntitiesAnno.identifier());
                 List<com.milesight.beaveriot.context.integration.model.Entity> entities = parserEntities(integration, deviceKey, null, clazz, propertyResolver);
                 deviceBuilder.entities(entities);

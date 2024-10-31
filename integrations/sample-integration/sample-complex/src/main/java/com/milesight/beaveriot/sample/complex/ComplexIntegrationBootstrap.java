@@ -29,7 +29,7 @@ public class ComplexIntegrationBootstrap implements IntegrationBootstrap {
                 .children()
                 .valueType(EntityValueType.STRING).property("prop_children2", AccessMod.W).end()
                 .build();
-        Device device = new DeviceBuilder()
+        Device device = new DeviceBuilder(integrationConfig.getId())
                 .name("complexDevice1")
                 .identifier("complexDevice1")
                 .entity(entityConfig)
