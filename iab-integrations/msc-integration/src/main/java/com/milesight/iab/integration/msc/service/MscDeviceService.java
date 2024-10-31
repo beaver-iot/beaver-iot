@@ -153,7 +153,7 @@ public class MscDeviceService {
         return device;
     }
 
-    public Device updateLocalDevice(String identifier, String deviceName, String deviceId, ThingSpec thingSpec) {
+    public Device updateLocalDevice(String identifier, String deviceId, ThingSpec thingSpec) {
         val entities = MscTslUtils.thingSpecificationToEntities(thingSpec);
         addAdditionalEntities(entities);
 
