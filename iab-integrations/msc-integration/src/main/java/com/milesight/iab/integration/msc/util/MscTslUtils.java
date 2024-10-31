@@ -16,8 +16,8 @@ import com.milesight.iab.context.integration.enums.AccessMod;
 import com.milesight.iab.context.integration.enums.EntityValueType;
 import com.milesight.iab.context.integration.model.Entity;
 import com.milesight.iab.context.integration.model.ExchangePayload;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -42,7 +42,7 @@ public class MscTslUtils {
     }
 
     @Nonnull
-    public static List<Entity> thingSpecificationToEntities(ThingSpec thingSpec) {
+    public static List<Entity> thingSpecificationToEntities(@NonNull ThingSpec thingSpec) {
         val entities = new ArrayList<Entity>();
         entities.addAll(getPropertiesEntities(thingSpec));
         entities.addAll(getEventEntities(thingSpec));
@@ -50,7 +50,7 @@ public class MscTslUtils {
         return entities;
     }
 
-    private static List<Entity> getPropertiesEntities(ThingSpec thingSpec) {
+    static List<Entity> getPropertiesEntities(ThingSpec thingSpec) {
         val entities = new ArrayList<Entity>();
         val properties = thingSpec.getProperties();
         if (properties == null || properties.isEmpty()) {
@@ -111,7 +111,7 @@ public class MscTslUtils {
         return entities;
     }
 
-    private static List<Entity> getEventEntities(ThingSpec thingSpec) {
+    static List<Entity> getEventEntities(ThingSpec thingSpec) {
         val entities = new ArrayList<Entity>();
         val events = thingSpec.getEvents();
         if (events == null || events.isEmpty()) {
@@ -168,7 +168,7 @@ public class MscTslUtils {
         return entities;
     }
 
-    private static List<Entity> getServiceEntities(ThingSpec thingSpec) {
+    static List<Entity> getServiceEntities(ThingSpec thingSpec) {
         val entities = new ArrayList<Entity>();
         val services = thingSpec.getServices();
         if (services == null || services.isEmpty()) {
