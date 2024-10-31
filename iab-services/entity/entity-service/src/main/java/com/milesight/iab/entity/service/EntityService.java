@@ -294,7 +294,14 @@ public class EntityService implements EntityServiceProvider {
         List<EntityPO> entityPOList = new ArrayList<>();
         entityList.forEach(t -> {
             EntityPO entityPO = saveConvert(t, deviceKeyMap, dataEntityKeyMap);
-            entityPOList.add(entityPO);
+            EntityPO dataEntityPO = dataEntityKeyMap.get(t.getKey());
+            if (dataEntityPO.getAccessMod() != entityPO.getAccessMod()
+                    || dataEntityPO.getValueType() != entityPO.getValueType()
+                    || !Objects.equals(JsonUtils.toJSON(dataEntityPO.getValueAttribute()), JsonUtils.toJSON(entityPO.getValueAttribute()))
+                    || dataEntityPO.getType() != entityPO.getType()
+                    || !dataEntityPO.getName().equals(entityPO.getName())) {
+                entityPOList.add(entityPO);
+            }
         });
         entityRepository.saveAll(entityPOList);
 
@@ -303,7 +310,9 @@ public class EntityService implements EntityServiceProvider {
             if (isCreate) {
                 eventBus.publish(EntityEvent.of(EntityEvent.EventType.CREATED, entity));
             } else {
-                eventBus.publish(EntityEvent.of(EntityEvent.EventType.UPDATED, entity));
+                if (entityPOList.stream().anyMatch(entityPO -> entityPO.getKey().equals(entity.getKey()))) {
+                    eventBus.publish(EntityEvent.of(EntityEvent.EventType.UPDATED, entity));
+                }
             }
         });
     }
@@ -364,7 +373,7 @@ public class EntityService implements EntityServiceProvider {
             if (deviceEntityPOList != null && !deviceEntityPOList.isEmpty()) {
                 Map<String, Long> deviceEntityCountMap = deviceEntityPOList.stream().collect(Collectors.groupingBy(EntityPO::getAttachTargetId, Collectors.counting()));
                 integrationDeviceMap.forEach((integrationId, deviceList) -> {
-                    if(deviceList == null || deviceList.isEmpty()){
+                    if (deviceList == null || deviceList.isEmpty()) {
                         return;
                     }
                     List<String> deviceIdList = deviceList.stream().map(DeviceNameDTO::getId).map(String::valueOf).toList();
@@ -452,7 +461,8 @@ public class EntityService implements EntityServiceProvider {
             entityLatestPO.setEntityId(entityId);
             if (entityValueType == EntityValueType.OBJECT) {
                 // do nothing
-            } if (entityValueType == EntityValueType.BOOLEAN) {
+            }
+            if (entityValueType == EntityValueType.BOOLEAN) {
                 entityLatestPO.setValueBoolean((Boolean) payload);
             } else if (entityValueType == EntityValueType.LONG) {
                 entityLatestPO.setValueLong(Long.valueOf(String.valueOf(payload)));
