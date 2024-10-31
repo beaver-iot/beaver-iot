@@ -2,26 +2,27 @@ package com.milesight.iab.eventbus;
 
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.dsl.Disruptor;
-import com.milesight.iab.context.integration.model.EventContextAccessor;
-import com.milesight.iab.context.integration.model.event.DeviceEvent;
-import com.milesight.iab.eventbus.invoke.EventSubscribeInvoker;
-import com.milesight.iab.eventbus.invoke.ListenerParameterResolver;
+import com.milesight.iab.base.exception.EventBusExecutionException;
 import com.milesight.iab.eventbus.annotations.EventSubscribe;
 import com.milesight.iab.eventbus.api.Event;
 import com.milesight.iab.eventbus.api.EventResponse;
 import com.milesight.iab.eventbus.api.IdentityKey;
 import com.milesight.iab.eventbus.configuration.DisruptorOptions;
+import com.milesight.iab.eventbus.invoke.EventSubscribeInvoker;
+import com.milesight.iab.eventbus.invoke.ListenerParameterResolver;
 import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
-import javax.naming.event.EventContext;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
@@ -144,6 +145,8 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
             if(ObjectUtils.isEmpty(matchMultiKeys)){
                 return;
             }
+
+            List<Throwable> causes = new ArrayList<>();
             invokers.forEach(invoker -> {
                 try {
                     Object invoke = invoker.invoke(event, matchMultiKeys);
@@ -154,9 +157,13 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
                         }
                     }
                 } catch (Exception e) {
+                    causes.add(e);
                     log.error("EventSubscribe method invoke error, method: {}" ,invoker, e);
                 }
             });
+            if(!CollectionUtils.isEmpty(causes)){
+                throw new EventBusExecutionException("EventSubscribe method invoke error", causes);
+            }
         };
     }
 
