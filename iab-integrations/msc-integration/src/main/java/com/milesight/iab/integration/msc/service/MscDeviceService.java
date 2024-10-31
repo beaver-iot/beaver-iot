@@ -153,12 +153,12 @@ public class MscDeviceService {
         return device;
     }
 
-    public Device updateLocalDevice(String identifier, String deviceName, String deviceId, ThingSpec thingSpec) {
+    public Device updateLocalDevice(String identifier, String deviceId, ThingSpec thingSpec) {
         val entities = MscTslUtils.thingSpecificationToEntities(thingSpec);
         addAdditionalEntities(entities);
 
         val device = deviceServiceProvider.findByIdentifier(identifier, MscIntegrationConstants.INTEGRATION_IDENTIFIER);
-        device.setName(deviceName);
+        // update device attributes except name
         device.setIdentifier(identifier);
         device.setAdditional(Map.of(MscIntegrationConstants.DeviceAdditionalDataName.DEVICE_ID, deviceId));
         device.setEntities(entities);

@@ -19,6 +19,7 @@ import com.milesight.iab.context.integration.model.Device;
 import com.milesight.iab.context.integration.model.Entity;
 import com.milesight.iab.context.integration.model.ExchangePayload;
 import com.milesight.iab.context.integration.model.Integration;
+import com.milesight.iab.context.integration.model.event.EntityEvent;
 import com.milesight.iab.context.security.SecurityUserContext;
 import com.milesight.iab.context.support.EnhancePropertySourcesPropertyResolver;
 import com.milesight.iab.data.filterable.Filterable;
@@ -42,6 +43,7 @@ import com.milesight.iab.entity.po.EntityPO;
 import com.milesight.iab.entity.repository.EntityHistoryRepository;
 import com.milesight.iab.entity.repository.EntityLatestRepository;
 import com.milesight.iab.entity.repository.EntityRepository;
+import com.milesight.iab.eventbus.EventBus;
 import jakarta.persistence.EntityManager;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -94,6 +96,8 @@ public class EntityService implements EntityServiceProvider {
     ExchangeFlowExecutor exchangeFlowExecutor;
     @Autowired
     private EntityManager entityManager;
+    @Autowired
+    EventBus eventBus;
 
     private final Comparator<byte[]> byteArrayComparator = (a, b) -> {
         if (a == b) return 0;
@@ -250,7 +254,6 @@ public class EntityService implements EntityServiceProvider {
         if (!CollectionUtils.isEmpty(entity.getChildren())) {
             allEntityList.addAll(entity.getChildren());
         }
-
         doBatchSaveEntity(allEntityList);
     }
 
@@ -294,6 +297,15 @@ public class EntityService implements EntityServiceProvider {
             entityPOList.add(entityPO);
         });
         entityRepository.saveAll(entityPOList);
+
+        entityList.forEach(entity -> {
+            boolean isCreate = dataEntityKeyMap.get(entity.getKey()) == null;
+            if (isCreate) {
+                eventBus.publish(EntityEvent.of(EntityEvent.EventType.CREATED, entity));
+            } else {
+                eventBus.publish(EntityEvent.of(EntityEvent.EventType.UPDATED, entity));
+            }
+        });
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -307,9 +319,15 @@ public class EntityService implements EntityServiceProvider {
             return;
         }
         List<Long> entityIdList = entityPOList.stream().map(EntityPO::getId).toList();
+        List<Entity> entityList = findByTargetId(entityPOList.get(0).getAttachTarget(), targetId);
+
         entityRepository.deleteByTargetId(targetId);
         entityHistoryRepository.deleteByEntityIds(entityIdList);
         entityLatestRepository.deleteByEntityIds(entityIdList);
+
+        entityList.forEach(entity -> {
+            eventBus.publish(EntityEvent.of(EntityEvent.EventType.DELETED, entity));
+        });
     }
 
     @Override
