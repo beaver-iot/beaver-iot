@@ -1,11 +1,16 @@
 package com.milesight.iab.base.page;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.milesight.iab.base.utils.StringUtils;
 import lombok.Getter;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.CollectionUtils;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,6 +71,7 @@ public class Sorts  {
     @Getter
     public static class Order implements Serializable {
         protected Sort.Direction direction;
+        @JsonDeserialize(using = LowerCamelCaseDeserializer.class)
         protected String property;
 
         public Order() {
@@ -77,6 +83,15 @@ public class Sorts  {
 
         public String toSql() {
             return property + " " + direction.name();
+        }
+    }
+
+    public static class LowerCamelCaseDeserializer extends JsonDeserializer<String> {
+
+        @Override
+        public String deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+            String value = p.getText();
+            return StringUtils.toCamelCase(value) ;
         }
     }
 
