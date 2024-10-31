@@ -35,10 +35,12 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
     @Override
     public void save(Device device) {
         DevicePO devicePO;
+        Assert.notNull(device.getName(), "Device Name must be provided!");
         Assert.notNull(device.getIdentifier(), "Device identifier must be provided!");
         Assert.notNull(device.getIntegrationId(), "Integration must be provided!");
 
         boolean shouldCreate = false;
+        boolean shouldUpdate = false;
 
         // check id
         if (device.getId() != null) {
@@ -62,22 +64,25 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
         }
 
         // set device data
-        devicePO.setName(device.getName());
-        devicePO.setAdditionalData(device.getAdditional());
+        if (!device.getName().equals(devicePO.getName())) {
+            devicePO.setName(device.getName());
+            shouldUpdate = true;
+        }
 
-        Long curMillis = System.currentTimeMillis();
-        devicePO.setUpdatedAt(curMillis);
+        if (!deviceServiceHelper.deviceAdditionalDataEqual(device.getAdditional(), devicePO.getAdditionalData())) {
+            devicePO.setAdditionalData(device.getAdditional());
+            shouldUpdate = true;
+        }
 
         // create or update
         if (shouldCreate) {
-            // integration would not be updated
+            // integration / identifier / key would not be updated
             devicePO.setIntegration(device.getIntegrationId());
             devicePO.setIdentifier(device.getIdentifier());
             devicePO.setKey(device.getKey());
-            devicePO.setCreatedAt(curMillis);
             devicePO = deviceRepository.save(devicePO);
             eventBus.publish(DeviceEvent.of(DeviceEvent.EventType.CREATED, device));
-        } else {
+        } else if (shouldUpdate) {
             devicePO = deviceRepository.save(devicePO);
             eventBus.publish(DeviceEvent.of(DeviceEvent.EventType.UPDATED, device));
         }
