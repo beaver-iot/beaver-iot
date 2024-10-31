@@ -1,6 +1,6 @@
 package com.milesight.beaveriot.entity.rule;
 
-import com.milesight.beaveriot.context.api.EntityServiceProvider;
+import com.milesight.beaveriot.context.api.EntityValueServiceProvider;
 import com.milesight.beaveriot.context.integration.enums.EntityType;
 import com.milesight.beaveriot.context.integration.model.ExchangePayload;
 import com.milesight.beaveriot.rule.annotations.RuleNode;
@@ -23,7 +23,7 @@ import java.util.Map;
 public class GenericExchangeSaveAction implements ProcessorNode<ExchangePayload> {
 
     @Autowired
-    private EntityServiceProvider entityServiceProvider;
+    private EntityValueServiceProvider entityValueServiceProvider;
 
     @Override
     public void processor(ExchangePayload exchange) {
@@ -32,21 +32,20 @@ public class GenericExchangeSaveAction implements ProcessorNode<ExchangePayload>
         // Save event entities， only save history
         Map<String, Object> eventEntities = exchange.getPayloadsByEntityType(EntityType.EVENT);
         if (!ObjectUtils.isEmpty(eventEntities)) {
-            entityServiceProvider.saveExchangeHistory(ExchangePayload.create(eventEntities, exchange.getContext()));
+            entityValueServiceProvider.saveHistoryRecord(eventEntities, exchange.getTimestamp());
         }
 
         // Save property entities
         Map<String, Object> propertyEntities = exchange.getPayloadsByEntityType(EntityType.PROPERTY);
         if (!ObjectUtils.isEmpty(propertyEntities)) {
-            ExchangePayload exchangePayload = ExchangePayload.create(propertyEntities, exchange.getContext());
-            entityServiceProvider.saveExchange(exchangePayload);
-            entityServiceProvider.saveExchangeHistory(exchangePayload);
+            entityValueServiceProvider.saveValues(propertyEntities);
+            entityValueServiceProvider.saveHistoryRecord(propertyEntities, exchange.getTimestamp());
         }
 
         // Save service entities， only save history
         Map<String, Object> serviceEntities = exchange.getPayloadsByEntityType(EntityType.SERVICE);
         if (!ObjectUtils.isEmpty(serviceEntities)) {
-            entityServiceProvider.saveExchangeHistory(ExchangePayload.create(serviceEntities, exchange.getContext()));
+            entityValueServiceProvider.saveHistoryRecord(serviceEntities, exchange.getTimestamp());
         }
 
     }
