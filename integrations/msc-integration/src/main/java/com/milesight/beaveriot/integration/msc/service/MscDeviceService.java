@@ -159,10 +159,9 @@ public class MscDeviceService {
 
         val device = deviceServiceProvider.findByIdentifier(identifier, MscIntegrationConstants.INTEGRATION_IDENTIFIER);
         // update device attributes except name
-        device.setIdentifier(identifier);
+//        device.setIdentifier(identifier);
         device.setAdditional(Map.of(MscIntegrationConstants.DeviceAdditionalDataName.DEVICE_ID, deviceId));
         device.setEntities(entities);
-        device.initializeProperties(MscIntegrationConstants.INTEGRATION_IDENTIFIER);
         deviceServiceProvider.save(device);
         return device;
     }

@@ -77,7 +77,9 @@ public class Device implements IdentityKey {
         this.identifier = identifier;
     }
 
-    protected void setEntities(List<Entity> entities) {
+    public void setEntities(List<Entity> entities) {
+        Assert.notNull(integrationId, "Integration must not be null");
+        initializeProperties(integrationId);
         this.entities = entities;
     }
 }
