@@ -49,4 +49,16 @@ public class DeviceServiceHelper {
                 .entities(deviceEntityMap.get(devicePO.getKey()))
                 .build())).collect(Collectors.toList());
     }
+
+    public boolean deviceAdditionalDataEqual(Map<String, Object> arg1, Map<String, Object> arg2) {
+        if (arg1 == null && arg2 == null) {
+            return true;
+        }
+
+        if (arg1 == null || arg2 == null) {
+            return false;
+        }
+
+        return arg1.equals(arg2);
+    }
 }
