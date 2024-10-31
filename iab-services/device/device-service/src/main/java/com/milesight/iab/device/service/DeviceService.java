@@ -23,6 +23,7 @@ import com.milesight.iab.device.po.DevicePO;
 import com.milesight.iab.device.repository.DeviceRepository;
 import com.milesight.iab.eventbus.EventBus;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.camel.CamelException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -90,8 +91,7 @@ public class DeviceService {
         // Must return a device
         try {
             exchangeFlowExecutor.syncExchangeDown(payload);
-        } catch (EventBusExecutionException e) {
-            log.error("add device failed: {}", e.getCauses());
+        } catch (Exception e) {
             throw ServiceException
                     .with(ErrorCode.PARAMETER_VALIDATION_FAILED.getErrorCode(), "add device failed")
                     .build();
@@ -180,8 +180,7 @@ public class DeviceService {
             // call service for deleting
             try {
                 exchangeFlowExecutor.syncExchangeDown(payload);
-            } catch (EventBusExecutionException e) {
-                log.error("delete device failed: {}", e.getCauses());
+            } catch (Exception e) {
                 throw ServiceException
                         .with(ErrorCode.PARAMETER_VALIDATION_FAILED.getErrorCode(), "delete device failed")
                         .build();
