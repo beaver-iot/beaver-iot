@@ -66,13 +66,11 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
         // set device data
         if (!device.getName().equals(devicePO.getName())) {
             devicePO.setName(device.getName());
-            System.out.println("Name changed:" + devicePO.getName() + " -> " + device.getName());
             shouldUpdate = true;
         }
 
         if (!deviceServiceHelper.deviceAdditionalDataEqual(device.getAdditional(), devicePO.getAdditionalData())) {
             devicePO.setAdditionalData(device.getAdditional());
-            System.out.println("Data changed:" + devicePO.getAdditionalData() + " -> " + device.getAdditional());
             shouldUpdate = true;
         }
 
