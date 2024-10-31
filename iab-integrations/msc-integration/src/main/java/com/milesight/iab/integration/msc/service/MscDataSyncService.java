@@ -72,7 +72,7 @@ public class MscDataSyncService {
                 throw new RejectedExecutionException("Another task is running.");
             });
 
-    private static final ExecutorService concurrentSyncDeviceDataExecutor = new ThreadPoolExecutor(2, 10,
+    private static final ExecutorService concurrentSyncDeviceDataExecutor = new ThreadPoolExecutor(2, 4,
             300L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
 
     private static final ConcurrentHashMap<String, Object> deviceIdentifierToTaskLock = new ConcurrentHashMap<>(128);
