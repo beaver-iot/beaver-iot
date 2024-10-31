@@ -143,7 +143,7 @@ public class MscDeviceService {
         val entities = MscTslUtils.thingSpecificationToEntities(thingSpec);
         addAdditionalEntities(entities);
 
-        val device = new DeviceBuilder(MscIntegrationConstants.INTEGRATION_IDENTIFIER, MscIntegrationConstants.INTEGRATION_IDENTIFIER)
+        val device = new DeviceBuilder(MscIntegrationConstants.INTEGRATION_IDENTIFIER)
                 .name(deviceName)
                 .identifier(identifier)
                 .additional(Map.of(MscIntegrationConstants.DeviceAdditionalDataName.DEVICE_ID, deviceId))

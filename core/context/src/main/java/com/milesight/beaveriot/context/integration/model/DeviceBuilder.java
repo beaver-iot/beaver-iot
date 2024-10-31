@@ -27,12 +27,8 @@ public class DeviceBuilder extends BaseDeviceBuilder<DeviceBuilder>{
 
     private IntegrationBuilder integrationBuilder;
 
-    public DeviceBuilder(Integration integration){
-        super(integration);
-    }
-
-    public DeviceBuilder(String integrationId, String integrationName){
-        super(integrationId, integrationName);
+    public DeviceBuilder(String integrationId){
+        super(integrationId);
     }
 
     public DeviceBuilder(){
@@ -41,7 +37,7 @@ public class DeviceBuilder extends BaseDeviceBuilder<DeviceBuilder>{
     public static class IntegrationDeviceBuilder extends BaseDeviceBuilder<IntegrationDeviceBuilder>{
         protected IntegrationBuilder integrationBuilder;
         public IntegrationDeviceBuilder(IntegrationBuilder integrationBuilder) {
-            super(integrationBuilder.integration);
+            super(integrationBuilder.integration.getId());
             this.integrationBuilder = integrationBuilder;
         }
 

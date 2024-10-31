@@ -41,7 +41,7 @@ public class DeviceServiceHelper {
                     .computeIfAbsent(deviceKey, k -> new ArrayList<>())
                     .add(entity);
         }));
-        return devicePOList.stream().map((devicePO -> new DeviceBuilder(integrationServiceProvider.getIntegration(devicePO.getIntegration()))
+        return devicePOList.stream().map((devicePO -> new DeviceBuilder(devicePO.getIntegration())
                 .name(devicePO.getName())
                 .identifier(devicePO.getIdentifier())
                 .id(devicePO.getId())
