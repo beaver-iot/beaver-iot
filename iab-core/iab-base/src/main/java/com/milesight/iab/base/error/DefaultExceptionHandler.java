@@ -106,9 +106,15 @@ public class DefaultExceptionHandler {
     public ResponseEntity handleException(CamelExecutionException e) {
         log.error("Cause CamelExecutionException {}", e.getMessage());
         Throwable cause = e.getCause();
-        return (cause != null && cause instanceof ServiceException) ?
-                ResponseEntity.status(((ServiceException)cause).getStatus()).body(ResponseBuilder.fail(((ServiceException)cause))) :
-                ResponseEntity.status(ErrorCode.SERVER_ERROR.getStatus()).body(ResponseBuilder.fail(ErrorCode.SERVER_ERROR, e.getMessage()));
+        if(cause != null){
+            if(cause instanceof ServiceException) {
+                return ResponseEntity.status(((ServiceException) cause).getStatus()).body(ResponseBuilder.fail(((ServiceException) cause)));
+            }else if(cause instanceof BaseException) {
+                return ResponseEntity.status(ErrorCode.SERVER_ERROR.getStatus()).body(ResponseBuilder.fail(ErrorCode.SERVER_ERROR.getErrorCode(), cause.getMessage()));
+            }
+        }
+        return ResponseEntity.status(ErrorCode.SERVER_ERROR.getStatus()).body(ResponseBuilder.fail(ErrorCode.SERVER_ERROR, cause.getMessage()));
+
     }
 
     @ResponseBody
