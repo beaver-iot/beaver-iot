@@ -11,6 +11,7 @@ import java.util.Map;
  * @author leon
  */
 public class BaseEntityBuilder<T extends BaseEntityBuilder> {
+    protected Long id;
     protected String name;
 
     protected String identifier;
@@ -26,6 +27,10 @@ public class BaseEntityBuilder<T extends BaseEntityBuilder> {
         return (T) this;
     }
 
+    public T id(Long id){
+        this.id = id;
+        return (T) this;
+    }
     public T type(EntityType type) {
         this.type = type;
         return (T) this;
@@ -72,6 +77,7 @@ public class BaseEntityBuilder<T extends BaseEntityBuilder> {
 
     protected Entity newInstance(){
         Entity entity = new Entity();
+        entity.setId(id);
         entity.setName(name);
         entity.setIdentifier(identifier);
         entity.setAccessMod(accessMod);
