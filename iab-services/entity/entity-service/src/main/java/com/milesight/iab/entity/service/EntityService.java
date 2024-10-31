@@ -287,12 +287,6 @@ public class EntityService implements EntityServiceProvider {
         }
         List<String> entityKeys = entityList.stream().map(Entity::getKey).filter(StringUtils::hasText).toList();
         List<EntityPO> dataEntityPOList = getByKeys(entityKeys);
-        boolean isCreate;
-        if (dataEntityPOList == null || dataEntityPOList.isEmpty()) {
-            isCreate = true;
-        } else {
-            isCreate = false;
-        }
         Map<String, EntityPO> dataEntityKeyMap = new HashMap<>();
         if (dataEntityPOList != null && !dataEntityPOList.isEmpty()) {
             dataEntityKeyMap.putAll(dataEntityPOList.stream().collect(Collectors.toMap(EntityPO::getKey, Function.identity())));
@@ -305,6 +299,7 @@ public class EntityService implements EntityServiceProvider {
         entityRepository.saveAll(entityPOList);
 
         entityList.forEach(entity -> {
+            boolean isCreate = dataEntityKeyMap.get(entity.getKey()) == null;
             if (isCreate) {
                 eventBus.publish(EntityEvent.of(EntityEvent.EventType.CREATED, entity));
             } else {
