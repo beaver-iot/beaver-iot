@@ -2,6 +2,7 @@ package com.milesight.beaveriot.integration.msc.service;
 
 import com.milesight.beaveriot.context.api.DeviceServiceProvider;
 import com.milesight.beaveriot.context.api.EntityServiceProvider;
+import com.milesight.beaveriot.context.api.EntityValueServiceProvider;
 import com.milesight.beaveriot.context.api.ExchangeFlowExecutor;
 import com.milesight.beaveriot.context.integration.model.ExchangePayload;
 import com.milesight.beaveriot.context.integration.model.event.ExchangeEvent;
@@ -35,7 +36,7 @@ public class MscWebhookService {
     private Mac mac;
 
     @Autowired
-    private EntityServiceProvider entityServiceProvider;
+    private EntityValueServiceProvider entityValueServiceProvider;
 
     @Autowired
     private ExchangeFlowExecutor exchangeFlowExecutor;
@@ -52,7 +53,7 @@ public class MscWebhookService {
 
     public void init() {
         val webhookSettingsKey = MscConnectionPropertiesEntities.getKey(MscConnectionPropertiesEntities.Fields.webhook);
-        val webhookSettings = entityServiceProvider.findExchangeByKey(webhookSettingsKey, MscConnectionPropertiesEntities.Webhook.class);
+        val webhookSettings = entityValueServiceProvider.findValuesByKey(webhookSettingsKey, MscConnectionPropertiesEntities.Webhook.class);
         if (webhookSettings == null) {
             log.info("Webhook settings not found");
             return;

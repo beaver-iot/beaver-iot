@@ -1,6 +1,6 @@
 package com.milesight.beaveriot.integration.msc.service;
 
-import com.milesight.beaveriot.context.api.EntityServiceProvider;
+import com.milesight.beaveriot.context.api.EntityValueServiceProvider;
 import com.milesight.beaveriot.context.api.ExchangeFlowExecutor;
 import com.milesight.beaveriot.context.integration.model.ExchangePayload;
 import com.milesight.beaveriot.context.integration.model.event.ExchangeEvent;
@@ -26,7 +26,7 @@ public class MscConnectionService implements IMscClientProvider {
     private static final String OPENAPI_STATUS_KEY = MscConnectionPropertiesEntities.getKey(MscConnectionPropertiesEntities.Fields.openapiStatus);
 
     @Autowired
-    private EntityServiceProvider entityServiceProvider;
+    private EntityValueServiceProvider entityValueServiceProvider;
 
     @Autowired
     private ExchangeFlowExecutor exchangeFlowExecutor;
@@ -97,7 +97,7 @@ public class MscConnectionService implements IMscClientProvider {
 
     public void init() {
         try {
-            val settings = entityServiceProvider.findExchangeByKey(
+            val settings = entityValueServiceProvider.findValuesByKey(
                     MscConnectionPropertiesEntities.getKey(MscConnectionPropertiesEntities.Fields.openapi), MscConnectionPropertiesEntities.Openapi.class);
             if (settings != null) {
                 initConnection(settings);

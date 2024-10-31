@@ -1,6 +1,7 @@
 package com.milesight.beaveriot.integration.msc.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.milesight.beaveriot.context.api.EntityValueServiceProvider;
 import com.milesight.cloud.sdk.client.model.DeviceDetailResponse;
 import com.milesight.cloud.sdk.client.model.DeviceSearchRequest;
 import com.milesight.beaveriot.context.api.DeviceServiceProvider;
@@ -56,7 +57,7 @@ public class MscDataSyncService {
     private DeviceServiceProvider deviceServiceProvider;
 
     @Autowired
-    private EntityServiceProvider entityServiceProvider;
+    private EntityValueServiceProvider entityValueServiceProvider;
 
     @Autowired
     private ExchangeFlowExecutor exchangeFlowExecutor;
@@ -125,7 +126,7 @@ public class MscDataSyncService {
             return;
         }
         if (periodSeconds == 0) {
-            val scheduledDataFetchSettings = entityServiceProvider.findExchangeByKey(
+            val scheduledDataFetchSettings = entityValueServiceProvider.findValuesByKey(
                     MscConnectionPropertiesEntities.getKey(MscConnectionPropertiesEntities.Fields.scheduledDataFetch),
                     MscConnectionPropertiesEntities.ScheduledDataFetch.class);
             if (scheduledDataFetchSettings == null) {
@@ -324,7 +325,7 @@ public class MscDataSyncService {
         // update last sync time
         val timestamp = TimeUtils.currentTimeSeconds();
         val lastSyncTimeKey = MscIntegrationConstants.InternalPropertyIdentifier.getLastSyncTimeKey(device.getKey());
-        val lastSyncTime = Optional.ofNullable(entityServiceProvider.findExchangeValueByKey(lastSyncTimeKey))
+        val lastSyncTime = Optional.ofNullable(entityValueServiceProvider.findValueByKey(lastSyncTimeKey))
                 .map(JsonNode::intValue)
                 .orElse(0);
         exchangeFlowExecutor.syncExchangeDown(ExchangePayload.create(lastSyncTimeKey, timestamp));
@@ -374,7 +375,7 @@ public class MscDataSyncService {
         payload.setTimestamp(timestampMs);
         log.debug("Save device history data: {}", payload);
         if (!isLatestData) {
-            entityServiceProvider.saveExchangeHistory(payload);
+            entityValueServiceProvider.saveHistoryRecord(payload, payload.getTimestamp());
         } else {
             exchangeFlowExecutor.asyncExchangeUp(payload);
         }
