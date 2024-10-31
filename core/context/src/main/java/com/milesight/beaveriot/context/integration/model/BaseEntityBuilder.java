@@ -27,6 +27,11 @@ public class BaseEntityBuilder<T extends BaseEntityBuilder> {
         return (T) this;
     }
 
+    public T parentIdentifier(String parentIdentifier) {
+        this.parentIdentifier = parentIdentifier;
+        return (T) this;
+    }
+
     public T id(Long id){
         this.id = id;
         return (T) this;
