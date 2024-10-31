@@ -20,7 +20,7 @@ public class IntegrationServiceProviderImpl extends IntegrationServiceProvider {
     @Override
     public void save(Integration integrationConfig) {
         integrationConfig.getInitialDevices().forEach(deviceServiceProvider::save);
-        integrationConfig.getInitialEntities().forEach(entityServiceProvider::save);
+        entityServiceProvider.batchSave(integrationConfig.getInitialEntities());
     }
 
     @Override
