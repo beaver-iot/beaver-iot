@@ -88,7 +88,7 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
 
         device.setId(devicePO.getId());
 
-        device.getEntities().forEach(entityServiceProvider::save);
+        entityServiceProvider.batchSave(device.getEntities());
     }
 
     @Override

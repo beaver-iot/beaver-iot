@@ -57,7 +57,7 @@ public class Device implements IdentityKey {
         Assert.notNull(identifier, "Device identifier must not be null");
     }
 
-    protected void setId(Long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

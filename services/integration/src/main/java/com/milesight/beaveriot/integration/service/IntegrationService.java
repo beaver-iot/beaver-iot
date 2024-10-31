@@ -5,6 +5,7 @@ import com.milesight.beaveriot.base.enums.ErrorCode;
 import com.milesight.beaveriot.base.exception.ServiceException;
 import com.milesight.beaveriot.context.api.DeviceServiceProvider;
 import com.milesight.beaveriot.context.api.EntityServiceProvider;
+import com.milesight.beaveriot.context.api.EntityValueServiceProvider;
 import com.milesight.beaveriot.context.api.IntegrationServiceProvider;
 import com.milesight.beaveriot.context.integration.enums.AttachTargetType;
 import com.milesight.beaveriot.context.integration.model.Entity;
@@ -32,6 +33,9 @@ public class IntegrationService {
 
     @Autowired
     EntityServiceProvider entityServiceProvider;
+
+    @Autowired
+    EntityValueServiceProvider entityValueServiceProvider;
 
     private SearchIntegrationResponseData integrationToSearchResponseData(Integration integration) {
         SearchIntegrationResponseData data = new SearchIntegrationResponseData();
@@ -92,7 +96,7 @@ public class IntegrationService {
         data.setDeviceCount(deviceServiceProvider.countByIntegrationId(integrationId));
         data.setEntityCount(entityServiceProvider.countAllEntitiesByIntegrationId(integrationId));
         List<Entity> entities = entityServiceProvider.findByTargetId(AttachTargetType.INTEGRATION, integrationId);
-        final Map<String, JsonNode> entityValues = entityServiceProvider.findExchangeValuesByKeys(entities.stream().map(Entity::getKey).toList());
+        final Map<String, JsonNode> entityValues = entityValueServiceProvider.findValuesByKeys(entities.stream().map(Entity::getKey).toList());
 
         data.setIntegrationEntities(entities
                 .stream().flatMap((Entity pEntity) -> {
