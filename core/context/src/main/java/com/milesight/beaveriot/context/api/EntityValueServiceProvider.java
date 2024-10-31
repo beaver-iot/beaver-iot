@@ -10,6 +10,8 @@ import java.util.Map;
  */
 public interface EntityValueServiceProvider {
 
+    void saveValues(Map<String,Object> values, long timestamp);
+
     void saveValues(Map<String,Object> values);
 
     void saveHistoryRecord(Map<String,Object> recordValues, long timestamp);

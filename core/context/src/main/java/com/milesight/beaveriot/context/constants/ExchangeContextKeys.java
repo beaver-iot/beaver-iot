@@ -13,6 +13,4 @@ public class ExchangeContextKeys {
 
     public static final String EXCHANGE_KEY_EVENT_TYPE = "KEY_EVENT_TYPE";
 
-    public static final String EXCHANGE_KEY_USER_ID = SecurityUserContext.USER_ID;
-
 }

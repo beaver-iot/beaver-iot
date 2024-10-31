@@ -1,23 +1,23 @@
 package com.milesight.beaveriot.context.integration.model.event;
 
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
 /**
  * @author leon
  */
-@Getter
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class WebSocketEvent implements Serializable {
 
-    private final Object payload;
-    private final String eventType;
-
-    public WebSocketEvent(String eventType, Object payload) {
-        this.eventType = eventType;
-        this.payload = payload;
-    }
+    private String eventType;
+    private Object payload;
 
     public static WebSocketEvent of(String eventType, Object payload) {
         return new WebSocketEvent(eventType, payload);

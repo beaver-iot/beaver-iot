@@ -1,6 +1,8 @@
 package com.milesight.beaveriot.dashboard.handler;
 
 import com.milesight.beaveriot.authentication.facade.IAuthenticationFacade;
+import com.milesight.beaveriot.base.utils.JsonUtils;
+import com.milesight.beaveriot.context.integration.model.event.WebSocketEvent;
 import com.milesight.beaveriot.websocket.AbstractWebSocketHandler;
 import com.milesight.beaveriot.websocket.WebSocketContext;
 import com.milesight.beaveriot.websocket.WebSocketProperties;
@@ -11,6 +13,7 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -33,7 +36,7 @@ public class DashboardWebsocketHandler extends AbstractWebSocketHandler {
 
     @Override
     public void connect(ChannelHandlerContext ctx, FullHttpRequest request, Map<String, List<String>> urlParams) throws Exception {
-        String token = getToken(request);
+        String token = getToken(request, urlParams);
         if (token == null) {
             sendHttpResponse(ctx, request, HttpResponseStatus.FORBIDDEN);
             return;
@@ -48,9 +51,13 @@ public class DashboardWebsocketHandler extends AbstractWebSocketHandler {
 
     @Override
     public void handleTextMessage(ChannelHandlerContext ctx, TextWebSocketFrame msg) throws Exception {
-        //FIXME user entity key to subscribe
+        WebSocketEvent webSocketEvent = JsonUtils.fromJSON(msg.text(), WebSocketEvent.class);
+        if (webSocketEvent == null || !WebSocketEvent.EventType.EXCHANGE.equals(webSocketEvent.getEventType())) {
+            return;
+        }
         String userId = WebSocketContext.getChannelByValue(ctx);
-        log.info("userId:{}, handleTextMessage:{}", userId, msg.text());
+        //FIXME user entity key to subscribe
+        log.info("userId:{}, handleTextMessage:{}", userId, webSocketEvent);
     }
 
     @Override
@@ -62,9 +69,11 @@ public class DashboardWebsocketHandler extends AbstractWebSocketHandler {
     public void exception(ChannelHandlerContext ctx, Throwable cause) throws Exception {
     }
 
-    private String getToken(FullHttpRequest request) {
+    private String getToken(FullHttpRequest request, Map<String, List<String>> urlParams) {
         String authorizationValue = request.headers().get("Authorization");
-
+        if (!StringUtils.hasText(authorizationValue)) {
+            authorizationValue = urlParams.get("Authorization") == null ? null : urlParams.get("Authorization").get(0);
+        }
         if (authorizationValue != null && authorizationValue.startsWith("Bearer ")) {
             return authorizationValue.substring(7);
         }

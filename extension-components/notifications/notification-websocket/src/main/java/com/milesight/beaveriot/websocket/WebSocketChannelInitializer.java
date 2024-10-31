@@ -19,9 +19,9 @@ import org.springframework.stereotype.Component;
 public class WebSocketChannelInitializer extends ChannelInitializer<SocketChannel> {
 
     private final WebSocketProperties webSocketProperties;
-    private final AbstractWebSocketHandler webSocketHandler;
+    private final AbstractWebSocketHandler[] webSocketHandler;
 
-    public WebSocketChannelInitializer(WebSocketProperties webSocketProperties, AbstractWebSocketHandler webSocketHandler) {
+    public WebSocketChannelInitializer(WebSocketProperties webSocketProperties, AbstractWebSocketHandler... webSocketHandler) {
         this.webSocketProperties = webSocketProperties;
         this.webSocketHandler = webSocketHandler;
     }
