@@ -1,6 +1,7 @@
 package com.milesight.iab.device.service;
 
 import com.milesight.iab.base.enums.ErrorCode;
+import com.milesight.iab.base.exception.EventBusExecutionException;
 import com.milesight.iab.base.exception.ServiceException;
 import com.milesight.iab.base.page.Sorts;
 import com.milesight.iab.context.api.EntityServiceProvider;
@@ -21,6 +22,7 @@ import com.milesight.iab.device.model.response.DeviceResponseData;
 import com.milesight.iab.device.po.DevicePO;
 import com.milesight.iab.device.repository.DeviceRepository;
 import com.milesight.iab.eventbus.EventBus;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -33,6 +35,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class DeviceService {
     @Autowired
     DeviceRepository deviceRepository;
@@ -85,7 +88,14 @@ public class DeviceService {
         payload.putContext("device_name", createDeviceRequest.getName());
 
         // Must return a device
-        exchangeFlowExecutor.syncExchangeDown(payload);
+        try {
+            exchangeFlowExecutor.syncExchangeDown(payload);
+        } catch (EventBusExecutionException e) {
+            log.error("add device failed: {}", e.getCauses());
+            throw ServiceException
+                    .with(ErrorCode.PARAMETER_VALIDATION_FAILED.getErrorCode(), "add device failed")
+                    .build();
+        }
     }
 
     private DeviceResponseData convertPOToResponseData(DevicePO devicePO) {
@@ -168,7 +178,14 @@ public class DeviceService {
             return payload;
         }).forEach((ExchangePayload payload) -> {
             // call service for deleting
-            exchangeFlowExecutor.syncExchangeDown(payload);
+            try {
+                exchangeFlowExecutor.syncExchangeDown(payload);
+            } catch (EventBusExecutionException e) {
+                log.error("delete device failed: {}", e.getCauses());
+                throw ServiceException
+                        .with(ErrorCode.PARAMETER_VALIDATION_FAILED.getErrorCode(), "delete device failed")
+                        .build();
+            }
         });
     }
 
