@@ -1,5 +1,7 @@
 package com.milesight.beaveriot.context.integration.model;
 
+import org.springframework.util.StringUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -13,15 +15,11 @@ public class BaseDeviceBuilder<T extends BaseDeviceBuilder> {
     protected String name;
     protected String identifier;
     protected Map<String,Object> additional;
-    protected Integration integration;
+    protected String integrationId;
     protected Long id;
 
-    public BaseDeviceBuilder(Integration integration){
-        this.integration = integration;
-    }
-
-    public BaseDeviceBuilder(String integrationId, String integrationName){
-        this.integration = Integration.of(integrationId, integrationName);
+    public BaseDeviceBuilder(String integrationId){
+        this.integrationId = integrationId;
     }
 
     public BaseDeviceBuilder(){
@@ -70,9 +68,9 @@ public class BaseDeviceBuilder<T extends BaseDeviceBuilder> {
         device.setAdditional(additional);
         device.setIdentifier(identifier);
         device.setEntities(entities);
-        if(integration != null){
-            device.setIntegrationId(integration.getId());
-            device.initializeProperties(integration.getId());
+        if(StringUtils.hasText(integrationId)){
+            device.setIntegrationId(integrationId);
+            device.initializeProperties(integrationId);
         }
         device.setId(id);
         return device;

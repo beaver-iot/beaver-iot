@@ -64,7 +64,7 @@ public class AnnotationEntityLoader implements EntityLoader {
                 EntityValueType valueType = EntityValueType.of(field.getType());
                 String name = propertyResolver.resolvePlaceholders(entityAnnotation.name(), field);
                 String identifier = propertyResolver.resolvePlaceholders(entityAnnotation.identifier(), field);
-                EntityBuilder entityBuilder = new EntityBuilder(integration).identifier(propertyResolver.resolvePlaceholders(entityAnnotation.identifier(), field)).type(entityAnnotation.type()).attributes(resolveAttributes(entityAnnotation.attributes())).valueType(valueType);
+                EntityBuilder entityBuilder = new EntityBuilder(integration.getId()).identifier(propertyResolver.resolvePlaceholders(entityAnnotation.identifier(), field)).type(entityAnnotation.type()).attributes(resolveAttributes(entityAnnotation.attributes())).valueType(valueType);
                 switch (entityAnnotation.type()) {
                     case EVENT:
                         entityBuilder.event(name);

@@ -1,5 +1,7 @@
 package com.milesight.beaveriot.context.integration.model;
 
+import org.springframework.util.StringUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,24 +27,22 @@ import java.util.List;
  */
 public class EntityBuilder extends BaseEntityBuilder<EntityBuilder>{
 
-    private Integration integration;
+    private String integrationId;
 
-    private Device device;
+    private String deviceKey;
 
     protected List<Entity> children = new ArrayList<>();
 
     public EntityBuilder(){
     }
-    public EntityBuilder(Integration integration) {
-        this.integration = integration;
-    }
 
     public EntityBuilder(String integrationId) {
-        this.integration = Integration.of(integrationId, null);
+        this.integrationId = integrationId;
     }
 
-    public EntityBuilder(Device device) {
-        this.device = device;
+    public EntityBuilder(String integrationId, String deviceKey) {
+        this.deviceKey = deviceKey;
+        this.integrationId = integrationId;
     }
 
     public EntityBuilder children(Entity childrenEntity) {
@@ -63,10 +63,12 @@ public class EntityBuilder extends BaseEntityBuilder<EntityBuilder>{
 
         Entity entity = newInstance();
         entity.setChildren(children);
-        if(integration != null){
-            entity.initializeProperties(integration.getId());
-        }else if(device != null){
-            entity.initializeProperties(device.getIntegrationId(), device.getKey());
+        if(StringUtils.hasText(integrationId)){
+            if(StringUtils.hasText(deviceKey)) {
+                entity.initializeProperties(integrationId, deviceKey);
+            }else{
+                entity.initializeProperties(integrationId);
+            }
         }
         entity.validate();
         return entity;
