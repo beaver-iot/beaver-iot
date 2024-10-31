@@ -122,11 +122,15 @@ public class DeviceService {
         }
 
         DevicePO device = findResult.get();
-        device.setName(updateDeviceRequest.getName());
+        String newName = updateDeviceRequest.getName();
+        if (device.getName().equals(newName)) {
+            return;
+        }
 
-        eventBus.publish(DeviceEvent.of(DeviceEvent.EventType.UPDATED, deviceServiceHelper.convertPO(device)));
+        device.setName(newName);
+
         deviceRepository.save(device);
-
+        eventBus.publish(DeviceEvent.of(DeviceEvent.EventType.UPDATED, deviceServiceHelper.convertPO(device)));
     }
 
     public void batchDeleteDevices(List<String> deviceIdList) {

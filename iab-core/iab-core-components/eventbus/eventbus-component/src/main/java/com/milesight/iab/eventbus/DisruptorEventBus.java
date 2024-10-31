@@ -3,6 +3,7 @@ package com.milesight.iab.eventbus;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.milesight.iab.context.integration.model.EventContextAccessor;
+import com.milesight.iab.context.integration.model.event.DeviceEvent;
 import com.milesight.iab.eventbus.invoke.EventSubscribeInvoker;
 import com.milesight.iab.eventbus.invoke.ListenerParameterResolver;
 import com.milesight.iab.eventbus.annotations.EventSubscribe;
