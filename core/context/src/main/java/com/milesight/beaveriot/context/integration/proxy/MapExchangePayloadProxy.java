@@ -57,6 +57,8 @@ public class MapExchangePayloadProxy<T extends ExchangePayload> {
 
     @SneakyThrows
     protected T newInstance(Class<T> parameterType) {
-        return parameterType.getDeclaredConstructor().newInstance();
+        T payload = parameterType.getDeclaredConstructor().newInstance();
+        payload.putAll(allPayloads);
+        return payload;
     }
 }
