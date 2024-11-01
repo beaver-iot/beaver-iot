@@ -4,7 +4,7 @@
 CREATE TABLE `t_entity`
 (
     id               BIGINT PRIMARY KEY,
-    key              VARCHAR(512) not null,
+    "key"              VARCHAR(512) not null,
     name             VARCHAR(255) not null,
     type             VARCHAR(255) not null,
     access_mod       VARCHAR(255),
@@ -15,9 +15,10 @@ CREATE TABLE `t_entity`
     value_type       VARCHAR(255) not null,
     created_at       BIGINT       not null,
     updated_at       BIGINT,
-    CONSTRAINT uk_entity_key UNIQUE (key),
-    INDEX            idx_entity_attach_target (attach_target_id, attach_target)
+    UNIQUE ("key")
 );
+CREATE INDEX idx_entity_attach_target ON `t_entity` (attach_target_id, attach_target);
+
 CREATE TABLE `t_entity_latest`
 (
     id            BIGINT PRIMARY KEY,
@@ -28,9 +29,10 @@ CREATE TABLE `t_entity_latest`
     value_string  VARCHAR(1024),
     value_binary  BLOB,
     timestamp     BIGINT not null,
-    updated_at    BIGINT,
-    INDEX         idx_entity_latest_entity_id (entity_id)
+    updated_at    BIGINT
 );
+CREATE INDEX idx_entity_latest_entity_id ON `t_entity_latest` (entity_id);
+
 CREATE TABLE `t_entity_history`
 (
     id            BIGINT PRIMARY KEY,
@@ -45,5 +47,5 @@ CREATE TABLE `t_entity_history`
     created_by    VARCHAR(255),
     updated_at    BIGINT,
     updated_by    VARCHAR(255),
-    CONSTRAINT uk_entity_history UNIQUE (entity_id, timestamp)
+    UNIQUE (entity_id, timestamp)
 );

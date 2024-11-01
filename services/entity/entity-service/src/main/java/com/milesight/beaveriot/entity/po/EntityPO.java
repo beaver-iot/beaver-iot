@@ -34,24 +34,39 @@ public class EntityPO {
 
     @Id
     private Long id;
+
     @Column(name = "\"key\"", length = 512)
     private String key;
+
     private String name;
+
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "VARCHAR")
     private EntityType type;
+
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "VARCHAR")
     private AccessMod accessMod;
+
     @Column(length = 512)
     private String parent;
+
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "VARCHAR")
     private AttachTargetType attachTarget;
+
     private String attachTargetId;
+
     @Convert(converter = MapJsonConverter.class)
     private Map<String, Object> valueAttribute;
+
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "VARCHAR")
     private EntityValueType valueType;
+
     @CreatedDate
     private Long createdAt;
+
     @LastModifiedDate
     private Long updatedAt;
 
