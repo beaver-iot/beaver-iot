@@ -61,6 +61,38 @@
         </pluginRepository>
     </pluginRepositories>
     <build>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <includes>
+                    <include>**</include>
+                </includes>
+                <filtering>false</filtering>
+            </testResource>
+            <testResource>
+                <directory>src/test/java</directory>
+                <includes>
+                    <include>**</include>
+                </includes>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                    <exclude>**/*.groovy</exclude>
+                </excludes>
+                <filtering>false</filtering>
+            </testResource>
+            <testResource>
+                <directory>src/test/groovy</directory>
+                <includes>
+                    <include>**</include>
+                </includes>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                    <exclude>**/*.groovy</exclude>
+                </excludes>
+                <filtering>false</filtering>
+            </testResource>
+        </testResources>
+
         <pluginManagement>
             <plugins>
                 <plugin>
