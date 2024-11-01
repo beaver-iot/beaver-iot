@@ -69,7 +69,7 @@ public class MscWebhookService {
 
     @EventSubscribe(payloadKeyExpression ="msc-integration.integration.webhook", eventType = ExchangeEvent.EventType.DOWN)
     public void onWebhookPropertiesUpdate(Event<MscConnectionPropertiesEntities.Webhook> event) {
-        this.enabled = Boolean.TRUE.equals(event.getPayload().getEnabled());
+        enabled = Boolean.TRUE.equals(event.getPayload().getEnabled());
         if (event.getPayload().getSecretKey() != null && !event.getPayload().getSecretKey().isEmpty()) {
             mac = HMacUtils.getMac(event.getPayload().getSecretKey());
         } else {
