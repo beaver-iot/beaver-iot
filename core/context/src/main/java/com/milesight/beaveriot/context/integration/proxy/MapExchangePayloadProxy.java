@@ -7,6 +7,8 @@ import com.milesight.beaveriot.context.integration.model.ExchangePayload;
 import lombok.*;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.springframework.aop.framework.ProxyFactory;
+import org.springframework.boot.convert.ApplicationConversionService;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.util.ObjectUtils;
 
 import java.lang.reflect.Method;
@@ -18,6 +20,8 @@ import java.util.Map;
 public class MapExchangePayloadProxy<T extends ExchangePayload> {
     private final Class<T> parameterType;
     private final Map<String, ?> allPayloads;
+
+    private static final ConversionService conversionService = ApplicationConversionService.getSharedInstance();
 
     public <P> MapExchangePayloadProxy(Map<String, P> allPayloads, Class<T> parameterType) {
         this.allPayloads = allPayloads;
@@ -48,7 +52,7 @@ public class MapExchangePayloadProxy<T extends ExchangePayload> {
         if (!ObjectUtils.isEmpty(value) && value instanceof JsonNode) {
             return JsonUtils.cast(value, returnType);
         }
-        return value;
+        return conversionService.convert(value, returnType);
     }
 
     @SneakyThrows
