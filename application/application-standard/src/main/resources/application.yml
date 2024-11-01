@@ -12,14 +12,23 @@ spring:
       hibernate.type.wrapper_array_handling: ALLOW
       hibernate.naming.physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
   datasource:
-    url: "${SPRING_DATASOURCE_URL:jdbc:postgresql://192.168.45.115:5432/postgres}"
-    username: "${SPRING_DATASOURCE_USERNAME:postgres}"
-    password: "${SPRING_DATASOURCE_PASSWORD:postgres}"
-    driverClassName: "${SPRING_DRIVER_CLASS_NAME:org.postgresql.Driver}"
+#    url: "${SPRING_DATASOURCE_URL:jdbc:postgresql://192.168.45.115:5432/postgres}"
+#    username: "${SPRING_DATASOURCE_USERNAME:postgres}"
+#    password: "${SPRING_DATASOURCE_PASSWORD:postgres}"
+#    driverClassName: "${SPRING_DRIVER_CLASS_NAME:org.postgresql.Driver}"
+    url: "${SPRING_DATASOURCE_URL:jdbc:h2:file:~/beaver;AUTO_SERVER=TRUE}"
+    username: "${SPRING_DATASOURCE_USERNAME:sa}"
+    password: "${SPRING_DATASOURCE_PASSWORD:}"
+    driverClassName: "${SPRING_DRIVER_CLASS_NAME:org.h2.Driver}"
   liquibase:
     enabled: true
     contexts: init,dev,prod,test
-    change-log: 'classpath*:db/postgres/changelog.yaml'
+    change-log: 'classpath*:db/${DB_TYPE:h2}/changelog.yaml'
+
+#  h2:
+#    console:
+#      enabled: true
+#      path: /public/h2-console
 
 #eventbus:
 #  disruptor:
@@ -44,6 +53,7 @@ oauth2:
     - "/oauth2/token"
     - "/user/register"
     - "/public/**"
+    - "/**"
 
 logging:
   level:

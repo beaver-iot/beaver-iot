@@ -23,6 +23,7 @@
         <junit-jupiter.version>5.10.2</junit-jupiter.version>
         <groovy.version>3.0.8</groovy.version>
         <mockito.version>4.11.0</mockito.version>
+        <h2.version>2.3.232</h2.version>
     </properties>
 
     <dependencyManagement>
@@ -66,6 +67,13 @@
                 <groupId>org.liquibase</groupId>
                 <artifactId>liquibase-core</artifactId>
                 <version>${liquibase.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>${h2.version}</version>
+                <scope>test</scope>
             </dependency>
 
             <!-- test dependencies -->
