@@ -6,20 +6,18 @@ import lombok.SneakyThrows;
 /**
  * @author leon
  */
-public class ExchangePayloadProxy extends MapExchangePayloadProxy{
-    private final Class<? extends ExchangePayload> parameterTypes;
+public class ExchangePayloadProxy<T extends ExchangePayload> extends MapExchangePayloadProxy<T> {
     private final ExchangePayload exchangePayload;
 
-    public ExchangePayloadProxy(ExchangePayload exchangePayload, Class<? extends ExchangePayload> parameterTypes) {
-        super(exchangePayload.getAllPayloads(), parameterTypes);
+    public ExchangePayloadProxy(ExchangePayload exchangePayload, Class<T> parameterType) {
+        super(exchangePayload.getAllPayloads(), parameterType);
         this.exchangePayload = exchangePayload;
-        this.parameterTypes = parameterTypes;
     }
 
     @Override
     @SneakyThrows
-    protected Object newInstance(Class<? extends ExchangePayload> parameterTypes) {
-        ExchangePayload newInstance = parameterTypes.newInstance();
+    protected T newInstance(Class<T> parameterType) {
+        T newInstance = parameterType.getDeclaredConstructor().newInstance();
         newInstance.setContext(exchangePayload.getContext());
         newInstance.setTimestamp(exchangePayload.getTimestamp());
         return newInstance;

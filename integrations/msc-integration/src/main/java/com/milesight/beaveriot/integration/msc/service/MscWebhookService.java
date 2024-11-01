@@ -54,7 +54,7 @@ public class MscWebhookService {
     public void init() {
         val webhookSettingsKey = MscConnectionPropertiesEntities.getKey(MscConnectionPropertiesEntities.Fields.webhook);
         val webhookSettings = entityValueServiceProvider.findValuesByKey(webhookSettingsKey, MscConnectionPropertiesEntities.Webhook.class);
-        if (webhookSettings == null) {
+        if (webhookSettings.isEmpty()) {
             log.info("Webhook settings not found");
             return;
         }

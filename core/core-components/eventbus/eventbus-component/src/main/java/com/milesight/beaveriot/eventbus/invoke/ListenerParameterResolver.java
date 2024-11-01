@@ -6,7 +6,7 @@ import com.milesight.beaveriot.context.integration.model.event.ExchangeEvent;
 import com.milesight.beaveriot.context.integration.proxy.ExchangePayloadProxy;
 import com.milesight.beaveriot.eventbus.api.Event;
 import com.milesight.beaveriot.eventbus.api.IdentityKey;
-import jakarta.annotation.Nullable;
+import lombok.*;
 import org.springframework.util.Assert;
 
 import java.lang.reflect.Method;
@@ -19,22 +19,16 @@ import java.util.List;
  */
 public class ListenerParameterResolver {
 
-    public <T extends Event<? extends IdentityKey>> T resolveEvent(@Nullable Class<?> parameterTypes, T event, String[] matchMultiKeys){
-        if(parameterTypes != null && ExchangePayload.class.isAssignableFrom(parameterTypes)){
+    public ExchangeEvent resolveEvent(@NonNull Class<? extends ExchangePayload> parameterType, Event<? extends ExchangePayload> event, String[] matchMultiKeys) {
+        //filter key
+        ExchangePayload payload = event.getPayload();
+        ExchangePayload newPayload = ExchangePayload.createFrom(payload, List.of(matchMultiKeys));
 
-            //filter key
-            ExchangePayload payload = (ExchangePayload) event.getPayload();
-            ExchangePayload newPayload = ExchangePayload.createFrom(payload, List.of(matchMultiKeys));
-
-            if(parameterTypes != null && ExchangePayload.class.isAssignableFrom(parameterTypes)){
-                newPayload = new ExchangePayloadProxy(newPayload, (Class<? extends ExchangePayload>) parameterTypes).proxy();
-            }
-            return (T) ExchangeEvent.of(event.getEventType(), newPayload);
-        }
-        return event;
+        newPayload = new ExchangePayloadProxy<>(newPayload, parameterType).proxy();
+        return ExchangeEvent.of(event.getEventType(), newPayload);
     }
 
-    public Class resolveActualEventType(Method method){
+    public <T extends Event<? extends IdentityKey>> Class<T> resolveActualEventType(Method method) {
         if (method.getParameterTypes().length == 0) {
             throw new ConfigurationException("EventBus method param-number invalid, method:" + method);
         }
@@ -44,27 +38,24 @@ public class ListenerParameterResolver {
         Assert.isTrue(Event.class.isAssignableFrom(clazz), "The EventBus method input parameter must be an implementation of Event, or an implementation of Event containing generic parameters, method:" + method.toGenericString());
 
         Class<?> eventClass = clazz;
-        if(clazz.isInterface()){
+        if (clazz.isInterface()) {
             Class<?> actualTypeArgument = resolveParameterTypes(method);
-            if(ExchangePayload.class.isAssignableFrom(actualTypeArgument)){
+            if (ExchangePayload.class.isAssignableFrom(actualTypeArgument)) {
                 eventClass = ExchangeEvent.class;
             }
         }
 
         Assert.notNull(eventClass, "The EventBus method input parameter must be an implementation of Event, or an implementation of Event containing generic parameters, method:" + method.toGenericString());
 
-        return eventClass;
+        //noinspection unchecked
+        return (Class<T>) eventClass;
     }
 
     public Class<?> resolveParameterTypes(Method method) {
-        Type[] genericParameterTypes = method.getGenericParameterTypes();
 
-        if (genericParameterTypes[0] instanceof ParameterizedType) {
-
-            ParameterizedType parameterizedType = (ParameterizedType) genericParameterTypes[0];
+        if (method.getGenericParameterTypes()[0] instanceof ParameterizedType parameterizedType) {
 
             Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
-
             if (actualTypeArguments.length == 1) {
                 Class<?> actualTypeArgument = (Class<?>) actualTypeArguments[0];
                 Assert.isTrue(IdentityKey.class.isAssignableFrom(actualTypeArgument), "parameter type must be an implementation of IdentityKey, method:" + method.toGenericString());
@@ -73,8 +64,6 @@ public class ListenerParameterResolver {
         }
         return null;
     }
-
-
 
 
 }

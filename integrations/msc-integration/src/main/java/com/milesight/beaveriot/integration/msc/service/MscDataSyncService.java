@@ -129,7 +129,7 @@ public class MscDataSyncService {
             val scheduledDataFetchSettings = entityValueServiceProvider.findValuesByKey(
                     MscConnectionPropertiesEntities.getKey(MscConnectionPropertiesEntities.Fields.scheduledDataFetch),
                     MscConnectionPropertiesEntities.ScheduledDataFetch.class);
-            if (scheduledDataFetchSettings == null) {
+            if (scheduledDataFetchSettings.isEmpty()) {
                 periodSeconds = -1;
                 return;
             }

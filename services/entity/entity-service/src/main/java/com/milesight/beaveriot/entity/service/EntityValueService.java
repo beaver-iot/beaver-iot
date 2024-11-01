@@ -267,15 +267,13 @@ public class EntityValueService implements EntityValueServiceProvider {
     }
 
     @Override
+    @NonNull
     public <T extends ExchangePayload> T findValuesByKey(String key, Class<T> entitiesClazz) {
         if (!StringUtils.hasText(key)) {
-            return null;
+            throw new IllegalArgumentException("key is empty");
         }
         Map<String, JsonNode> exchangeValues = findValuesByKeys(Collections.singletonList(key));
-        if (exchangeValues.isEmpty()) {
-            return null;
-        }
-        return (T) new MapExchangePayloadProxy(exchangeValues, entitiesClazz).proxy();
+        return new MapExchangePayloadProxy<>(exchangeValues, entitiesClazz).proxy();
     }
 
     public Page<EntityHistoryResponse> historySearch(EntityHistoryQuery entityHistoryQuery) {

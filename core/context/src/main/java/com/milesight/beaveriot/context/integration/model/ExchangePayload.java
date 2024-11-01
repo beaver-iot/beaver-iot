@@ -87,6 +87,10 @@ public class ExchangePayload extends HashMap<String,Object> implements ExchangeP
     }
 
 
+    public static ExchangePayload empty() {
+        return new ExchangePayload();
+    }
+
     public static ExchangePayload create(String key, Object value) {
         ExchangePayload exchangePayload = new ExchangePayload();
         exchangePayload.put(key, value);

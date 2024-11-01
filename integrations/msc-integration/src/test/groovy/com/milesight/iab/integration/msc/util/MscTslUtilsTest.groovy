@@ -1,9 +1,8 @@
 package com.milesight.beaveriot.integration.msc.util
 
-import com.milesight.beaveriot.integration.msc.util.MscTslUtils
-import com.milesight.cloud.sdk.client.model.*
 import com.milesight.beaveriot.context.integration.enums.EntityType
 import com.milesight.beaveriot.context.integration.enums.EntityValueType
+import com.milesight.cloud.sdk.client.model.*
 import spock.lang.Specification
 
 class MscTslUtilsTest extends Specification {

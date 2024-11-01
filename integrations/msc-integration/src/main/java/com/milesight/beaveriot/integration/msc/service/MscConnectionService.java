@@ -99,7 +99,7 @@ public class MscConnectionService implements IMscClientProvider {
         try {
             val settings = entityValueServiceProvider.findValuesByKey(
                     MscConnectionPropertiesEntities.getKey(MscConnectionPropertiesEntities.Fields.openapi), MscConnectionPropertiesEntities.Openapi.class);
-            if (settings != null) {
+            if (!settings.isEmpty()) {
                 initConnection(settings);
                 testConnection();
             }
