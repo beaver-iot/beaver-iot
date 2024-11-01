@@ -46,7 +46,7 @@ public class DeviceServiceHelper {
                 .identifier(devicePO.getIdentifier())
                 .id(devicePO.getId())
                 .additional(devicePO.getAdditionalData())
-                .entities(deviceEntityMap.get(devicePO.getKey()))
+                .entities(deviceEntityMap.getOrDefault(devicePO.getKey(), new ArrayList<>()))
                 .build())).collect(Collectors.toList());
     }
 
