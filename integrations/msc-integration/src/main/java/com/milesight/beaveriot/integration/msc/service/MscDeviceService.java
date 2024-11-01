@@ -141,11 +141,12 @@ public class MscDeviceService {
     }
 
     public Device addLocalDevice(String identifier, String deviceName, String deviceId, ThingSpec thingSpec) {
-        val deviceKey = IntegrationConstants.formatIntegrationDeviceKey(MscIntegrationConstants.INTEGRATION_IDENTIFIER, identifier);
-        val entities = MscTslUtils.thingSpecificationToEntities(MscIntegrationConstants.INTEGRATION_IDENTIFIER, deviceKey, thingSpec);
-        addAdditionalEntities(entities);
+        val integrationId = MscIntegrationConstants.INTEGRATION_IDENTIFIER;
+        val deviceKey = IntegrationConstants.formatIntegrationDeviceKey(integrationId, identifier);
+        val entities = MscTslUtils.thingSpecificationToEntities(integrationId, deviceKey, thingSpec);
+        addAdditionalEntities(integrationId, deviceKey, entities);
 
-        val device = new DeviceBuilder(MscIntegrationConstants.INTEGRATION_IDENTIFIER)
+        val device = new DeviceBuilder(integrationId)
                 .name(deviceName)
                 .identifier(identifier)
                 .additional(Map.of(MscIntegrationConstants.DeviceAdditionalDataName.DEVICE_ID, deviceId))
@@ -156,11 +157,12 @@ public class MscDeviceService {
     }
 
     public Device updateLocalDevice(String identifier, String deviceId, ThingSpec thingSpec) {
-        val deviceKey = IntegrationConstants.formatIntegrationDeviceKey(MscIntegrationConstants.INTEGRATION_IDENTIFIER, identifier);
-        val entities = MscTslUtils.thingSpecificationToEntities(MscIntegrationConstants.INTEGRATION_IDENTIFIER, deviceKey, thingSpec);
-        addAdditionalEntities(entities);
+        val integrationId = MscIntegrationConstants.INTEGRATION_IDENTIFIER;
+        val deviceKey = IntegrationConstants.formatIntegrationDeviceKey(integrationId, identifier);
+        val entities = MscTslUtils.thingSpecificationToEntities(integrationId, deviceKey, thingSpec);
+        addAdditionalEntities(integrationId, deviceKey, entities);
 
-        val device = deviceServiceProvider.findByIdentifier(identifier, MscIntegrationConstants.INTEGRATION_IDENTIFIER);
+        val device = deviceServiceProvider.findByIdentifier(identifier, integrationId);
         // update device attributes except name
 //        device.setIdentifier(identifier);
         device.setAdditional(Map.of(MscIntegrationConstants.DeviceAdditionalDataName.DEVICE_ID, deviceId));
@@ -183,8 +185,8 @@ public class MscDeviceService {
         return thingSpec;
     }
 
-    private static void addAdditionalEntities(List<Entity> entities) {
-        entities.add(new EntityBuilder()
+    private static void addAdditionalEntities(String integrationId, String deviceKey, List<Entity> entities) {
+        entities.add(new EntityBuilder(integrationId, deviceKey)
                 .identifier(MscIntegrationConstants.InternalPropertyIdentifier.LAST_SYNC_TIME)
                 .property(MscIntegrationConstants.InternalPropertyIdentifier.LAST_SYNC_TIME, AccessMod.R)
                 .valueType(EntityValueType.LONG)
