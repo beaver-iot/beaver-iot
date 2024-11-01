@@ -1,22 +1,18 @@
 package com.milesight.beaveriot.eventbus.invoke;
 
 import com.milesight.beaveriot.base.exception.ConfigurationException;
-import com.milesight.beaveriot.context.integration.entity.annotation.AnnotationEntityCache;
 import com.milesight.beaveriot.context.integration.model.ExchangePayload;
 import com.milesight.beaveriot.context.integration.model.event.ExchangeEvent;
+import com.milesight.beaveriot.context.support.ExchangePayloadProxy;
 import com.milesight.beaveriot.eventbus.api.Event;
 import com.milesight.beaveriot.eventbus.api.IdentityKey;
 import jakarta.annotation.Nullable;
-import lombok.SneakyThrows;
-import org.aopalliance.intercept.MethodInterceptor;
-import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.util.Assert;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author leon
@@ -36,14 +32,6 @@ public class ListenerParameterResolver {
             return (T) ExchangeEvent.of(event.getEventType(), newPayload);
         }
         return event;
-    }
-
-    @SneakyThrows
-    private Object newInstance(Class<? extends ExchangePayload> parameterTypes, ExchangePayload exchangePayload) {
-        ExchangePayload newInstance = parameterTypes.newInstance();
-        newInstance.setContext(exchangePayload.getContext());
-        newInstance.setTimestamp(exchangePayload.getTimestamp());
-        return newInstance;
     }
 
     public Class resolveActualEventType(Method method){
@@ -86,35 +74,7 @@ public class ListenerParameterResolver {
         return null;
     }
 
-    public class ExchangePayloadProxy {
-        private final Class<? extends ExchangePayload> parameterTypes;
-        private final ExchangePayload exchangePayload;
 
-        public ExchangePayloadProxy(ExchangePayload exchangePayload, Class<? extends ExchangePayload> parameterTypes) {
-            this.exchangePayload = exchangePayload;
-            this.parameterTypes = parameterTypes;
-        }
-
-        public ExchangePayload proxy() {
-            Map<String, Object> allPayloads = exchangePayload.getAllPayloads();
-            ProxyFactory factory = new ProxyFactory();
-            factory.setTarget(newInstance(parameterTypes, exchangePayload));
-            factory.addAdvice((MethodInterceptor) invocation -> {
-                Method method = invocation.getMethod();
-                if ("toString".equals(method.getName())) {
-                    return exchangePayload.toString();
-                }else if("hashCode".equals(method.getName()) || "equals".equals(method.getName())){
-                    return invocation.proceed();
-                }
-                String cacheEntityKey = AnnotationEntityCache.INSTANCE.getEntityKeyByMethod(method);
-                if(allPayloads.containsKey(cacheEntityKey)){
-                    return allPayloads.get(cacheEntityKey);
-                }
-                return invocation.proceed();
-            });
-            return (ExchangePayload) factory.getProxy();
-        }
-    }
 
 
 }

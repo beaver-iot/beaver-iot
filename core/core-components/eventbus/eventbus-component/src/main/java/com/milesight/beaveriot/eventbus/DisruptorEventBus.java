@@ -50,7 +50,7 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
         Disruptor<Event<?>> disruptor = disruptorCache.get(message.getClass());
 
         if(disruptor == null){
-            log.warn("disruptor is null, please subscribe first");
+            log.debug("disruptor is null, please subscribe first");
             return;
         }
 
