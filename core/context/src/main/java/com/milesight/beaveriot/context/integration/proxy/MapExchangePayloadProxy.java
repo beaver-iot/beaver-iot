@@ -39,7 +39,7 @@ public class MapExchangePayloadProxy<T extends ExchangePayload> {
                 return invocation.proceed();
             }
             String cacheEntityKey = AnnotationEntityCache.INSTANCE.getEntityKeyByMethod(method);
-            if (allPayloads.containsKey(cacheEntityKey)) {
+            if (cacheEntityKey != null && allPayloads.containsKey(cacheEntityKey)) {
                 return parserValue(allPayloads.get(cacheEntityKey), method.getReturnType());
             }
             return invocation.proceed();
