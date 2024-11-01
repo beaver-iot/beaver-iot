@@ -57,12 +57,12 @@ public class DashboardWebsocketHandler extends AbstractWebSocketHandler {
         if (webSocketEvent == null || !WebSocketEvent.EventType.EXCHANGE.equals(webSocketEvent.getEventType())) {
             return;
         }
-        String userId = WebSocketContext.getChannelByValue(ctx);
-        log.info("userId:{}, handleTextMessage:{}", userId, webSocketEvent);
-        DashboardExchangePayload payload = JsonUtils.fromJSON(webSocketEvent.getPayload().toString(), DashboardExchangePayload.class);
+        DashboardExchangePayload payload = JsonUtils.fromJSON(JsonUtils.toJSON(webSocketEvent.getPayload()), DashboardExchangePayload.class);
         if (payload == null) {
             return;
         }
+        String userId = WebSocketContext.getChannelByValue(ctx);
+        log.info("userId:{}, handleTextMessage:{}", userId, webSocketEvent);
         DashboardWebSocketContext.addEntityKeys(userId, payload.getEntityKey());
     }
 

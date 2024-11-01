@@ -1,8 +1,12 @@
 package com.milesight.beaveriot.entity.model.request;
 
 import com.milesight.beaveriot.base.page.GenericPageRequest;
+import com.milesight.beaveriot.context.integration.enums.AccessMod;
 import com.milesight.beaveriot.context.integration.enums.EntityType;
+import com.milesight.beaveriot.context.integration.enums.EntityValueType;
 import lombok.Data;
+
+import java.util.List;
 
 /**
  * @author loong
@@ -14,5 +18,7 @@ public class EntityQuery extends GenericPageRequest {
     private String keyword;
     private EntityType entityType;
     private Boolean excludeChildren;
+    private List<EntityValueType> valueType;
+    private List<AccessMod> accessMod;
 
 }

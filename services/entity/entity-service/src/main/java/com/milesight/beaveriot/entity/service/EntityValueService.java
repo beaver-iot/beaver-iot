@@ -8,8 +8,9 @@ import com.milesight.beaveriot.base.utils.JsonUtils;
 import com.milesight.beaveriot.base.utils.snowflake.SnowflakeUtil;
 import com.milesight.beaveriot.context.api.EntityValueServiceProvider;
 import com.milesight.beaveriot.context.integration.enums.EntityValueType;
+import com.milesight.beaveriot.context.integration.model.ExchangePayload;
+import com.milesight.beaveriot.context.integration.proxy.MapExchangePayloadProxy;
 import com.milesight.beaveriot.context.security.SecurityUserContext;
-import com.milesight.beaveriot.context.support.EnhancePropertySourcesPropertyResolver;
 import com.milesight.beaveriot.entity.enums.AggregateType;
 import com.milesight.beaveriot.entity.model.dto.EntityHistoryUnionQuery;
 import com.milesight.beaveriot.entity.model.request.EntityAggregateQuery;
@@ -31,7 +32,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -267,7 +267,7 @@ public class EntityValueService implements EntityValueServiceProvider {
     }
 
     @Override
-    public <T> T findValuesByKey(String key, Class<T> entitiesClazz) {
+    public <T extends ExchangePayload> T findValuesByKey(String key, Class<T> entitiesClazz) {
         if (!StringUtils.hasText(key)) {
             return null;
         }
@@ -275,33 +275,7 @@ public class EntityValueService implements EntityValueServiceProvider {
         if (exchangeValues.isEmpty()) {
             return null;
         }
-        try {
-            T instance = entitiesClazz.getDeclaredConstructor().newInstance();
-            Field[] fields = entitiesClazz.getDeclaredFields();
-
-            exchangeValues.keySet().forEach(exchangeKey -> {
-                try {
-                    for (Field field : fields) {
-                        String realFieldName = new EnhancePropertySourcesPropertyResolver().resolveEntityNamePlaceholders(field);
-                        if (realFieldName == null) {
-                            continue;
-                        }
-                        String keyFieldName = exchangeKey.substring(exchangeKey.lastIndexOf(".") + 1);
-                        if (realFieldName.equals(keyFieldName)) {
-                            field.setAccessible(true);
-                            field.set(instance, JsonUtils.cast(exchangeValues.get(exchangeKey), field.getType()));
-                            break;
-                        }
-                    }
-                } catch (IllegalAccessException e) {
-                    log.error("findExchangeByKey error:{}", e.getMessage(), e);
-                }
-            });
-            return instance;
-        } catch (Exception e) {
-            log.error("findExchangeByKey error:{}", e.getMessage(), e);
-            return null;
-        }
+        return (T) new MapExchangePayloadProxy(exchangeValues, entitiesClazz).proxy();
     }
 
     public Page<EntityHistoryResponse> historySearch(EntityHistoryQuery entityHistoryQuery) {

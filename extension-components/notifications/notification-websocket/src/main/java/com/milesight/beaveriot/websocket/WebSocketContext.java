@@ -1,6 +1,7 @@
 package com.milesight.beaveriot.websocket;
 
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 
 import java.util.List;
 import java.util.Map;
@@ -49,14 +50,14 @@ public class WebSocketContext {
     public static void sendMessage(String key, String message) {
         ChannelHandlerContext ctx = channelMap.get(key);
         if (ctx != null && ctx.channel().isActive()) {
-            ctx.writeAndFlush(message);
+            ctx.channel().writeAndFlush(new TextWebSocketFrame(message));
         }
     }
 
     public static void sendMessage(List<String> keys, String message) {
         getChannelsByKeys(keys).forEach(ctx -> {
             if (ctx.channel().isActive()) {
-                ctx.writeAndFlush(message);
+                ctx.channel().writeAndFlush(new TextWebSocketFrame(message));
             }
         });
     }
@@ -64,7 +65,7 @@ public class WebSocketContext {
     public static void sendAllMessage(String message) {
         channelMap.values().forEach(ctx -> {
             if (ctx.channel().isActive()) {
-                ctx.writeAndFlush(message);
+                ctx.channel().writeAndFlush(new TextWebSocketFrame(message));
             }
         });
     }

@@ -1,6 +1,7 @@
 package com.milesight.beaveriot.context.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.milesight.beaveriot.context.integration.model.ExchangePayload;
 
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,6 @@ public interface EntityValueServiceProvider {
 
     Map<String, JsonNode> findValuesByKeys(List<String> keys);
 
-    <T> T findValuesByKey(String key, Class<T> entitiesClazz);
+    <T extends ExchangePayload> T findValuesByKey(String key, Class<T> entitiesClazz);
 
 }
