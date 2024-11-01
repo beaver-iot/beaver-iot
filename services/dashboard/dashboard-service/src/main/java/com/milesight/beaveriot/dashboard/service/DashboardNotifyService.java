@@ -21,7 +21,7 @@ import java.util.List;
 @Slf4j
 public class DashboardNotifyService {
 
-    @EventSubscribe(payloadKeyExpression = ".*")
+    @EventSubscribe(payloadKeyExpression = "*")
     public void onDeviceDashboardNotify(ExchangeEvent exchangeEvent) {
         doDashboardNotify(exchangeEvent.getPayload());
     }

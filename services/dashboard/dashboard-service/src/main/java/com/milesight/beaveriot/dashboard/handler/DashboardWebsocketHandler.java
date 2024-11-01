@@ -59,7 +59,7 @@ public class DashboardWebsocketHandler extends AbstractWebSocketHandler {
         }
         String userId = WebSocketContext.getChannelByValue(ctx);
         log.info("userId:{}, handleTextMessage:{}", userId, webSocketEvent);
-        DashboardExchangePayload payload = JsonUtils.fromJSON(webSocketEvent.getPayload().toString(), DashboardExchangePayload.class);
+        DashboardExchangePayload payload = JsonUtils.fromJSON(JsonUtils.toJSON(webSocketEvent.getPayload()), DashboardExchangePayload.class);
         if (payload == null) {
             return;
         }
