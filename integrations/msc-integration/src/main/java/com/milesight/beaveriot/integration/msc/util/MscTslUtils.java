@@ -41,15 +41,15 @@ public class MscTslUtils {
     }
 
     @Nonnull
-    public static List<Entity> thingSpecificationToEntities(@NonNull ThingSpec thingSpec) {
+    public static List<Entity> thingSpecificationToEntities(@NonNull String integrationId, @NonNull String deviceKey, @NonNull ThingSpec thingSpec) {
         val entities = new ArrayList<Entity>();
-        entities.addAll(getPropertiesEntities(thingSpec));
-        entities.addAll(getEventEntities(thingSpec));
-        entities.addAll(getServiceEntities(thingSpec));
+        entities.addAll(getPropertiesEntities(integrationId, deviceKey, thingSpec));
+        entities.addAll(getEventEntities(integrationId, deviceKey, thingSpec));
+        entities.addAll(getServiceEntities(integrationId, deviceKey, thingSpec));
         return entities;
     }
 
-    static List<Entity> getPropertiesEntities(ThingSpec thingSpec) {
+    static List<Entity> getPropertiesEntities(String integrationId, String deviceKey, ThingSpec thingSpec) {
         val entities = new ArrayList<Entity>();
         val properties = thingSpec.getProperties();
         if (properties == null || properties.isEmpty()) {
@@ -70,7 +70,7 @@ public class MscTslUtils {
             if (parentDataType == null) {
                 return;
             }
-            val parentEntity = new EntityBuilder()
+            val parentEntity = new EntityBuilder(integrationId, deviceKey)
                     .identifier(parent.getId())
                     .property(parent.getName(), AccessMod.valueOf(parent.getAccessMode().name()))
                     .valueType(parentDataType)
@@ -96,7 +96,7 @@ public class MscTslUtils {
                             return null;
                         }
                         val accessMod = AccessMod.valueOf(child.getAccessMode().name());
-                        return new EntityBuilder()
+                        return new EntityBuilder(integrationId, deviceKey)
                                 .identifier(id)
                                 .property(name, accessMod)
                                 .valueType(valueType)
@@ -110,7 +110,7 @@ public class MscTslUtils {
         return entities;
     }
 
-    static List<Entity> getEventEntities(ThingSpec thingSpec) {
+    static List<Entity> getEventEntities(String integrationId, String deviceKey, ThingSpec thingSpec) {
         val entities = new ArrayList<Entity>();
         val events = thingSpec.getEvents();
         if (events == null || events.isEmpty()) {
@@ -124,7 +124,7 @@ public class MscTslUtils {
 
         //noinspection DuplicatedCode
         idToEvent.forEach((key, eventSpec) -> {
-            val parentEntity = new EntityBuilder()
+            val parentEntity = new EntityBuilder(integrationId, deviceKey)
                     .identifier(eventSpec.getId())
                     .event(eventSpec.getName())
                     .valueType(EntityValueType.OBJECT)
@@ -153,7 +153,7 @@ public class MscTslUtils {
                         if (valueType == null) {
                             return null;
                         }
-                        return new EntityBuilder()
+                        return new EntityBuilder(integrationId, deviceKey)
                                 .identifier(id)
                                 .event(name)
                                 .valueType(valueType)
@@ -167,7 +167,7 @@ public class MscTslUtils {
         return entities;
     }
 
-    static List<Entity> getServiceEntities(ThingSpec thingSpec) {
+    static List<Entity> getServiceEntities(String integrationId, String deviceKey, ThingSpec thingSpec) {
         val entities = new ArrayList<Entity>();
         val services = thingSpec.getServices();
         if (services == null || services.isEmpty()) {
@@ -182,7 +182,7 @@ public class MscTslUtils {
         //noinspection DuplicatedCode
         idToService.forEach((key, serviceSpec) -> {
             val isSyncService = TslServiceSpec.CallTypeEnum.SYNC.equals(serviceSpec.getCallType());
-            val parentEntity = new EntityBuilder()
+            val parentEntity = new EntityBuilder(integrationId, deviceKey)
                     .identifier(serviceSpec.getId())
                     .service(serviceSpec.getName(), isSyncService)
                     .valueType(EntityValueType.OBJECT)
@@ -211,7 +211,7 @@ public class MscTslUtils {
                         if (valueType == null) {
                             return null;
                         }
-                        return new EntityBuilder()
+                        return new EntityBuilder(integrationId, deviceKey)
                                 .identifier(id)
                                 .service(name, isSyncService)
                                 .valueType(valueType)

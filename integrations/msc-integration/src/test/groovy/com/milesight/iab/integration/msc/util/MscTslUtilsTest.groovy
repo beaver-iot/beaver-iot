@@ -73,7 +73,7 @@ class MscTslUtilsTest extends Specification {
                 .properties(properties)
 
         when:
-        def result = MscTslUtils.getPropertiesEntities(thingSpec)
+        def result = MscTslUtils.getPropertiesEntities("", "", thingSpec)
 
         then:
         result.size() == 1

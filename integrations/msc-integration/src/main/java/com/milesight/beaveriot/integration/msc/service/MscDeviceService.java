@@ -1,5 +1,6 @@
 package com.milesight.beaveriot.integration.msc.service;
 
+import com.milesight.beaveriot.context.constants.IntegrationConstants;
 import com.milesight.beaveriot.integration.msc.constant.MscIntegrationConstants;
 import com.milesight.cloud.sdk.client.model.DeviceSaveOrUpdateRequest;
 import com.milesight.cloud.sdk.client.model.ThingSpec;
@@ -140,7 +141,8 @@ public class MscDeviceService {
     }
 
     public Device addLocalDevice(String identifier, String deviceName, String deviceId, ThingSpec thingSpec) {
-        val entities = MscTslUtils.thingSpecificationToEntities(thingSpec);
+        val deviceKey = IntegrationConstants.formatIntegrationDeviceKey(MscIntegrationConstants.INTEGRATION_IDENTIFIER, identifier);
+        val entities = MscTslUtils.thingSpecificationToEntities(MscIntegrationConstants.INTEGRATION_IDENTIFIER, deviceKey, thingSpec);
         addAdditionalEntities(entities);
 
         val device = new DeviceBuilder(MscIntegrationConstants.INTEGRATION_IDENTIFIER)
@@ -154,7 +156,8 @@ public class MscDeviceService {
     }
 
     public Device updateLocalDevice(String identifier, String deviceId, ThingSpec thingSpec) {
-        val entities = MscTslUtils.thingSpecificationToEntities(thingSpec);
+        val deviceKey = IntegrationConstants.formatIntegrationDeviceKey(MscIntegrationConstants.INTEGRATION_IDENTIFIER, identifier);
+        val entities = MscTslUtils.thingSpecificationToEntities(MscIntegrationConstants.INTEGRATION_IDENTIFIER, deviceKey, thingSpec);
         addAdditionalEntities(entities);
 
         val device = deviceServiceProvider.findByIdentifier(identifier, MscIntegrationConstants.INTEGRATION_IDENTIFIER);
