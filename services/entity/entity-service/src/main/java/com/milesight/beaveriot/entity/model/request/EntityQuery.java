@@ -18,7 +18,7 @@ public class EntityQuery extends GenericPageRequest {
     private String keyword;
     private EntityType entityType;
     private Boolean excludeChildren;
-    private List<EntityValueType> valueType;
-    private List<AccessMod> accessMod;
+    private List<EntityValueType> entityValueType;
+    private List<AccessMod> entityAccessMod;
 
 }
