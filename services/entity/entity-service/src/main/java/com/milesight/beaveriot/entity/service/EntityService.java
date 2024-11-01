@@ -547,8 +547,8 @@ public class EntityService implements EntityServiceProvider {
         }
         Consumer<Filterable> filterable = f -> f.eq(entityQuery.getEntityType() != null, EntityPO.Fields.type, entityQuery.getEntityType())
                 .isNull(isExcludeChildren, EntityPO.Fields.parent)
-                .in(entityQuery.getValueType() != null && !entityQuery.getValueType().isEmpty(), EntityPO.Fields.valueType, entityQuery.getValueType().toArray())
-                .in(entityQuery.getAccessMod() != null && !entityQuery.getAccessMod().isEmpty(), EntityPO.Fields.accessMod, entityQuery.getAccessMod().toArray())
+                .in(entityQuery.getValueType() != null && !entityQuery.getValueType().isEmpty(), EntityPO.Fields.valueType, entityQuery.getValueType() == null ? null : entityQuery.getValueType().toArray())
+                .in(entityQuery.getAccessMod() != null && !entityQuery.getAccessMod().isEmpty(), EntityPO.Fields.accessMod, entityQuery.getAccessMod() == null ? null : entityQuery.getAccessMod().toArray())
                 .or(f1 -> f1.likeIgnoreCase(StringUtils.hasText(entityQuery.getKeyword()), EntityPO.Fields.name, entityQuery.getKeyword())
                         .in(!attachTargetIds.isEmpty(), EntityPO.Fields.attachTargetId, attachTargetIds.toArray()));
         Page<EntityPO> entityPOList = entityRepository.findAll(filterable, entityQuery.toPageable());
