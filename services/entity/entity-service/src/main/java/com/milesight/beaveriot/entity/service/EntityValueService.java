@@ -468,8 +468,11 @@ public class EntityValueService implements EntityValueServiceProvider {
     }
 
     public EntityLatestResponse getEntityStatus(Long entityId) {
-        EntityLatestPO entityLatestPO = entityLatestRepository.findOne(filter -> filter.eq(EntityLatestPO.Fields.entityId, entityId)).orElseThrow(() -> ServiceException.with(ErrorCode.DATA_NO_FOUND).build());
+        EntityLatestPO entityLatestPO = entityLatestRepository.findOne(filter -> filter.eq(EntityLatestPO.Fields.entityId, entityId)).orElse(null);
         EntityLatestResponse entityLatestResponse = new EntityLatestResponse();
+        if (entityLatestPO == null) {
+            return entityLatestResponse;
+        }
         if (entityLatestPO.getValueBoolean() != null) {
             entityLatestResponse.setValue(entityLatestPO.getValueBoolean());
             entityLatestResponse.setValueType(EntityValueType.BOOLEAN);
