@@ -34,7 +34,7 @@ public class EntityPO {
 
     @Id
     private Long id;
-    @Column(name = "\"key\"",length = 512)
+    @Column(name = "\"key\"", length = 512)
     private String key;
     private String name;
     @Enumerated(EnumType.STRING)

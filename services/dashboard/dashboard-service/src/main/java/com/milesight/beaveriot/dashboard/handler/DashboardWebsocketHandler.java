@@ -3,6 +3,8 @@ package com.milesight.beaveriot.dashboard.handler;
 import com.milesight.beaveriot.authentication.facade.IAuthenticationFacade;
 import com.milesight.beaveriot.base.utils.JsonUtils;
 import com.milesight.beaveriot.context.integration.model.event.WebSocketEvent;
+import com.milesight.beaveriot.dashboard.context.DashboardWebSocketContext;
+import com.milesight.beaveriot.dashboard.model.DashboardExchangePayload;
 import com.milesight.beaveriot.websocket.AbstractWebSocketHandler;
 import com.milesight.beaveriot.websocket.WebSocketContext;
 import com.milesight.beaveriot.websocket.WebSocketProperties;
@@ -56,12 +58,17 @@ public class DashboardWebsocketHandler extends AbstractWebSocketHandler {
             return;
         }
         String userId = WebSocketContext.getChannelByValue(ctx);
-        //FIXME user entity key to subscribe
         log.info("userId:{}, handleTextMessage:{}", userId, webSocketEvent);
+        DashboardExchangePayload payload = JsonUtils.fromJSON(webSocketEvent.getPayload().toString(), DashboardExchangePayload.class);
+        if (payload == null) {
+            return;
+        }
+        DashboardWebSocketContext.addEntityKeys(userId, payload.getEntityKey());
     }
 
     @Override
     public void disconnect(ChannelHandlerContext ctx) throws Exception {
+        DashboardWebSocketContext.removeEntityKeys(WebSocketContext.getChannelByValue(ctx));
         WebSocketContext.removeChannelByValue(ctx);
     }
 
