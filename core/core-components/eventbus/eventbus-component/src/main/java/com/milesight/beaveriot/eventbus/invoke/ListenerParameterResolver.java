@@ -3,7 +3,7 @@ package com.milesight.beaveriot.eventbus.invoke;
 import com.milesight.beaveriot.base.exception.ConfigurationException;
 import com.milesight.beaveriot.context.integration.model.ExchangePayload;
 import com.milesight.beaveriot.context.integration.model.event.ExchangeEvent;
-import com.milesight.beaveriot.context.support.ExchangePayloadProxy;
+import com.milesight.beaveriot.context.integration.proxy.ExchangePayloadProxy;
 import com.milesight.beaveriot.eventbus.api.Event;
 import com.milesight.beaveriot.eventbus.api.IdentityKey;
 import jakarta.annotation.Nullable;

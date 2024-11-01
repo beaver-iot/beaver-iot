@@ -1,4 +1,4 @@
-package com.milesight.beaveriot.context.support;
+package com.milesight.beaveriot.context.integration.proxy;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.milesight.beaveriot.base.utils.JsonUtils;
@@ -15,23 +15,22 @@ import java.util.Map;
 /**
  * @author leon
  */
-public class ExchangePayloadProxy {
+public class MapExchangePayloadProxy {
     private final Class<? extends ExchangePayload> parameterTypes;
-    private final ExchangePayload exchangePayload;
+    private final Map<String,?> allPayloads;
 
-    public ExchangePayloadProxy(ExchangePayload exchangePayload, Class<? extends ExchangePayload> parameterTypes) {
-        this.exchangePayload = exchangePayload;
+    public MapExchangePayloadProxy(Map<String, ?> allPayloads, Class<? extends ExchangePayload> parameterTypes) {
+        this.allPayloads = allPayloads;
         this.parameterTypes = parameterTypes;
     }
 
     public ExchangePayload proxy() {
-        Map<String, Object> allPayloads = exchangePayload.getAllPayloads();
         ProxyFactory factory = new ProxyFactory();
-        factory.setTarget(newInstance(parameterTypes, exchangePayload));
+        factory.setTarget(newInstance(parameterTypes));
         factory.addAdvice((MethodInterceptor) invocation -> {
             Method method = invocation.getMethod();
             if ("toString".equals(method.getName())) {
-                return exchangePayload.toString();
+                return allPayloads.toString();
             }else if("hashCode".equals(method.getName()) || "equals".equals(method.getName())){
                 return invocation.proceed();
             }
@@ -44,7 +43,7 @@ public class ExchangePayloadProxy {
         return (ExchangePayload) factory.getProxy();
     }
 
-    private Object parserValue(Object value, Class<?> returnType) {
+    protected Object parserValue(Object value, Class<?> returnType) {
         if (!ObjectUtils.isEmpty(value) && value instanceof JsonNode) {
             return JsonUtils.cast(value, returnType);
         }
@@ -52,10 +51,8 @@ public class ExchangePayloadProxy {
     }
 
     @SneakyThrows
-    private Object newInstance(Class<? extends ExchangePayload> parameterTypes, ExchangePayload exchangePayload) {
+    protected Object newInstance(Class<? extends ExchangePayload> parameterTypes) {
         ExchangePayload newInstance = parameterTypes.newInstance();
-        newInstance.setContext(exchangePayload.getContext());
-        newInstance.setTimestamp(exchangePayload.getTimestamp());
         return newInstance;
     }
 }
