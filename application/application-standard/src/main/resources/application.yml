@@ -53,7 +53,6 @@ oauth2:
     - "/oauth2/token"
     - "/user/register"
     - "/public/**"
-    - "/**"
 
 logging:
   level:
