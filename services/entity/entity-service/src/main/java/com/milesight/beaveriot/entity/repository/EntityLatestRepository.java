@@ -14,7 +14,7 @@ import java.util.List;
 public interface EntityLatestRepository extends BaseJpaRepository<EntityLatestPO, Long> {
 
     @Modifying
-    @Query(value = "delete from t_entity_latest d where d.entity_id in (?1)" , nativeQuery = true)
+    @Query(value = "delete from t_entity_latest d where d.entity_id in (?1)", nativeQuery = true)
     void deleteByEntityIds(List<Long> entityIds);
 
 }

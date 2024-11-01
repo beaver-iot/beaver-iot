@@ -13,6 +13,7 @@ import com.milesight.beaveriot.entity.model.response.EntityLatestResponse;
 import com.milesight.beaveriot.entity.model.response.EntityMetaResponse;
 import com.milesight.beaveriot.entity.model.response.EntityResponse;
 import com.milesight.beaveriot.entity.service.EntityService;
+import com.milesight.beaveriot.entity.service.EntityValueService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,6 +35,8 @@ public class EntityController {
 
     @Autowired
     EntityService entityService;
+    @Autowired
+    EntityValueService entityValueService;
 
     @PostMapping("/search")
     public ResponseBody<Page<EntityResponse>> search(@RequestBody EntityQuery entityQuery) {
@@ -49,19 +52,19 @@ public class EntityController {
 
     @PostMapping("/history/search")
     public ResponseBody<Page<EntityHistoryResponse>> historySearch(@RequestBody EntityHistoryQuery entityHistoryQuery) {
-        Page<EntityHistoryResponse> entityHistoryResponse = entityService.historySearch(entityHistoryQuery);
+        Page<EntityHistoryResponse> entityHistoryResponse = entityValueService.historySearch(entityHistoryQuery);
         return ResponseBuilder.success(entityHistoryResponse);
     }
 
     @PostMapping("/history/aggregate")
     public ResponseBody<EntityAggregateResponse> historyAggregate(@RequestBody EntityAggregateQuery entityAggregateQuery) {
-        EntityAggregateResponse entityAggregateResponse = entityService.historyAggregate(entityAggregateQuery);
+        EntityAggregateResponse entityAggregateResponse = entityValueService.historyAggregate(entityAggregateQuery);
         return ResponseBuilder.success(entityAggregateResponse);
     }
 
     @GetMapping("/{entityId}/status")
     public ResponseBody<EntityLatestResponse> getEntityStatus(@PathVariable("entityId") Long entityId) {
-        EntityLatestResponse entityLatestResponse = entityService.getEntityStatus(entityId);
+        EntityLatestResponse entityLatestResponse = entityValueService.getEntityStatus(entityId);
         return ResponseBuilder.success(entityLatestResponse);
     }
 
