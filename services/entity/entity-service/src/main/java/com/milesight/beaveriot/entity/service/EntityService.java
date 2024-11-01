@@ -321,7 +321,8 @@ public class EntityService implements EntityServiceProvider, EntityValueServiceP
         entityList.forEach(t -> {
             EntityPO entityPO = saveConvert(t, deviceKeyMap, dataEntityKeyMap);
             EntityPO dataEntityPO = dataEntityKeyMap.get(t.getKey());
-            if (dataEntityPO.getAccessMod() != entityPO.getAccessMod()
+            if (dataEntityPO == null
+                    || dataEntityPO.getAccessMod() != entityPO.getAccessMod()
                     || dataEntityPO.getValueType() != entityPO.getValueType()
                     || !Objects.equals(JsonUtils.toJSON(dataEntityPO.getValueAttribute()), JsonUtils.toJSON(entityPO.getValueAttribute()))
                     || dataEntityPO.getType() != entityPO.getType()
