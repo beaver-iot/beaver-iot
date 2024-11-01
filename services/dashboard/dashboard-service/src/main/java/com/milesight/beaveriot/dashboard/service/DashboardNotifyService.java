@@ -28,7 +28,6 @@ public class DashboardNotifyService {
 
     private void doDashboardNotify(ExchangePayload exchangePayload) {
         try {
-            log.info("onDashboardNotify:{}", exchangePayload);
             List<String> entityKeys = exchangePayload.keySet().stream().toList();
             List<String> userIds = DashboardWebSocketContext.getKeysByValues(entityKeys);
             if (userIds == null || userIds.isEmpty()) {
@@ -38,6 +37,7 @@ public class DashboardNotifyService {
             dashboardExchangePayload.setEntityKey(entityKeys);
             WebSocketEvent webSocketEvent = WebSocketEvent.of(WebSocketEvent.EventType.EXCHANGE, dashboardExchangePayload);
             userIds.forEach(userId -> WebSocketContext.sendMessage(userId, JsonUtils.toJSON(webSocketEvent)));
+            log.info("onDashboardNotify:{}", exchangePayload);
         } catch (Exception e) {
             log.error("onDashboardNotify error:{}", e.getMessage(), e);
         }
