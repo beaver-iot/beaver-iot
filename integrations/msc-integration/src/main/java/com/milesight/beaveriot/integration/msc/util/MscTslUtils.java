@@ -181,10 +181,9 @@ public class MscTslUtils {
 
         //noinspection DuplicatedCode
         idToService.forEach((key, serviceSpec) -> {
-            val isSyncService = TslServiceSpec.CallTypeEnum.SYNC.equals(serviceSpec.getCallType());
             val parentEntity = new EntityBuilder(integrationId, deviceKey)
                     .identifier(serviceSpec.getId())
-                    .service(serviceSpec.getName(), isSyncService)
+                    .service(serviceSpec.getName())
                     .valueType(EntityValueType.OBJECT)
                     .build();
             entities.add(parentEntity);
@@ -213,7 +212,7 @@ public class MscTslUtils {
                         }
                         return new EntityBuilder(integrationId, deviceKey)
                                 .identifier(id)
-                                .service(name, isSyncService)
+                                .service(name)
                                 .valueType(valueType)
                                 .attributes(convertTslDataSpecToEntityAttributes(dataSpec))
                                 .build();
