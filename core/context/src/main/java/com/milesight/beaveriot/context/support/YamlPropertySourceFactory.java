@@ -15,7 +15,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
@@ -27,6 +30,7 @@ import static org.apache.camel.model.rest.RestParamType.path;
 @Slf4j
 public class YamlPropertySourceFactory extends DefaultPropertySourceFactory {
 
+    private static final String PATH_BOOT_INF = "BOOT-INF";
     @Override
     public PropertySource<?> createPropertySource(String name, EncodedResource resource) throws IOException {
         if (resource == null) {
@@ -62,31 +66,31 @@ public class YamlPropertySourceFactory extends DefaultPropertySourceFactory {
     private PropertySource<?> createNestedJarPropertySource(String name, String codeSourceLocationPath) throws IOException {
         codeSourceLocationPath = codeSourceLocationPath.replace("!","");
         codeSourceLocationPath = replaceJarSchema(codeSourceLocationPath);
-        String[] nestedJarPaths = codeSourceLocationPath.split("BOOT-INF");
-        FileSystem rootJarFileSystem = FileSystems.newFileSystem(URI.create(nestedJarPaths[0]), Collections.emptyMap());
-        FileSystem integrationJarFileSystem = null;
-        InputStream inputStream = null;
-        if(nestedJarPaths.length == 2){
-            if(nestedJarPaths[1].contains(".jar")){
-                String realJarPath = "BOOT-INF" + nestedJarPaths[1];
-                Path jarFileSystemPath = rootJarFileSystem.getPath(realJarPath);
-                integrationJarFileSystem = FileSystems.newFileSystem(jarFileSystemPath, Collections.emptyMap());
-                inputStream = openInputStreamCanTry(integrationJarFileSystem, IntegrationConstants.INTEGRATION_YAML, IntegrationConstants.INTEGRATION_YML);
+        String[] nestedJarPaths = codeSourceLocationPath.split(PATH_BOOT_INF);
+        try(FileSystem rootJarFileSystem = FileSystems.newFileSystem(URI.create(nestedJarPaths[0]), Collections.emptyMap())){
+            FileSystem integrationJarFileSystem = null;
+            InputStream inputStream = null;
+
+            if(nestedJarPaths.length == 2){
+                if(nestedJarPaths[1].contains(".jar")){
+                    String realJarPath = PATH_BOOT_INF + nestedJarPaths[1];
+                    Path jarFileSystemPath = rootJarFileSystem.getPath(realJarPath);
+                    integrationJarFileSystem = FileSystems.newFileSystem(jarFileSystemPath, Collections.emptyMap());
+                    inputStream = openInputStreamCanTry(integrationJarFileSystem, IntegrationConstants.INTEGRATION_YAML, IntegrationConstants.INTEGRATION_YML);
+                }else{
+                    String integrationPathPrefix = PATH_BOOT_INF + nestedJarPaths[1];
+                    inputStream = openInputStreamCanTry(rootJarFileSystem, integrationPathPrefix + IntegrationConstants.INTEGRATION_YAML, integrationPathPrefix + IntegrationConstants.INTEGRATION_YML);
+                }
             }else{
-                String integrationPathPrefix = "BOOT-INF" + nestedJarPaths[1];
-                inputStream = openInputStreamCanTry(rootJarFileSystem, integrationPathPrefix + IntegrationConstants.INTEGRATION_YAML, integrationPathPrefix + IntegrationConstants.INTEGRATION_YML);
+                inputStream = openInputStreamCanTry(rootJarFileSystem, IntegrationConstants.INTEGRATION_YAML, IntegrationConstants.INTEGRATION_YML);
             }
-        }else{
-            inputStream = openInputStreamCanTry(rootJarFileSystem, IntegrationConstants.INTEGRATION_YAML, IntegrationConstants.INTEGRATION_YML);
+
+            PropertySource<?> propertySource = createPropertySource(name, new EncodedResource(new InputStreamResource(inputStream), StandardCharsets.UTF_8));
+            propertySource.getSource();
+
+            closeFileSystem(integrationJarFileSystem);
+            return propertySource;
         }
-
-        PropertySource<?> propertySource = createPropertySource(name, new EncodedResource(new InputStreamResource(inputStream), StandardCharsets.UTF_8));
-        propertySource.getSource();
-
-        closeFileSystem(integrationJarFileSystem);
-        closeFileSystem(rootJarFileSystem);
-
-        return propertySource;
     }
 
     private String replaceJarSchema(String codeSourceLocationPath) {
@@ -117,9 +121,5 @@ public class YamlPropertySourceFactory extends DefaultPropertySourceFactory {
         }
         return inputStream;
     }
-
-//    private String removeJarSeparator(String nestedJarPath) {
-//       return nestedJarPath.replace("!/","");
-//    }
 
 }

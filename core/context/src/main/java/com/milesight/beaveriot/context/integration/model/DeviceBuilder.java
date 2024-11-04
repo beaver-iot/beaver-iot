@@ -25,8 +25,6 @@ package com.milesight.beaveriot.context.integration.model;
  */
 public class DeviceBuilder extends BaseDeviceBuilder<DeviceBuilder>{
 
-    private IntegrationBuilder integrationBuilder;
-
     public DeviceBuilder(String integrationId){
         super(integrationId);
     }

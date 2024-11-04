@@ -56,11 +56,7 @@ public class GenericExchangeFlowExecutor implements ExchangeFlowExecutor {
     }
 
     private void initializeEventContext(String eventType, ExchangePayload payload, boolean syncCall) {
-        if(syncCall){
-            payload.putContext(EXCHANGE_KEY_SYNC_CALL, true);
-        }else{
-            payload.putContext(EXCHANGE_KEY_SYNC_CALL, false);
-        }
+        payload.putContext(EXCHANGE_KEY_SYNC_CALL, syncCall);
         payload.putContext(EXCHANGE_KEY_EVENT_TYPE, eventType);
     }
 }

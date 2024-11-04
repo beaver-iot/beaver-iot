@@ -1,13 +1,13 @@
 package com.milesight.beaveriot.base.utils;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.milesight.beaveriot.base.exception.JSONException;
-import org.springframework.util.StringUtils;
+import org.springframework.util.ObjectUtils;
 
 import java.util.Map;
 import java.util.Objects;
@@ -17,10 +17,13 @@ import java.util.Objects;
  * @author  leon
  */
 public class JsonUtils {
+
+    private JsonUtils(){
+    }
     private static final ObjectMapper JSON = JsonMapper.builder()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true)
-            .configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true)
+            .configure( JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS, true)
             .serializationInclusion(JsonInclude.Include.NON_NULL)
             .build();
     static {
@@ -94,7 +97,7 @@ public class JsonUtils {
     }
 
     public static <T> T fromJSON(String json, Class<T> type) {
-        if (StringUtils.isEmpty(json)) {
+        if (ObjectUtils.isEmpty(json)) {
             return null;
         }
         try {
@@ -105,7 +108,7 @@ public class JsonUtils {
     }
 
     public static <T> T fromJSON(String json, TypeReference<T> type) {
-        if (StringUtils.isEmpty(json)) {
+        if (ObjectUtils.isEmpty(json)) {
             return null;
         }
         try {
@@ -116,7 +119,7 @@ public class JsonUtils {
     }
 
     public static <T> T fromJsonWithType(String json) {
-        if (StringUtils.isEmpty(json)) {
+        if (ObjectUtils.isEmpty(json)) {
             return null;
         }
         try {
@@ -128,7 +131,7 @@ public class JsonUtils {
     }
 
     public static JsonNode fromJSON(String json) {
-        if (StringUtils.isEmpty(json)) {
+        if (ObjectUtils.isEmpty(json)) {
             return null;
         }
         try {
@@ -139,8 +142,8 @@ public class JsonUtils {
     }
 
     public static JsonNode toJsonNode(Object object) {
-        if (object instanceof String) {
-            return fromJSON((String) object);
+        if (object instanceof String string) {
+            return fromJSON(string);
         }
         return cast(object, JsonNode.class);
     }

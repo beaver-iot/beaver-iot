@@ -42,37 +42,37 @@ public class ResponseBody<T>  {
      */
     private String detailMessage;
 
-    public ResponseBody data(T data) {
+    public ResponseBody<T> data(T data) {
         this.data = data;
         return this;
     }
 
-    public ResponseBody onSuccess() {
+    public ResponseBody<T> onSuccess() {
         this.status = ResponseBuilder.DEFAULT_RESPONSE_STATUS_SUCCESS;
         return this;
     }
 
-    public ResponseBody onFailed() {
+    public ResponseBody<T> onFailed() {
         this.status = ResponseBuilder.DEFAULT_RESPONSE_STATUS_FAILED;
         return this;
     }
 
-    public ResponseBody requestId(String requestId) {
+    public ResponseBody<T> requestId(String requestId) {
         this.requestId = requestId;
         return this;
     }
 
-    public ResponseBody errorCode(String errCode) {
+    public ResponseBody<T> errorCode(String errCode) {
         this.errorCode = errCode;
         return this;
     }
 
-    public ResponseBody errorMessage(String errMsg) {
+    public ResponseBody<T> errorMessage(String errMsg) {
         this.errorMessage = errMsg;
         return this;
     }
 
-    public ResponseBody detailMessage(String detailMsg) {
+    public ResponseBody<T> detailMessage(String detailMsg) {
         this.detailMessage = detailMsg;
         return this;
     }

@@ -33,7 +33,7 @@ import java.util.function.Consumer;
 @Slf4j
 public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implements EventBus<T>, ApplicationContextAware {
 
-    private final Map<Class<T>, Map<ListenerCacheKey,List<EventSubscribeInvoker>>> asyncSubscribeCache = new ConcurrentHashMap<>();
+    private final Map<Class<T>, Map<ListenerCacheKey,List<EventSubscribeInvoker<T>>>> asyncSubscribeCache = new ConcurrentHashMap<>();
     private final Map<Class<?>, Disruptor<Event<?>>> disruptorCache = new ConcurrentHashMap<>();
     private DisruptorOptions disruptorOptions;
     private ListenerParameterResolver parameterResolver;
@@ -55,8 +55,8 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
         }
 
         disruptor.getRingBuffer().publishEvent((event, sequence) -> {
-            if(message instanceof Copyable){
-                ((Copyable) message).copy(message, event);
+            if(message instanceof Copyable copyable){
+                copyable.copy(message, event);
             }else{
                 IdentityKey payload = message.getPayload();
                 event.setPayload(payload);
@@ -70,7 +70,7 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
 
         disruptorCache.computeIfAbsent(target, k -> {
 
-            Disruptor<Event<?>> disruptor = new Disruptor(() -> loadClass(target), disruptorOptions.getRingBufferSize(), executor);
+            Disruptor<Event<?>> disruptor = new Disruptor<>(() -> loadClass(target), disruptorOptions.getRingBufferSize(), executor);
 
             EventHandler[] eventHandlers = Arrays.stream(listener).map(ls -> (EventHandler<T>) (o, l, b) -> ls.accept(o)).toArray(EventHandler[]::new);
 
@@ -87,14 +87,14 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
 
         EventResponse eventResponse = new EventResponse();
 
-        Map<ListenerCacheKey, List<EventSubscribeInvoker>> listenerCacheKeyListMap = asyncSubscribeCache.get(event.getClass());
+        Map<ListenerCacheKey, List<EventSubscribeInvoker<T>>> listenerCacheKeyListMap = asyncSubscribeCache.get(event.getClass());
 
         if(listenerCacheKeyListMap == null){
             log.warn("no subscribe handler for event: {}", event.getEventType());
             return null;
         }
 
-        for (Map.Entry<ListenerCacheKey, List<EventSubscribeInvoker>> listenerCacheKeyListEntry : listenerCacheKeyListMap.entrySet()) {
+        for (Map.Entry<ListenerCacheKey, List<EventSubscribeInvoker<T>>> listenerCacheKeyListEntry : listenerCacheKeyListMap.entrySet()) {
             createSyncConsumer(listenerCacheKeyListEntry.getKey(), listenerCacheKeyListEntry.getValue(),eventResponse).accept(event);
         }
 
@@ -124,12 +124,9 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
 
         log.debug("registerAsyncSubscribe: {}, subscriber expression: {}" , executeMethod, listenerCacheKey);
 
-        asyncSubscribeCache.computeIfAbsent(eventClass, k -> {
-            Map<ListenerCacheKey, List<EventSubscribeInvoker>> invokerMap = new ConcurrentHashMap<>();
-            return invokerMap;
-        });
+        asyncSubscribeCache.computeIfAbsent(eventClass, k -> new ConcurrentHashMap<>());
 
-        asyncSubscribeCache.get(eventClass).computeIfAbsent(listenerCacheKey, k -> new ArrayList<>()).add(new EventSubscribeInvoker(bean, executeMethod, parameterTypes, parameterResolver));
+        asyncSubscribeCache.get(eventClass).computeIfAbsent(listenerCacheKey, k -> new ArrayList<>()).add(new EventSubscribeInvoker<>(bean, executeMethod, parameterTypes, parameterResolver));
     }
 
     public void fireAsyncSubscribe(){
@@ -139,7 +136,7 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
         });
     }
 
-    private Consumer<T> createSyncConsumer(ListenerCacheKey cacheKey, List<EventSubscribeInvoker> invokers, @Nullable EventResponse eventResponses) {
+    private Consumer<T> createSyncConsumer(ListenerCacheKey cacheKey, List<EventSubscribeInvoker<T>> invokers, @Nullable EventResponse eventResponses) {
         return event -> {
             String[] matchMultiKeys = filterMatchMultiKeys(event, cacheKey);
             if(ObjectUtils.isEmpty(matchMultiKeys)){
@@ -150,11 +147,8 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
             invokers.forEach(invoker -> {
                 try {
                     Object invoke = invoker.invoke(event, matchMultiKeys);
-                    if(invoke != null && invoke instanceof EventResponse){
-                        EventResponse eventResponse = (EventResponse) invoke;
-                        if(eventResponse != null && eventResponses != null){
-                            eventResponses.putAll(eventResponse);
-                        }
+                    if(eventResponses != null && invoke instanceof EventResponse eventResponse){
+                        eventResponses.putAll(eventResponse);
                     }
                 } catch (Exception e) {
                     causes.add(e);
@@ -167,7 +161,7 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
         };
     }
 
-    private Consumer<T> createAsyncConsumer(ListenerCacheKey cacheKey, List<EventSubscribeInvoker> invokers) {
+    private Consumer<T> createAsyncConsumer(ListenerCacheKey cacheKey, List<EventSubscribeInvoker<T>> invokers) {
         return event -> {
             String[] matchMultiKeys = filterMatchMultiKeys(event, cacheKey);
             if(ObjectUtils.isEmpty(matchMultiKeys)){
@@ -185,7 +179,7 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
 
     private String[] filterMatchMultiKeys(T event, ListenerCacheKey cacheKey) {
         if(!cacheKey.matchEventType(event.getEventType())){
-            return null;
+            return new String[0];
         }
         return cacheKey.matchMultiKeys(event.getPayloadKey());
     }
@@ -197,9 +191,9 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
 
     private <E> E loadClass(Class<E> clazz) {
         try {
-            return clazz.newInstance();
+            return clazz.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
-            throw new RuntimeException("Class load exception",e);
+            throw new EventBusExecutionException("Class load exception",e);
         }
     }
 }

@@ -5,6 +5,8 @@ package com.milesight.beaveriot.base.utils.snowflake;
  */
 public class SnowflakeUtil {
 
+    private SnowflakeUtil() {
+    }
     private static final Sequence snowflake = new Sequence();
 
     public static Sequence getSnowflake(){

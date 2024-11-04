@@ -7,8 +7,6 @@ package com.milesight.beaveriot.base.constants;
  */
 public interface StringConstant {
 
-	String TAB = "	";
-
 	/**
 	 * string constant dot {@code "."}
 	 */

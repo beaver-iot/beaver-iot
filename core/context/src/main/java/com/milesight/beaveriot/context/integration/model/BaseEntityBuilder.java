@@ -59,11 +59,7 @@ public class BaseEntityBuilder<T extends BaseEntityBuilder> {
         return (T) this;
     }
 
-
     public T service(String name) {
-        return service(name, true);
-    }
-    public T service(String name, boolean syncCall) {
         this.name = name;
         this.type = EntityType.SERVICE;
         if(!StringUtils.hasLength(identifier)){

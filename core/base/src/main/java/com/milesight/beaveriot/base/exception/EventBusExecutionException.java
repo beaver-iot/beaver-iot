@@ -8,7 +8,7 @@ import java.util.List;
  */
 public class EventBusExecutionException extends BaseException{
 
-    private List<Throwable> causes = new ArrayList<>();
+    private final List<Throwable> causes = new ArrayList<>();
 
     public EventBusExecutionException() {
     }
@@ -29,7 +29,7 @@ public class EventBusExecutionException extends BaseException{
 
     public EventBusExecutionException(String message, List<Throwable> causes) {
         super(message);
-        causes.addAll(causes);
+        this.causes.addAll(causes);
     }
 
     public List<Throwable> getCauses() {

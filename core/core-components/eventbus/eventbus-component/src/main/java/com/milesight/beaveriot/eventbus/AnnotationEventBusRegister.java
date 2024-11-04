@@ -1,7 +1,9 @@
 package com.milesight.beaveriot.eventbus;
 
 import com.milesight.beaveriot.eventbus.annotations.EventSubscribe;
+import com.milesight.beaveriot.eventbus.api.Event;
 import com.milesight.beaveriot.eventbus.api.EventResponse;
+import com.milesight.beaveriot.eventbus.api.IdentityKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.SmartInitializingSingleton;
@@ -20,11 +22,11 @@ import java.util.Map;
  */
 @Slf4j
 public class AnnotationEventBusRegister implements ApplicationContextAware, SmartInitializingSingleton, DisposableBean {
-    private static ApplicationContext applicationContext;
+    private ApplicationContext applicationContext;
 
-    private DisruptorEventBus eventBus;
+    private DisruptorEventBus<? extends Event<? extends IdentityKey>> eventBus;
 
-    public AnnotationEventBusRegister(DisruptorEventBus eventBus) {
+    public AnnotationEventBusRegister(DisruptorEventBus<? extends Event<? extends IdentityKey>> eventBus) {
         this.eventBus = eventBus;
     }
 
@@ -62,7 +64,7 @@ public class AnnotationEventBusRegister implements ApplicationContextAware, Smar
         try {
             annotatedMethods = MethodIntrospector.selectMethods(bean.getClass(),
                     (MethodIntrospector.MetadataLookup<EventSubscribe>) method -> AnnotatedElementUtils.findMergedAnnotation(method, EventSubscribe.class));
-        } catch (Throwable ex) {
+        } catch (Exception ex) {
             log.error("EventSubscribe method resolve error for bean[" + beanDefinitionName + "].", ex);
         }
         if (annotatedMethods==null || annotatedMethods.isEmpty()) {

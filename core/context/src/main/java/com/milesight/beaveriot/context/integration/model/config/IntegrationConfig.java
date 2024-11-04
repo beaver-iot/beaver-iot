@@ -5,7 +5,6 @@ import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author leon
@@ -40,9 +39,9 @@ public class IntegrationConfig {
                     .entities(deviceConfig.getEntities())
                     .build()
                 )
-                .collect(Collectors.toList());
+                .toList();
 
-        Integration integration = new IntegrationBuilder()
+        return new IntegrationBuilder()
                 .integration()
                 .id(integrationId)
                 .name(name)
@@ -56,7 +55,5 @@ public class IntegrationConfig {
                 .initialEntities(initialEntities)
                 .initialDevices(devices)
                 .build();
-
-        return integration;
     }
 }

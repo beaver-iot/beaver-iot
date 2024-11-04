@@ -4,7 +4,6 @@ package com.milesight.beaveriot.context.integration.model;
 import java.util.Map;
 
 /**
- * todo: remove？
  * @author leon
  */
 public interface EventContextAccessor {

@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 /**
@@ -64,7 +63,7 @@ public class Sorts  {
         if(CollectionUtils.isEmpty(orders)){
             return Sort.unsorted();
         }
-        List<Sort.Order> collect = orders.stream().map(order -> new Sort.Order(order.direction, order.property)).collect(Collectors.toList());
+        List<Sort.Order> collect = orders.stream().map(order -> new Sort.Order(order.direction, order.property)).toList();
         return Sort.by(collect);
     }
 

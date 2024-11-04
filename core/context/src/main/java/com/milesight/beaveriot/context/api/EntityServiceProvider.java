@@ -1,10 +1,7 @@
 package com.milesight.beaveriot.context.api;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.milesight.beaveriot.context.integration.enums.AttachTargetType;
 import com.milesight.beaveriot.context.integration.model.Entity;
-import com.milesight.beaveriot.context.integration.model.ExchangePayload;
-import lombok.*;
 
 import java.util.List;
 import java.util.Map;

@@ -1,12 +1,12 @@
 package com.milesight.beaveriot.context.constants;
 
-import com.milesight.beaveriot.context.security.SecurityUserContext;
-
 /**
  * @author leon
  */
 public class ExchangeContextKeys {
 
+    private ExchangeContextKeys(){
+    }
     public static final String EXCHANGE_KEY_ENTITIES = "KEY_ENTITIES";
 
     public static final String EXCHANGE_KEY_SYNC_CALL = "KEY_SYNC_CALL";

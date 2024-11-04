@@ -3,7 +3,6 @@ package com.milesight.beaveriot.context.integration.model;
 import com.milesight.beaveriot.context.constants.IntegrationConstants;
 import com.milesight.beaveriot.eventbus.api.IdentityKey;
 import lombok.Getter;
-import lombok.Setter;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 

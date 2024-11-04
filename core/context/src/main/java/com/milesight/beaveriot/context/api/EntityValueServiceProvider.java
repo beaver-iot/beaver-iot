@@ -2,7 +2,7 @@ package com.milesight.beaveriot.context.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.milesight.beaveriot.context.integration.model.ExchangePayload;
-import lombok.*;
+import lombok.NonNull;
 
 import java.util.List;
 import java.util.Map;

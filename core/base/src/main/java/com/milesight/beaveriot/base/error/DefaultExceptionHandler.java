@@ -33,7 +33,7 @@ public class DefaultExceptionHandler {
     @ResponseBody
     @ExceptionHandler(InvalidFormatException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public com.milesight.beaveriot.base.response.ResponseBody<?> invalidFormatException(InvalidFormatException e) {
+    public com.milesight.beaveriot.base.response.ResponseBody<Object> invalidFormatException(InvalidFormatException e) {
         log.error("Cause invalidFormatException: ", e);
         return ResponseBuilder.fail(ErrorCode.PARAMETER_VALIDATION_FAILED);
     }
@@ -41,7 +41,7 @@ public class DefaultExceptionHandler {
     @ResponseBody
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public com.milesight.beaveriot.base.response.ResponseBody<?> methodArgumentTypeMismatchExceptionHandler(MethodArgumentTypeMismatchException e) {
+    public com.milesight.beaveriot.base.response.ResponseBody<Object> methodArgumentTypeMismatchExceptionHandler(MethodArgumentTypeMismatchException e) {
         log.error("Cause MethodArgumentTypeMismatchException:", e);
         return ResponseBuilder.fail(ErrorCode.PARAMETER_SYNTAX_ERROR);
     }
@@ -49,7 +49,7 @@ public class DefaultExceptionHandler {
     @ResponseBody
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public com.milesight.beaveriot.base.response.ResponseBody<?> methodArgumentNotValidExceptionHandler(MethodArgumentNotValidException e) {
+    public com.milesight.beaveriot.base.response.ResponseBody<Object> methodArgumentNotValidExceptionHandler(MethodArgumentNotValidException e) {
         log.error("Cause MethodArgumentNotValidException: ", e);
         List<ObjectError> objectErrors = extractBindingErrors(e);
         return CollectionUtils.isEmpty(objectErrors) ?
@@ -60,7 +60,7 @@ public class DefaultExceptionHandler {
     @ResponseBody
     @ExceptionHandler(BindException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public com.milesight.beaveriot.base.response.ResponseBody<?> bindExceptionHandler(BindException e) {
+    public com.milesight.beaveriot.base.response.ResponseBody<Object> bindExceptionHandler(BindException e) {
         log.debug("Cause BindException Detail:", e);
         List<ObjectError> objectErrors = extractBindingErrors(e);
         return CollectionUtils.isEmpty(objectErrors) ?
@@ -70,7 +70,7 @@ public class DefaultExceptionHandler {
 
     @ResponseBody
     @ExceptionHandler(ServiceException.class)
-    public ResponseEntity serviceExceptionHandler(ServiceException e) {
+    public ResponseEntity<Object> serviceExceptionHandler(ServiceException e) {
         log.debug("Cause ServiceException Detail:", e);
         return ResponseEntity.status(e.getStatus()).body(ResponseBuilder.fail(e));
     }
@@ -78,7 +78,7 @@ public class DefaultExceptionHandler {
     @ResponseBody
     @ExceptionHandler(BaseException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public com.milesight.beaveriot.base.response.ResponseBody<?> baseExceptionHandler(BaseException e) {
+    public com.milesight.beaveriot.base.response.ResponseBody<Object> baseExceptionHandler(BaseException e) {
         log.error("Cause BaseException:", e);
         return ResponseBuilder.fail(ErrorCode.SERVER_ERROR);
     }
@@ -86,7 +86,7 @@ public class DefaultExceptionHandler {
     @ResponseBody
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public com.milesight.beaveriot.base.response.ResponseBody<?> illegalArgumentExceptionHandler(IllegalArgumentException e) {
+    public com.milesight.beaveriot.base.response.ResponseBody<Object> illegalArgumentExceptionHandler(IllegalArgumentException e) {
         log.error("Cause IllegalArgumentException:", e);
         return ResponseBuilder.fail(ErrorCode.PARAMETER_VALIDATION_FAILED, e.getMessage());
     }
@@ -94,7 +94,7 @@ public class DefaultExceptionHandler {
     @ResponseBody
     @ExceptionHandler({Exception.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public com.milesight.beaveriot.base.response.ResponseBody<?> handleException(Exception e) {
+    public com.milesight.beaveriot.base.response.ResponseBody<Object> handleException(Exception e) {
         log.error("Cause Exception:", e);
         return ResponseBuilder.fail(ErrorCode.SERVER_ERROR, e.getMessage());
     }
@@ -102,12 +102,12 @@ public class DefaultExceptionHandler {
     @ResponseBody
     @ExceptionHandler({CamelExecutionException.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity handleException(CamelExecutionException e) {
+    public ResponseEntity<Object> handleException(CamelExecutionException e) {
         log.error("Cause CamelExecutionException {}", e.getMessage());
         Throwable cause = e.getCause();
         if(cause != null){
-            if(cause instanceof ServiceException) {
-                return ResponseEntity.status(((ServiceException) cause).getStatus()).body(ResponseBuilder.fail(((ServiceException) cause)));
+            if(cause instanceof ServiceException serviceException) {
+                return ResponseEntity.status(serviceException.getStatus()).body(ResponseBuilder.fail(serviceException));
             }else if(cause instanceof BaseException) {
                 return ResponseEntity.status(ErrorCode.SERVER_ERROR.getStatus()).body(ResponseBuilder.fail(ErrorCode.SERVER_ERROR.getErrorCode(), cause.getMessage()));
             }
@@ -119,7 +119,7 @@ public class DefaultExceptionHandler {
     @ResponseBody
     @ExceptionHandler({RuntimeException.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public com.milesight.beaveriot.base.response.ResponseBody<?> handleException(RuntimeException e) {
+    public com.milesight.beaveriot.base.response.ResponseBody<Object> handleException(RuntimeException e) {
         log.error("Cause RuntimeException :", e);
         return ResponseBuilder.fail(ErrorCode.SERVER_ERROR, e.getMessage());
     }
@@ -127,17 +127,17 @@ public class DefaultExceptionHandler {
     @ResponseBody
     @ExceptionHandler({Throwable.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public com.milesight.beaveriot.base.response.ResponseBody<?> handleException(Throwable e) {
+    public com.milesight.beaveriot.base.response.ResponseBody<Object> handleException(Throwable e) {
         log.error("Cause Throwable : ", e);
         return ResponseBuilder.fail(ErrorCode.SERVER_ERROR, e.getMessage());
     }
 
     private BindingResult extractBindingResult(Throwable error) {
-        if (error instanceof BindingResult) {
-            return (BindingResult) error;
+        if (error instanceof BindingResult bindingResult) {
+            return bindingResult;
         }
-        if (error instanceof MethodArgumentNotValidException) {
-            return ((MethodArgumentNotValidException) error).getBindingResult();
+        if (error instanceof MethodArgumentNotValidException methodArgumentNotValidException) {
+            return methodArgumentNotValidException.getBindingResult();
         }
         return null;
     }

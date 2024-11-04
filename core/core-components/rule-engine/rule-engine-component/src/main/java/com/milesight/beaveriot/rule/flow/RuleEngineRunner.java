@@ -1,8 +1,8 @@
 package com.milesight.beaveriot.rule.flow;
 
-import com.milesight.beaveriot.rule.exception.RuleEngineException;
 import com.milesight.beaveriot.rule.RuleEngineRouteConfigurer;
 import com.milesight.beaveriot.rule.annotations.RuleNode;
+import com.milesight.beaveriot.rule.exception.RuleEngineException;
 import org.apache.camel.CamelContext;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.ObjectProvider;

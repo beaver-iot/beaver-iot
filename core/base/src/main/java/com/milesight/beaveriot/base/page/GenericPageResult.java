@@ -62,7 +62,7 @@ public class GenericPageResult<T> implements PageResultSpec<T>{
         return PageResultSpec.super.getTotalPages();
     }
 
-    public static PageResultSpec empty(){
+    public static PageResultSpec<Object> empty(){
         return new GenericPageResult(10,1,0L, Collections.emptyList());
     }
 

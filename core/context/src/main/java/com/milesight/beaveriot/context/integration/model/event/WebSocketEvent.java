@@ -3,7 +3,6 @@ package com.milesight.beaveriot.context.integration.model.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;

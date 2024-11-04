@@ -7,6 +7,8 @@ import com.milesight.beaveriot.base.constants.StringConstant;
  */
 public class StringUtils {
 
+    private StringUtils(){
+    }
     /**
      * Convert camelCase-named strings to underscores, also known as SnakeCase and underScoreCase. <br>
      * If the camelCase named string before conversion is empty, an empty string is returned. <br>

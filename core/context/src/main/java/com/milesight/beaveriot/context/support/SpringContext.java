@@ -18,7 +18,7 @@ import java.util.Map;
 @Slf4j
 public class SpringContext implements BeanFactoryPostProcessor {
 
-    public static ConfigurableListableBeanFactory beanFactory;
+    private static ConfigurableListableBeanFactory beanFactory;
 
     @Override
     public  void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
@@ -30,10 +30,9 @@ public class SpringContext implements BeanFactoryPostProcessor {
 
     @SuppressWarnings("unchecked")
     public static <T> boolean replaceBean(String beanName, T beanObject) throws BeansException {
-        //反射获取Factory中的singletonObjects 将该名称下的bean进行替换
         try {
             Field singletonObjects = DefaultSingletonBeanRegistry.class.getDeclaredField("singletonObjects");
-            singletonObjects.setAccessible(true);
+            singletonObjects.setAccessible(true);  //NOSONAR
             Map<String, Object> map = (Map<String, Object>) singletonObjects.get(beanFactory);
             if(!map.containsKey(beanName)){
                 throw new NoSuchBeanDefinitionException(beanName) ;
@@ -60,8 +59,7 @@ public class SpringContext implements BeanFactoryPostProcessor {
      * @return
      */
     public static <T> Map<String, T> getBeansOfType(Class<T> clazz){
-        Map<String, T> beansOfType = beanFactory.getBeansOfType(clazz);
-        return beansOfType;
+        return beanFactory.getBeansOfType(clazz);
     }
 
     /**
@@ -71,9 +69,7 @@ public class SpringContext implements BeanFactoryPostProcessor {
      *
      */
     public static <T> T getBean(Class<T> clz) throws BeansException {
-        @SuppressWarnings("unchecked")
-        T result = (T) beanFactory.getBean(clz);
-        return result;
+        return beanFactory.getBean(clz);
     }
 
     /**

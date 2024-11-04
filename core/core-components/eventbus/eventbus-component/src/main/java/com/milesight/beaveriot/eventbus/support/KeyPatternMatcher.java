@@ -1,10 +1,14 @@
 package com.milesight.beaveriot.eventbus.support;
 
+import java.security.Key;
+
 /**
  * @author leon
  */
 public class KeyPatternMatcher {
 
+    private KeyPatternMatcher() {
+    }
     public static boolean match(String payloadKeyPattern, String payloadKey) {
         if(payloadKeyPattern.equals(payloadKey)){
             return true;
