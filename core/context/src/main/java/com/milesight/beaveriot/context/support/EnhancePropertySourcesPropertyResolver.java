@@ -1,7 +1,6 @@
 package com.milesight.beaveriot.context.support;
 
 import com.milesight.beaveriot.base.utils.StringUtils;
-import com.milesight.beaveriot.context.integration.entity.annotation.Entity;
 import org.springframework.core.env.PropertySources;
 import org.springframework.core.env.PropertySourcesPropertyResolver;
 import org.springframework.util.ObjectUtils;
@@ -25,10 +24,6 @@ public class EnhancePropertySourcesPropertyResolver extends PropertySourcesPrope
         super(propertySources);
     }
 
-    public EnhancePropertySourcesPropertyResolver(){
-        super(null);
-    }
-
     public String resolvePlaceholders(String text, Map<String,Object> propertySource) {
 
         String value = super.resolvePlaceholders(text);
@@ -44,15 +39,6 @@ public class EnhancePropertySourcesPropertyResolver extends PropertySourcesPrope
     public String resolvePlaceholders(String value, Field field) {
         Map<String, Object> dynamicProperties = Map.of(REPLACE_HOLDER_FIELD_NAME, StringUtils.toSnakeCase(field.getName()));
         return resolvePlaceholders(value, dynamicProperties);
-    }
-
-    public String resolveEntityNamePlaceholders(Field field) {
-        Entity entityAnnotation = field.getAnnotation(Entity.class);
-        if (entityAnnotation != null) {
-            return resolvePlaceholders(entityAnnotation.name(), field);
-        }else{
-            return null;
-        }
     }
 
 }
