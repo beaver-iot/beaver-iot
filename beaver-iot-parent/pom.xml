@@ -28,6 +28,60 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- beaver iot core -->
+            <dependency>
+                <groupId>com.milesight.beaveriot</groupId>
+                <artifactId>base</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.milesight.beaveriot</groupId>
+                <artifactId>context</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.milesight.beaveriot</groupId>
+                <artifactId>eventbus-component</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.milesight.beaveriot</groupId>
+                <artifactId>rule-engine-component</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <!-- beaver iot service -->
+            <dependency>
+                <groupId>com.milesight.beaveriot</groupId>
+                <artifactId>authentication-service</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.milesight.beaveriot</groupId>
+                <artifactId>dashboard-service</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.milesight.beaveriot</groupId>
+                <artifactId>device-service</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.milesight.beaveriot</groupId>
+                <artifactId>entity-service</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.milesight.beaveriot</groupId>
+                <artifactId>user-service</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.milesight.beaveriot</groupId>
+                <artifactId>integration</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- spring -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-parent</artifactId>
@@ -73,7 +127,6 @@
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
                 <version>${h2.version}</version>
-                <scope>test</scope>
             </dependency>
 
             <!-- test dependencies -->
@@ -147,6 +200,23 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
     <distributionManagement>
         <repository>
