@@ -7,6 +7,7 @@ import com.milesight.beaveriot.context.integration.model.Device;
 import com.milesight.beaveriot.context.integration.model.event.DeviceEvent;
 import com.milesight.beaveriot.device.po.DevicePO;
 import com.milesight.beaveriot.device.repository.DeviceRepository;
+import com.milesight.beaveriot.device.support.DeviceConverter;
 import com.milesight.beaveriot.eventbus.EventBus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,6 @@ import org.springframework.util.Assert;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class DeviceServiceProviderImpl implements DeviceServiceProvider {
@@ -23,7 +23,7 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
     DeviceRepository deviceRepository;
 
     @Autowired
-    DeviceServiceHelper deviceServiceHelper;
+    DeviceConverter deviceConverter;
 
     @Autowired
     EntityServiceProvider entityServiceProvider;
@@ -68,7 +68,7 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
             shouldUpdate = true;
         }
 
-        if (!deviceServiceHelper.deviceAdditionalDataEqual(device.getAdditional(), devicePO.getAdditionalData())) {
+        if (!deviceAdditionalDataEqual(device.getAdditional(), devicePO.getAdditionalData())) {
             devicePO.setAdditionalData(device.getAdditional());
             shouldUpdate = true;
         }
@@ -109,7 +109,7 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
                 .findOne(f -> f
                         .eq(DevicePO.Fields.id, id)
                 )
-                .map(deviceServiceHelper::convertPO)
+                .map(deviceConverter::convertPO)
                 .orElse(null);
     }
 
@@ -119,7 +119,7 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
                 .findOne(f -> f
                         .eq(DevicePO.Fields.key, deviceKey)
                 )
-                .map(deviceServiceHelper::convertPO)
+                .map(deviceConverter::convertPO)
                 .orElse(null);
     }
 
@@ -130,7 +130,7 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
                         .eq(DevicePO.Fields.identifier, identifier)
                         .eq(DevicePO.Fields.integration, integrationId)
                 )
-                .map(deviceServiceHelper::convertPO)
+                .map(deviceConverter::convertPO)
                 .orElse(null);
     }
 
@@ -138,8 +138,8 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
     public List<Device> findAll(String integrationId) {
         return deviceRepository
                 .findAll(f -> f.eq(DevicePO.Fields.integration, integrationId))
-                .stream().map(deviceServiceHelper::convertPO)
-                .collect(Collectors.toList());
+                .stream().map(deviceConverter::convertPO)
+                .toList();
     }
 
     @Override
@@ -153,5 +153,17 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
     @Override
     public Long countByIntegrationId(String integrationId) {
         return deviceRepository.count(f -> f.eq(DevicePO.Fields.integration, integrationId));
+    }
+
+    private boolean deviceAdditionalDataEqual(Map<String, Object> arg1, Map<String, Object> arg2) {
+        if (arg1 == null && arg2 == null) {
+            return true;
+        }
+
+        if (arg1 == null || arg2 == null) {
+            return false;
+        }
+
+        return arg1.equals(arg2);
     }
 }
