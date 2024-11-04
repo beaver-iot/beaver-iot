@@ -135,12 +135,12 @@
             <version>${project.version}</version>
             <!--<scope>test</scope>-->
         </dependency>
-        <dependency>
-            <groupId>com.milesight.beaveriot</groupId>
-            <artifactId>msc-integration</artifactId>
-            <version>${project.version}</version>
-            <!--<scope>test</scope>-->
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.milesight.beaveriot</groupId>-->
+<!--            <artifactId>msc-integration</artifactId>-->
+<!--            <version>${project.version}</version>-->
+<!--            &lt;!&ndash;<scope>test</scope>&ndash;&gt;-->
+<!--        </dependency>-->
 
         <!-- unit test -->
         <dependency>
