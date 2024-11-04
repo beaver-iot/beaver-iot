@@ -16,7 +16,7 @@ public interface PageSpec  {
     }
 
     /**
-     * 是否count, 默认当前端有提交total值时则不进行count统计（适用于数据量较大的场景）
+     * Whether to count, by default, count statistics will not be performed when the total value is submitted by the current end (applicable to scenarios with large amounts of data)
      * @return
      */
     default boolean isCount(){
@@ -42,7 +42,7 @@ public interface PageSpec  {
     Integer getPageSize();
 
     /**
-     * 分页页号, 从1开始算(注意：Spring pageable从0开始)
+     * The paging page number starts from 1 (note: Spring pageable starts from 0)
      * @return
      */
     Integer getPageNumber();
