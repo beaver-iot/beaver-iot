@@ -12,6 +12,8 @@ import com.milesight.beaveriot.context.integration.model.Entity;
 import com.milesight.beaveriot.context.integration.model.ExchangePayload;
 import com.milesight.beaveriot.context.integration.model.Integration;
 import com.milesight.beaveriot.context.integration.model.event.DeviceEvent;
+import com.milesight.beaveriot.device.dto.DeviceNameDTO;
+import com.milesight.beaveriot.device.facade.IDeviceFacade;
 import com.milesight.beaveriot.device.model.request.CreateDeviceRequest;
 import com.milesight.beaveriot.device.model.request.SearchDeviceRequest;
 import com.milesight.beaveriot.device.model.request.UpdateDeviceRequest;
@@ -20,6 +22,7 @@ import com.milesight.beaveriot.device.model.response.DeviceEntityData;
 import com.milesight.beaveriot.device.model.response.DeviceResponseData;
 import com.milesight.beaveriot.device.po.DevicePO;
 import com.milesight.beaveriot.device.repository.DeviceRepository;
+import com.milesight.beaveriot.device.support.DeviceConverter;
 import com.milesight.beaveriot.eventbus.EventBus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -28,6 +31,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
@@ -35,7 +39,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class DeviceService {
+public class DeviceService implements IDeviceFacade {
     @Autowired
     DeviceRepository deviceRepository;
 
@@ -48,8 +52,9 @@ public class DeviceService {
 
     @Lazy
     @Autowired
-    DeviceServiceHelper deviceServiceHelper;
+    DeviceConverter deviceConverter;
 
+    @Lazy
     @Autowired
     EntityServiceProvider entityServiceProvider;
 
@@ -69,6 +74,7 @@ public class DeviceService {
         return integrationConfig;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public void createDevice(CreateDeviceRequest createDeviceRequest) {
         String integrationIdentifier = createDeviceRequest.getIntegration();
         Integration integrationConfig = getIntegrationConfig(integrationIdentifier);
@@ -123,6 +129,7 @@ public class DeviceService {
                 .map(this::convertPOToResponseData);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public void updateDevice(Long deviceId, UpdateDeviceRequest updateDeviceRequest) {
         Optional<DevicePO> findResult = deviceRepository.findById(deviceId);
         if (findResult.isEmpty()) {
@@ -138,15 +145,16 @@ public class DeviceService {
         device.setName(newName);
 
         deviceRepository.save(device);
-        eventBus.publish(DeviceEvent.of(DeviceEvent.EventType.UPDATED, deviceServiceHelper.convertPO(device)));
+        eventBus.publish(DeviceEvent.of(DeviceEvent.EventType.UPDATED, deviceConverter.convertPO(device)));
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public void batchDeleteDevices(List<String> deviceIdList) {
         if (deviceIdList.isEmpty()) {
             return;
         }
 
-        List<DevicePO> devicePOList = deviceRepository.findByIdIn(deviceIdList.stream().map(Long::valueOf).collect(Collectors.toList()));
+        List<DevicePO> devicePOList = deviceRepository.findByIdIn(deviceIdList.stream().map(Long::valueOf).toList());
         Set<String> foundIds = devicePOList.stream().map(id -> id.getId().toString()).collect(Collectors.toSet());
 
         // check whether all devices exist
@@ -157,7 +165,7 @@ public class DeviceService {
                     .build();
         }
 
-        List<Device> devices = deviceServiceHelper.convertPO(devicePOList);
+        List<Device> devices = deviceConverter.convertPO(devicePOList);
 
         devices.stream().map((Device device) -> {
             // check ability to delete device
@@ -219,5 +227,66 @@ public class DeviceService {
                             .build());
                 }).toList());
         return deviceDetailResponse;
+    }
+
+    // Device API Implementations
+
+    private DeviceNameDTO convertDevicePO(DevicePO devicePO) {
+        return DeviceNameDTO.builder()
+                .id(devicePO.getId())
+                .name(devicePO.getName())
+                .key(devicePO.getKey())
+                .integrationConfig(integrationServiceProvider.getIntegration(devicePO.getIntegration()))
+                .build();
+    }
+
+    @Override
+    public List<DeviceNameDTO> fuzzySearchDeviceByName(String name) {
+        return deviceRepository
+                .findAll(f -> f.likeIgnoreCase(DevicePO.Fields.name, name))
+                .stream()
+                .map(this::convertDevicePO)
+                .toList();
+    }
+
+    @Override
+    public List<DeviceNameDTO> getDeviceNameByIntegrations(List<String> integrationIds) {
+        if (integrationIds == null || integrationIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return deviceRepository
+                .findAll(f -> f.in(DevicePO.Fields.integration, integrationIds.toArray()))
+                .stream()
+                .map(this::convertDevicePO)
+                .toList();
+    }
+
+    @Override
+    public List<DeviceNameDTO> getDeviceNameByIds(List<Long> deviceIds) {
+        if (deviceIds == null || deviceIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return deviceRepository.findByIdIn(deviceIds)
+                .stream()
+                .map(this::convertDevicePO)
+                .toList();
+    }
+
+    @Override
+    public List<DeviceNameDTO> getDeviceNameByKey(List<String> deviceKeys) {
+        if (deviceKeys == null || deviceKeys.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return deviceRepository.findAll(f -> f.in(DevicePO.Fields.key, deviceKeys.toArray()))
+                .stream()
+                .map(this::convertDevicePO)
+                .toList();
+    }
+
+    @Override
+    public DeviceNameDTO getDeviceNameByKey(String deviceKey) {
+        return deviceRepository.findOne(f -> f.eq(DevicePO.Fields.key, deviceKey))
+                .map(this::convertDevicePO)
+                .orElse(null);
     }
 }

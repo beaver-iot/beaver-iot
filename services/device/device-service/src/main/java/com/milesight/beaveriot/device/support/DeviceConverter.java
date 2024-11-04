@@ -1,4 +1,4 @@
-package com.milesight.beaveriot.device.service;
+package com.milesight.beaveriot.device.support;
 
 import com.milesight.beaveriot.context.api.EntityServiceProvider;
 import com.milesight.beaveriot.context.api.IntegrationServiceProvider;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class DeviceServiceHelper {
+public class DeviceConverter {
     @Lazy
     @Autowired
     IntegrationServiceProvider integrationServiceProvider;
@@ -48,17 +48,5 @@ public class DeviceServiceHelper {
                 .additional(devicePO.getAdditionalData())
                 .entities(deviceEntityMap.getOrDefault(devicePO.getKey(), new ArrayList<>()))
                 .build())).collect(Collectors.toList());
-    }
-
-    public boolean deviceAdditionalDataEqual(Map<String, Object> arg1, Map<String, Object> arg2) {
-        if (arg1 == null && arg2 == null) {
-            return true;
-        }
-
-        if (arg1 == null || arg2 == null) {
-            return false;
-        }
-
-        return arg1.equals(arg2);
     }
 }
