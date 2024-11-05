@@ -1,10 +1,14 @@
 package com.milesight.beaveriot.authentication.po;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
+import org.hibernate.Length;
+
+import java.sql.Timestamp;
 
 /**
  * @author loong
@@ -21,34 +25,51 @@ public class OAuth2AuthorizationPO {
     private String registeredClientId;
     private String principalName;
     private String authorizationGrantType;
+
+    @Column(length=1000)
     private String authorizedScopes;
+    @Column(columnDefinition = "BLOB")
     private String attributes;
+    @Column(length=500)
     private String state;
+    @Column(columnDefinition = "BLOB")
     private String authorizationCodeValue;
-    private Long authorizationCodeIssuedAt;
-    private Long authorizationCodeExpiresAt;
+    private Timestamp authorizationCodeIssuedAt;
+    private Timestamp authorizationCodeExpiresAt;
+    @Column(columnDefinition = "BLOB")
     private String authorizationCodeMetadata;
+    @Column(columnDefinition = "BLOB")
     private String accessTokenValue;
-    private Long accessTokenIssuedAt;
-    private Long accessTokenExpiresAt;
+    private Timestamp accessTokenIssuedAt;
+    private Timestamp accessTokenExpiresAt;
+    @Column(columnDefinition = "BLOB")
     private String accessTokenMetadata;
     private String accessTokenType;
+    @Column(length=1000)
     private String accessTokenScopes;
+    @Column(columnDefinition = "BLOB")
     private String oidcIdTokenValue;
-    private Long oidcIdTokenIssuedAt;
-    private Long oidcIdTokenExpiresAt;
+    private Timestamp oidcIdTokenIssuedAt;
+    private Timestamp oidcIdTokenExpiresAt;
+    @Column(columnDefinition = "BLOB")
     private String oidcIdTokenMetadata;
+    @Column(columnDefinition = "BLOB")
     private String refreshTokenValue;
-    private Long refreshTokenIssuedAt;
-    private Long refreshTokenExpiresAt;
+    private Timestamp refreshTokenIssuedAt;
+    private Timestamp refreshTokenExpiresAt;
+    @Column(columnDefinition = "BLOB")
     private String refreshTokenMetadata;
+    @Column(columnDefinition = "BLOB")
     private String userCodeValue;
-    private Long userCodeIssuedAt;
-    private Long userCodeExpiresAt;
+    private Timestamp userCodeIssuedAt;
+    private Timestamp userCodeExpiresAt;
+    @Column(columnDefinition = "BLOB")
     private String userCodeMetadata;
+    @Column(columnDefinition = "BLOB")
     private String deviceCodeValue;
-    private Long deviceCodeIssuedAt;
-    private Long deviceCodeExpiresAt;
+    private Timestamp deviceCodeIssuedAt;
+    private Timestamp deviceCodeExpiresAt;
+    @Column(columnDefinition = "BLOB")
     private String deviceCodeMetadata;
 
 }

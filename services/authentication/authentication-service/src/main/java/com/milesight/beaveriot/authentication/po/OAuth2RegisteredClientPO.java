@@ -1,10 +1,13 @@
 package com.milesight.beaveriot.authentication.po;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
+
+import java.sql.Timestamp;
 
 /**
  * @author loong
@@ -19,16 +22,30 @@ public class OAuth2RegisteredClientPO {
     @Id
     private String id;
     private String clientId;
-    private Long clientIdIssuedAt;
+    private Timestamp clientIdIssuedAt;
     private String clientSecret;
-    private Long clientSecretExpiresAt;
+    private Timestamp clientSecretExpiresAt;
     private String clientName;
+
+    @Column(length = 1000)
     private String clientAuthenticationMethods;
+
+    @Column(length = 1000)
     private String authorizationGrantTypes;
+
+    @Column(length = 1000)
     private String redirectUris;
+
+    @Column(length = 1000)
     private String postLogoutRedirectUris;
+
+    @Column(length = 1000)
     private String scopes;
+
+    @Column(length = 2000)
     private String clientSettings;
+
+    @Column(length = 2000)
     private String tokenSettings;
 
 }
