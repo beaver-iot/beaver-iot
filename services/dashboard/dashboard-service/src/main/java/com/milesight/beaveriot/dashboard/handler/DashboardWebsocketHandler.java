@@ -33,7 +33,6 @@ public class DashboardWebsocketHandler extends AbstractWebSocketHandler {
 
     private final ObjectProvider<IAuthenticationFacade> authenticationFacadeObjectProvider;
 
-    @Autowired(required = false)
     public DashboardWebsocketHandler(WebSocketProperties webSocketProperties, ObjectProvider<IAuthenticationFacade> authenticationFacade) {
         super(webSocketProperties);
         this.authenticationFacadeObjectProvider = authenticationFacade;
