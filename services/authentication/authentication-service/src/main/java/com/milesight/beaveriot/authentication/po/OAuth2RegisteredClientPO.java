@@ -6,6 +6,8 @@ import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
 
+import java.sql.Timestamp;
+
 /**
  * @author loong
  * @date 2024/10/14 9:40
@@ -19,9 +21,9 @@ public class OAuth2RegisteredClientPO {
     @Id
     private String id;
     private String clientId;
-    private Long clientIdIssuedAt;
+    private Timestamp clientIdIssuedAt;
     private String clientSecret;
-    private Long clientSecretExpiresAt;
+    private Timestamp clientSecretExpiresAt;
     private String clientName;
     private String clientAuthenticationMethods;
     private String authorizationGrantTypes;
