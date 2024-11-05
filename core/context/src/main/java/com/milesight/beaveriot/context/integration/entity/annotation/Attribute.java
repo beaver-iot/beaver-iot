@@ -15,11 +15,18 @@ import java.lang.annotation.Target;
 public @interface Attribute {
 
     String unit() default "";
+
     double max() default Double.NaN;
+
     double min() default Double.NaN;
+
     int maxLength() default AttributeBuilder.POSITIVE_INT_NAN;
+
     int minLength() default AttributeBuilder.POSITIVE_INT_NAN;
+
     int fractionDigits() default AttributeBuilder.POSITIVE_INT_NAN;
+
     String format() default "";
+
     Class<? extends Enum>[] enumClass() default {};
 }

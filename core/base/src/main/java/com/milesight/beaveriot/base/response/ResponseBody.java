@@ -5,12 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * @param <T>
- *
  * @author leon
  */
 @Getter
 @Slf4j
-public class ResponseBody<T>  {
+public class ResponseBody<T> {
 
     /**
      * Response Data

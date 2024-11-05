@@ -12,8 +12,8 @@ public interface ExchangePayloadAccessor {
 
     Object getPayload(String key);
 
-    Map<String,Object> getAllPayloads();
+    Map<String, Object> getAllPayloads();
 
-    Map<String,Object> getPayloadsByEntityType(EntityType entityType);
+    Map<String, Object> getPayloadsByEntityType(EntityType entityType);
 
 }

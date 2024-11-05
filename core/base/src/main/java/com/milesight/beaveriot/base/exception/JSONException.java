@@ -3,7 +3,7 @@ package com.milesight.beaveriot.base.exception;
 /**
  * @author leon
  */
-public class JSONException extends BaseException{
+public class JSONException extends BaseException {
     public JSONException(String message) {
         super(message);
     }

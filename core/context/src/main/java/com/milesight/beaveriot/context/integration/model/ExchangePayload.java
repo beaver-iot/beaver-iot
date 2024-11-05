@@ -6,7 +6,7 @@ import com.milesight.beaveriot.context.constants.ExchangeContextKeys;
 import com.milesight.beaveriot.context.integration.enums.EntityType;
 import com.milesight.beaveriot.context.support.SpringContext;
 import com.milesight.beaveriot.eventbus.api.IdentityKey;
-import lombok.*;
+import lombok.NonNull;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
@@ -18,9 +18,9 @@ import java.util.stream.Collectors;
 /**
  * @author leon
  */
-public class ExchangePayload extends HashMap<String,Object> implements ExchangePayloadAccessor, EventContextAccessor, IdentityKey {
+public class ExchangePayload extends HashMap<String, Object> implements ExchangePayloadAccessor, EventContextAccessor, IdentityKey {
 
-    private transient Map<String,Object> context = new HashMap<>();
+    private transient Map<String, Object> context = new HashMap<>();
 
     private long timestamp = System.currentTimeMillis();
 
@@ -48,8 +48,8 @@ public class ExchangePayload extends HashMap<String,Object> implements ExchangeP
 
     @Override
     public Object getContext(String key) {
-        if(context == null){
-           return null;
+        if (context == null) {
+            return null;
         }
         return context.get(key);
     }
@@ -62,10 +62,10 @@ public class ExchangePayload extends HashMap<String,Object> implements ExchangeP
 
     @Override
     public void putContext(String key, Object value) {
-        if(context == null){
+        if (context == null) {
             context = new HashMap<>();
         }
-        context.put(key,value);
+        context.put(key, value);
     }
 
     public long getTimestamp() {
@@ -97,22 +97,22 @@ public class ExchangePayload extends HashMap<String,Object> implements ExchangeP
         return exchangePayload;
     }
 
-    public static ExchangePayload create(Map<String,Object> values) {
+    public static ExchangePayload create(Map<String, Object> values) {
         return new ExchangePayload(values);
     }
 
-    public static ExchangePayload create(Map<String,Object> values, Map<String,Object> context) {
+    public static ExchangePayload create(Map<String, Object> values, Map<String, Object> context) {
         ExchangePayload exchangePayload = new ExchangePayload(values);
         exchangePayload.setContext(context);
         return exchangePayload;
     }
 
-    public static <T extends ExchangePayload> ExchangePayload createFrom(T payload){
+    public static <T extends ExchangePayload> ExchangePayload createFrom(T payload) {
         return create(payload.getAllPayloads(), payload.getContext());
     }
 
-    public static <T extends ExchangePayload> ExchangePayload createFrom(T payload, List<String> assignKeys){
-        if(ObjectUtils.isEmpty(payload) || ObjectUtils.isEmpty(assignKeys)){
+    public static <T extends ExchangePayload> ExchangePayload createFrom(T payload, List<String> assignKeys) {
+        if (ObjectUtils.isEmpty(payload) || ObjectUtils.isEmpty(assignKeys)) {
             return ExchangePayload.create(payload.getAllPayloads(), payload.getContext());
         }
 
@@ -123,13 +123,13 @@ public class ExchangePayload extends HashMap<String,Object> implements ExchangeP
         return ExchangePayload.create(filteredMap, payload.getContext());
     }
 
-    public Map<String,Entity> getExchangeEntities() {
-        if(ObjectUtils.isEmpty(keySet())){
+    public Map<String, Entity> getExchangeEntities() {
+        if (ObjectUtils.isEmpty(keySet())) {
             return Map.of();
         }
 
-        Map<String,Entity> entityMap = (Map<String, Entity>) getContext(ExchangeContextKeys.EXCHANGE_KEY_ENTITIES);
-        if(ObjectUtils.isEmpty(entityMap)){
+        Map<String, Entity> entityMap = (Map<String, Entity>) getContext(ExchangeContextKeys.EXCHANGE_KEY_ENTITIES);
+        if (ObjectUtils.isEmpty(entityMap)) {
             EntityServiceProvider entityServiceProvider = SpringContext.getBean(EntityServiceProvider.class);
             entityMap = entityServiceProvider.findByKeys(keySet().toArray(String[]::new));
         }
@@ -138,8 +138,8 @@ public class ExchangePayload extends HashMap<String,Object> implements ExchangeP
 
     @Override
     @NonNull
-    public Map<String,Object> getPayloadsByEntityType(EntityType entityType) {
-        if(ObjectUtils.isEmpty(keySet())){
+    public Map<String, Object> getPayloadsByEntityType(EntityType entityType) {
+        if (ObjectUtils.isEmpty(keySet())) {
             return Map.of();
         }
 

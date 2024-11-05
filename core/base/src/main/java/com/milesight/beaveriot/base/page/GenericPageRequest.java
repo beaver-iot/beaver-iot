@@ -33,7 +33,7 @@ public class GenericPageRequest implements PageSpec {
     @Override
     public Long getOffset() {
         if (this.offset == null && this.pageNumber != null && this.pageSize != null) {
-            this.offset = (long)this.pageSize * (this.pageNumber - 1);
+            this.offset = (long) this.pageSize * (this.pageNumber - 1);
         }
         return this.offset;
     }
@@ -72,7 +72,7 @@ public class GenericPageRequest implements PageSpec {
     }
 
     public GenericPageRequest pageNumber(Integer pageNumber) {
-        this.pageNumber  = pageNumber;
+        this.pageNumber = pageNumber;
         return this;
     }
 

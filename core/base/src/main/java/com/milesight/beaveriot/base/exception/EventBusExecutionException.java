@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * @author leon
  */
-public class EventBusExecutionException extends BaseException{
+public class EventBusExecutionException extends BaseException {
 
     private final List<Throwable> causes = new ArrayList<>();
 

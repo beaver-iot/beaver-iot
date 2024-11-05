@@ -5,8 +5,9 @@ package com.milesight.beaveriot.context.constants;
  */
 public class ExchangeContextKeys {
 
-    private ExchangeContextKeys(){
+    private ExchangeContextKeys() {
     }
+
     public static final String EXCHANGE_KEY_ENTITIES = "KEY_ENTITIES";
 
     public static final String EXCHANGE_KEY_SYNC_CALL = "KEY_SYNC_CALL";

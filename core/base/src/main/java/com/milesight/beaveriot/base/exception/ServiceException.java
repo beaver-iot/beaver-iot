@@ -6,7 +6,7 @@ import org.springframework.util.StringUtils;
 /**
  * @author leon
  */
-public class ServiceException extends BaseException{
+public class ServiceException extends BaseException {
 
     /**
      * Http response status code, default 500
@@ -31,7 +31,7 @@ public class ServiceException extends BaseException{
     private transient Object args = null;
 
     public ServiceException(int status, String code, String message, String detailMessage, Object args, Throwable throwable) {
-        super(StringUtils.hasText(message) ? message : code , throwable) ;
+        super(StringUtils.hasText(message) ? message : code, throwable);
         this.status = status;
         this.errorCode = code;
         this.errorMessage = message;
@@ -39,47 +39,51 @@ public class ServiceException extends BaseException{
         this.args = args;
     }
 
-    public ServiceException(){
+    public ServiceException() {
     }
+
     public ServiceException(String errorCode, String errorMessage) {
-        this(HttpStatus.INTERNAL_SERVER_ERROR.value(), errorCode, errorMessage, null,null,null);
-    }
-    public ServiceException( String errorCode, String errorMessage, Object args) {
-        this(HttpStatus.INTERNAL_SERVER_ERROR.value(), errorCode, errorMessage, null, args,null);
-    }
-    public ServiceException( String errorCode, String errorMessage, Throwable throwable) {
-        this(HttpStatus.INTERNAL_SERVER_ERROR.value(), errorCode, errorMessage, null,null,throwable);
-    }
-    public ServiceException( String errorCode, String errorMessage, Object args, Throwable throwable) {
-        this(HttpStatus.INTERNAL_SERVER_ERROR.value(), errorCode, errorMessage, null, args,throwable);
+        this(HttpStatus.INTERNAL_SERVER_ERROR.value(), errorCode, errorMessage, null, null, null);
     }
 
-    public ServiceException(ErrorCodeSpec errorCodeSpec){
-        this(errorCodeSpec, null,null,null);
+    public ServiceException(String errorCode, String errorMessage, Object args) {
+        this(HttpStatus.INTERNAL_SERVER_ERROR.value(), errorCode, errorMessage, null, args, null);
     }
 
-    public ServiceException(ErrorCodeSpec errorCodeSpec, String detailMessage){
+    public ServiceException(String errorCode, String errorMessage, Throwable throwable) {
+        this(HttpStatus.INTERNAL_SERVER_ERROR.value(), errorCode, errorMessage, null, null, throwable);
+    }
+
+    public ServiceException(String errorCode, String errorMessage, Object args, Throwable throwable) {
+        this(HttpStatus.INTERNAL_SERVER_ERROR.value(), errorCode, errorMessage, null, args, throwable);
+    }
+
+    public ServiceException(ErrorCodeSpec errorCodeSpec) {
+        this(errorCodeSpec, null, null, null);
+    }
+
+    public ServiceException(ErrorCodeSpec errorCodeSpec, String detailMessage) {
         this(errorCodeSpec, detailMessage, null, null);
     }
 
-    public ServiceException(ErrorCodeSpec errorCodeSpec, String detailMessage, Object args){
+    public ServiceException(ErrorCodeSpec errorCodeSpec, String detailMessage, Object args) {
         this(errorCodeSpec, detailMessage, args, null);
     }
 
-    public ServiceException(ErrorCodeSpec errorCodeSpec, Throwable throwable){
-        this(errorCodeSpec, null,null, throwable);
+    public ServiceException(ErrorCodeSpec errorCodeSpec, Throwable throwable) {
+        this(errorCodeSpec, null, null, throwable);
     }
 
-    public ServiceException(ErrorCodeSpec errorCodeSpec, String detailMessage, Throwable throwable){
-        this(errorCodeSpec, detailMessage,null, throwable);
+    public ServiceException(ErrorCodeSpec errorCodeSpec, String detailMessage, Throwable throwable) {
+        this(errorCodeSpec, detailMessage, null, throwable);
     }
 
-    public ServiceException(ErrorCodeSpec errorCodeSpec, Object args, Throwable throwable){
-        this(errorCodeSpec.getStatus(), errorCodeSpec.getErrorCode(), errorCodeSpec.getErrorMessage(), errorCodeSpec.getDetailMessage(), args,throwable);
+    public ServiceException(ErrorCodeSpec errorCodeSpec, Object args, Throwable throwable) {
+        this(errorCodeSpec.getStatus(), errorCodeSpec.getErrorCode(), errorCodeSpec.getErrorMessage(), errorCodeSpec.getDetailMessage(), args, throwable);
     }
 
-    public ServiceException(ErrorCodeSpec errorCodeSpec, String detailMessage,  Object args, Throwable throwable){
-        this(errorCodeSpec.getStatus(), errorCodeSpec.getErrorCode(), errorCodeSpec.getErrorMessage(), detailMessage, args,throwable);
+    public ServiceException(ErrorCodeSpec errorCodeSpec, String detailMessage, Object args, Throwable throwable) {
+        this(errorCodeSpec.getStatus(), errorCodeSpec.getErrorCode(), errorCodeSpec.getErrorMessage(), detailMessage, args, throwable);
     }
 
     public int getStatus() {
@@ -107,24 +111,25 @@ public class ServiceException extends BaseException{
         return args;
     }
 
-    public ServiceException detailMessage(String detailMessage){
+    public ServiceException detailMessage(String detailMessage) {
         this.detailMessage = detailMessage;
         return this;
     }
-    public ServiceException args(Object data){
+
+    public ServiceException args(Object data) {
         this.args = data;
         return this;
     }
 
-    public static ServiceExceptionBuilder with(ErrorCodeSpec errorCodeSpec){
+    public static ServiceExceptionBuilder with(ErrorCodeSpec errorCodeSpec) {
         return new ServiceExceptionBuilder(errorCodeSpec.getErrorCode(), errorCodeSpec.getErrorMessage()).status(errorCodeSpec.getStatus());
     }
 
-    public static ServiceExceptionBuilder with(String errorCode, String errorMessage){
+    public static ServiceExceptionBuilder with(String errorCode, String errorMessage) {
         return new ServiceExceptionBuilder(errorCode, errorMessage);
     }
 
-    public static class ServiceExceptionBuilder{
+    public static class ServiceExceptionBuilder {
         private int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
         private String errorCode;
         private String errorMessage;
@@ -132,27 +137,32 @@ public class ServiceException extends BaseException{
         private Object args = null;
         private Throwable throwable;
 
-        public ServiceExceptionBuilder(String errorCode, String errorMessage){
+        public ServiceExceptionBuilder(String errorCode, String errorMessage) {
             this.errorCode = errorCode;
             this.errorMessage = errorMessage;
         }
-        public ServiceExceptionBuilder status(int status){
+
+        public ServiceExceptionBuilder status(int status) {
             this.status = status;
             return this;
         }
-        public ServiceExceptionBuilder detailMessage(String detailMessage){
+
+        public ServiceExceptionBuilder detailMessage(String detailMessage) {
             this.detailMessage = detailMessage;
             return this;
         }
-        public ServiceExceptionBuilder args(Object args){
+
+        public ServiceExceptionBuilder args(Object args) {
             this.args = args;
             return this;
         }
-        public ServiceExceptionBuilder throwable(Throwable throwable){
+
+        public ServiceExceptionBuilder throwable(Throwable throwable) {
             this.throwable = throwable;
             return this;
         }
-        public ServiceException build(){
+
+        public ServiceException build() {
             return new ServiceException(status, errorCode, errorMessage, detailMessage, args, throwable);
         }
     }

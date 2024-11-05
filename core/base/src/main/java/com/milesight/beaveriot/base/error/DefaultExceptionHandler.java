@@ -53,7 +53,7 @@ public class DefaultExceptionHandler {
         log.error("Cause MethodArgumentNotValidException: ", e);
         List<ObjectError> objectErrors = extractBindingErrors(e);
         return CollectionUtils.isEmpty(objectErrors) ?
-                ResponseBuilder.fail(ErrorCode.PARAMETER_VALIDATION_FAILED, e.getMessage()):
+                ResponseBuilder.fail(ErrorCode.PARAMETER_VALIDATION_FAILED, e.getMessage()) :
                 ResponseBuilder.fail(ErrorCode.PARAMETER_VALIDATION_FAILED, objectErrors);
     }
 
@@ -64,7 +64,7 @@ public class DefaultExceptionHandler {
         log.debug("Cause BindException Detail:", e);
         List<ObjectError> objectErrors = extractBindingErrors(e);
         return CollectionUtils.isEmpty(objectErrors) ?
-                ResponseBuilder.fail(ErrorCode.PARAMETER_VALIDATION_FAILED, e.getMessage()):
+                ResponseBuilder.fail(ErrorCode.PARAMETER_VALIDATION_FAILED, e.getMessage()) :
                 ResponseBuilder.fail(ErrorCode.PARAMETER_VALIDATION_FAILED, objectErrors);
     }
 
@@ -105,10 +105,10 @@ public class DefaultExceptionHandler {
     public ResponseEntity<Object> handleException(CamelExecutionException e) {
         log.error("Cause CamelExecutionException {}", e.getMessage());
         Throwable cause = e.getCause();
-        if(cause != null){
-            if(cause instanceof ServiceException serviceException) {
+        if (cause != null) {
+            if (cause instanceof ServiceException serviceException) {
                 return ResponseEntity.status(serviceException.getStatus()).body(ResponseBuilder.fail(serviceException));
-            }else if(cause instanceof BaseException) {
+            } else if (cause instanceof BaseException) {
                 return ResponseEntity.status(ErrorCode.SERVER_ERROR.getStatus()).body(ResponseBuilder.fail(ErrorCode.SERVER_ERROR.getErrorCode(), cause.getMessage()));
             }
         }

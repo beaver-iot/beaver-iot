@@ -2,9 +2,9 @@ package com.milesight.beaveriot.context.integration.bootstrap;
 
 import com.milesight.beaveriot.base.exception.BootstrapException;
 import com.milesight.beaveriot.base.exception.ConfigurationException;
-import com.milesight.beaveriot.context.integration.IntegrationContext;
 import com.milesight.beaveriot.context.api.IntegrationServiceProvider;
 import com.milesight.beaveriot.context.constants.IntegrationConstants;
+import com.milesight.beaveriot.context.integration.IntegrationContext;
 import com.milesight.beaveriot.context.integration.entity.EntityLoader;
 import com.milesight.beaveriot.context.integration.model.Integration;
 import com.milesight.beaveriot.context.integration.model.config.IntegrationConfig;
@@ -31,7 +31,7 @@ import java.util.Map;
  */
 @Slf4j
 @Order(0)
-public class IntegrationBootstrapManager implements CommandLineRunner{
+public class IntegrationBootstrapManager implements CommandLineRunner {
 
     private YamlPropertySourceFactory propertySourceFactory;
     private IntegrationContext integrationContext = new IntegrationContext();
@@ -49,7 +49,7 @@ public class IntegrationBootstrapManager implements CommandLineRunner{
     public void onStarted() {
 
         integrationBootstrapList.orderedStream().forEach(integrationBootstrap -> {
-            try{
+            try {
                 long currentTimeMillis = System.currentTimeMillis();
 
                 PropertySource<?> integrationPropertySource = loadIntegrationPropertySource(integrationBootstrap);
@@ -70,8 +70,8 @@ public class IntegrationBootstrapManager implements CommandLineRunner{
 
                 long cost = System.currentTimeMillis() - currentTimeMillis;
 
-                log.debug("Integration {} started, Contains device size {}, device entity size {}, and integrated entity size {}, cost : {}", integration.getName(), integration.getInitialDevices().size(), allDeviceEntitySize, integration.getInitialEntities().size(),cost);
-            }catch (Exception e) {
+                log.debug("Integration {} started, Contains device size {}, device entity size {}, and integrated entity size {}, cost : {}", integration.getName(), integration.getInitialDevices().size(), allDeviceEntitySize, integration.getInitialEntities().size(), cost);
+            } catch (Exception e) {
                 log.error("Failed to load integration yaml", e);
             }
         });
@@ -80,7 +80,7 @@ public class IntegrationBootstrapManager implements CommandLineRunner{
 
         integrationBootstrapList.orderedStream().forEach(integrationBootstrap -> {
             Integration integration = integrationContext.getIntegration(integrationBootstrap);
-            if(integration != null){
+            if (integration != null) {
                 integrationBootstrap.onStarted(integration);
             }
         });

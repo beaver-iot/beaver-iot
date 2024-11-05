@@ -19,13 +19,14 @@ public class Device implements IdentityKey {
     private Long id;
     private String integrationId;
     private String name;
-    private Map<String,Object> additional;
+    private Map<String, Object> additional;
     private String identifier;
     private List<Entity> entities = new ArrayList<>();
 
     protected Device() {
     }
-    protected Device(String name, Map<String,Object> additional, String identifier, List<Entity> entityConfigs) {
+
+    protected Device(String name, Map<String, Object> additional, String identifier, List<Entity> entityConfigs) {
         this.name = name;
         this.additional = additional;
         this.entities = entityConfigs;
@@ -38,13 +39,13 @@ public class Device implements IdentityKey {
     }
 
     protected void initializeProperties(String integrationId) {
-        if(integrationId == null){
+        if (integrationId == null) {
             return;
         }
         validate();
         this.setIntegrationId(integrationId);
         List<Entity> entitiesList = getEntities();
-        if(!CollectionUtils.isEmpty(entitiesList)){
+        if (!CollectionUtils.isEmpty(entitiesList)) {
             for (Entity entity : entitiesList) {
                 entity.initializeProperties(integrationId, getKey());
             }

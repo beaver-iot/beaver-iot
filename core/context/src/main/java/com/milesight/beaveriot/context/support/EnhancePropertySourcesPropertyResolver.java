@@ -24,13 +24,13 @@ public class EnhancePropertySourcesPropertyResolver extends PropertySourcesPrope
         super(propertySources);
     }
 
-    public String resolvePlaceholders(String text, Map<String,Object> propertySource) {
+    public String resolvePlaceholders(String text, Map<String, Object> propertySource) {
 
         String value = super.resolvePlaceholders(text);
-        if(value.contains(SystemPropertyUtils.PLACEHOLDER_PREFIX ) && !ObjectUtils.isEmpty(propertySource)){
+        if (value.contains(SystemPropertyUtils.PLACEHOLDER_PREFIX) && !ObjectUtils.isEmpty(propertySource)) {
             String removePlaceholder = text.replace(SystemPropertyUtils.PLACEHOLDER_PREFIX, "").replace(SystemPropertyUtils.PLACEHOLDER_SUFFIX, "");
             return (String) propertySource.get(removePlaceholder);
-        }else{
+        } else {
             return value;
         }
 

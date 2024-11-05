@@ -41,6 +41,7 @@ public class Integration {
 
     public Integration() {
     }
+
     public Integration(String id, String name, String description, String iconUrl) {
         this.id = id;
         this.name = name;
@@ -48,15 +49,15 @@ public class Integration {
         this.iconUrl = iconUrl;
     }
 
-    public static Integration of(String id,String name){
-        return new Integration(id, name, null,null);
+    public static Integration of(String id, String name) {
+        return new Integration(id, name, null, null);
     }
 
-    public static Integration of(String id,String name, String description){
-        return new Integration(id, name, description,null);
+    public static Integration of(String id, String name, String description) {
+        return new Integration(id, name, description, null);
     }
 
-    public static Integration of(String id,String name, String description, String iconUrl){
+    public static Integration of(String id, String name, String description, String iconUrl) {
         return new Integration(id, name, description, iconUrl);
     }
 
@@ -64,11 +65,11 @@ public class Integration {
 
         validate();
 
-        if(!CollectionUtils.isEmpty(initialDevices)){
+        if (!CollectionUtils.isEmpty(initialDevices)) {
             initialDevices.forEach(device -> device.initializeProperties(this.getId()));
         }
 
-        if(!CollectionUtils.isEmpty(initialEntities)){
+        if (!CollectionUtils.isEmpty(initialEntities)) {
             initialEntities.forEach(entity -> entity.initializeProperties(this.getId()));
         }
     }
@@ -77,32 +78,33 @@ public class Integration {
     public boolean validate() {
 
         Assert.notNull(name, "Integration name must not be null");
-        
+
         return true;
     }
 
     public void addInitialEntity(Entity entity) {
-        if(initialEntities == null){
+        if (initialEntities == null) {
             initialEntities = new ArrayList<>();
         }
         initialEntities.add(entity);
     }
+
     public void addInitialEntities(List<Entity> addEntities) {
-        if(initialEntities == null){
+        if (initialEntities == null) {
             initialEntities = new ArrayList<>();
         }
         initialEntities.addAll(addEntities);
     }
 
     public void addInitialDevices(List<Device> devices) {
-        if(initialDevices == null){
+        if (initialDevices == null) {
             initialDevices = new ArrayList<>();
         }
         initialDevices.addAll(devices);
     }
 
     public void addInitialDevice(Device device) {
-        if(initialDevices == null){
+        if (initialDevices == null) {
             initialDevices = new ArrayList<>();
         }
         initialDevices.add(device);

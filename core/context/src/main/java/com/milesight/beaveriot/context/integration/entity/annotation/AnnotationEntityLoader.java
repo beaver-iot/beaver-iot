@@ -1,14 +1,14 @@
 package com.milesight.beaveriot.context.integration.entity.annotation;
 
 import com.milesight.beaveriot.context.constants.IntegrationConstants;
+import com.milesight.beaveriot.context.integration.entity.EntityLoader;
+import com.milesight.beaveriot.context.integration.enums.EntityValueType;
 import com.milesight.beaveriot.context.integration.model.AttributeBuilder;
 import com.milesight.beaveriot.context.integration.model.DeviceBuilder;
 import com.milesight.beaveriot.context.integration.model.EntityBuilder;
-import com.milesight.beaveriot.context.integration.entity.EntityLoader;
-import com.milesight.beaveriot.context.integration.enums.EntityValueType;
+import com.milesight.beaveriot.context.integration.model.Integration;
 import com.milesight.beaveriot.context.support.EnhancePropertySourcesPropertyResolver;
 import com.milesight.beaveriot.context.support.PackagesScanner;
-import com.milesight.beaveriot.context.integration.model.Integration;
 import jakarta.annotation.Nullable;
 import org.springframework.core.env.StandardEnvironment;
 import org.springframework.util.ObjectUtils;
@@ -53,7 +53,7 @@ public class AnnotationEntityLoader implements EntityLoader {
                 List<com.milesight.beaveriot.context.integration.model.Entity> entities = parserEntities(integration, null, null, clazz, propertyResolver);
                 integration.addInitialEntities(entities);
 
-            } else if (clazz.isAnnotationPresent(DeviceTemplateEntities.class)){
+            } else if (clazz.isAnnotationPresent(DeviceTemplateEntities.class)) {
                 DeviceTemplateEntities deviceTemplateEntities = clazz.getAnnotation(DeviceTemplateEntities.class);
                 List<com.milesight.beaveriot.context.integration.model.Entity> entities = parserEntities(integration, null, null, clazz, propertyResolver);
                 AnnotationEntityCache.INSTANCE.cacheDeviceTemplateEntities(integration.getId(), deviceTemplateEntities.name(), entities);

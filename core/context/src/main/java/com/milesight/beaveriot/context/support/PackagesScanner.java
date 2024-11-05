@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.function.Consumer;
 
 /**
- *
  * @author leon
  */
 @Slf4j
@@ -31,35 +30,36 @@ public class PackagesScanner {
      */
     private String[] excludePackages = new String[]{};
 
-    public void doScan(String packageStr, Consumer<Class<?>> consumer){
+    public void doScan(String packageStr, Consumer<Class<?>> consumer) {
         //Make sure to scan only once
         long currentTimeMillis = System.currentTimeMillis();
-        try{
+        try {
             String pattern = CLASSPATH_URL_PREFIX + ClassUtils.convertClassNameToResourcePath(packageStr) + RESOURCE_PATTERN;
             ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
             Resource[] resources = resourcePatternResolver.getResources(pattern);
             MetadataReaderFactory readerFactory = new CachingMetadataReaderFactory(resourcePatternResolver);
             for (Resource resource : resources) {
                 if (resource.isReadable() && !isExcludePackages(resource.getURL().toString())) {
-                    try{
+                    try {
                         MetadataReader reader = readerFactory.getMetadataReader(resource);
                         String className = reader.getClassMetadata().getClassName();
                         Class<?> clazz = resourcePatternResolver.getClassLoader().loadClass(className);
                         consumer.accept(clazz);
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         log.warn("Failed to scan classpath classes:" + e.getMessage());
                     }
                 }
             }
-        }catch (IOException ex) {
+        } catch (IOException ex) {
             throw new ConfigurationException("Failed to scan classpath for unlisted classes:" + ex.getMessage());
-        } catch (Throwable e ) {
+        } catch (Throwable e) {
             log.warn("Failed to scan classpath for unlisted classes:" + e.getMessage());
         }
         log.trace("Scan package {} has been executed, cost time:{}ms", packageStr, System.currentTimeMillis() - currentTimeMillis);
     }
+
     private boolean isExcludePackages(String path) {
-        if(ObjectUtils.isEmpty(excludePackages)){
+        if (ObjectUtils.isEmpty(excludePackages)) {
             return false;
         }
         return Arrays.stream(excludePackages).anyMatch(path::contains);

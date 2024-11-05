@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * @author leon
  */
-public class Sorts  {
+public class Sorts {
 
     @JsonProperty("sorts")
     @JsonDeserialize(contentAs = Order.class)
@@ -60,7 +60,7 @@ public class Sorts  {
     }
 
     public Sort toSort() {
-        if(CollectionUtils.isEmpty(orders)){
+        if (CollectionUtils.isEmpty(orders)) {
             return Sort.unsorted();
         }
         List<Sort.Order> collect = orders.stream().map(order -> new Sort.Order(order.direction, order.property)).toList();
@@ -75,6 +75,7 @@ public class Sorts  {
 
         public Order() {
         }
+
         public Order(Sort.Direction direction, String property) {
             this.direction = direction;
             this.property = property;
@@ -90,7 +91,7 @@ public class Sorts  {
         @Override
         public String deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             String value = p.getText();
-            return StringUtils.toCamelCase(value) ;
+            return StringUtils.toCamelCase(value);
         }
     }
 

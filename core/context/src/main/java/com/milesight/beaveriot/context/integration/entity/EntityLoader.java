@@ -8,6 +8,6 @@ import org.springframework.core.env.StandardEnvironment;
  */
 public interface EntityLoader {
 
-    void load(Integration integration, StandardEnvironment integrationEnvironment) ;
+    void load(Integration integration, StandardEnvironment integrationEnvironment);
 
 }

@@ -14,13 +14,13 @@ import org.springframework.context.annotation.Configuration;
 public class GenericContextAutoConfiguration {
 
     @Bean
-    public SpringContext springContext(){
+    public SpringContext springContext() {
         return new SpringContext();
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public GenericExchangeFlowExecutor genericExchangeFlowExecutor(RuleEngineExecutor ruleEngineExecutor){
+    public GenericExchangeFlowExecutor genericExchangeFlowExecutor(RuleEngineExecutor ruleEngineExecutor) {
         return new GenericExchangeFlowExecutor(ruleEngineExecutor);
     }
 }

@@ -35,18 +35,21 @@ public class BaseEntityBuilder<T extends BaseEntityBuilder> {
         return (T) this;
     }
 
-    public T id(Long id){
+    public T id(Long id) {
         this.id = id;
         return (T) this;
     }
+
     public T type(EntityType type) {
         this.type = type;
         return (T) this;
     }
+
     public T valueType(EntityValueType valueType) {
         this.valueType = valueType;
         return (T) this;
     }
+
     public T attributes(Map<String, Object> attributes) {
         this.attributes = attributes;
         return (T) this;
@@ -56,7 +59,7 @@ public class BaseEntityBuilder<T extends BaseEntityBuilder> {
         this.name = name;
         this.accessMod = accessMod;
         this.type = EntityType.PROPERTY;
-        if(!StringUtils.hasLength(identifier)){
+        if (!StringUtils.hasLength(identifier)) {
             this.identifier = name;
         }
         return (T) this;
@@ -65,21 +68,22 @@ public class BaseEntityBuilder<T extends BaseEntityBuilder> {
     public T service(String name) {
         this.name = name;
         this.type = EntityType.SERVICE;
-        if(!StringUtils.hasLength(identifier)){
-            this.identifier = name;
-        }
-        return (T) this;
-    }
-    public T event(String name) {
-        this.name = name;
-        this.type = EntityType.EVENT;
-        if(!StringUtils.hasLength(identifier)){
+        if (!StringUtils.hasLength(identifier)) {
             this.identifier = name;
         }
         return (T) this;
     }
 
-    protected Entity newInstance(){
+    public T event(String name) {
+        this.name = name;
+        this.type = EntityType.EVENT;
+        if (!StringUtils.hasLength(identifier)) {
+            this.identifier = name;
+        }
+        return (T) this;
+    }
+
+    protected Entity newInstance() {
         Entity entity = new Entity();
         entity.setId(id);
         entity.setName(name);
