@@ -15,4 +15,8 @@ public class EventResponse extends LinkedHashMap<String,Object> {
         eventResponse.put(key,value);
         return eventResponse;
     }
+
+    public static EventResponse empty() {
+        return new EventResponse();
+    }
 }

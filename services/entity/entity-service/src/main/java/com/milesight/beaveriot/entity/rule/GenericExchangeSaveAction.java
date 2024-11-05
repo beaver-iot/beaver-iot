@@ -27,7 +27,7 @@ public class GenericExchangeSaveAction implements ProcessorNode<ExchangePayload>
 
     @Override
     public void processor(ExchangePayload exchange) {
-        log.info("HistoryExchangeSaveAction processor {}", exchange.toString());
+        log.info("GenericExchangeSaveAction processor {}", exchange.toString());
 
         // Save event entities， only save history
         Map<String, Object> eventEntities = exchange.getPayloadsByEntityType(EntityType.EVENT);

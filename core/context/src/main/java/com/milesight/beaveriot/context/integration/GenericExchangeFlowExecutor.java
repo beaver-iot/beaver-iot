@@ -45,8 +45,10 @@ public class GenericExchangeFlowExecutor implements ExchangeFlowExecutor {
         Object response = ruleEngineExecutor.executeWithResponse(RuleNodeNames.innerExchangeDownFlow, exchangePayload);
         if(response != null && !(response instanceof EventResponse)){
             log.warn("syncExchangeDown response is not EventResponse, response:{}", response);
+            return EventResponse.empty();
+        }else{
+            return (EventResponse) response;
         }
-        return (EventResponse) response;
     }
 
     @Override
