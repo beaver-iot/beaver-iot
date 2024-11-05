@@ -646,7 +646,8 @@ public class EntityService implements EntityServiceProvider {
         List<String> entityKeys = exchange.keySet().stream().toList();
         List<EntityPO> entityPOList = entityRepository.findAll(filter -> filter.in(EntityPO.Fields.key, entityKeys.toArray()));
         if (entityPOList == null || entityPOList.isEmpty()) {
-            return;
+            log.info("entity not found: {}", entityKeys);
+            throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
         }
         entityPOList.forEach(entityPO -> {
             boolean isProperty = entityPO.getType().equals(EntityType.PROPERTY);
@@ -660,7 +661,10 @@ public class EntityService implements EntityServiceProvider {
                 exchange.remove(entityPO.getKey());
             }
         });
-
+        if (exchange.isEmpty()) {
+            log.info("no property or writable entity found");
+            throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
+        }
         ExchangePayload payload = new ExchangePayload(exchange);
         exchangeFlowExecutor.syncExchangeDown(payload);
     }
@@ -670,7 +674,8 @@ public class EntityService implements EntityServiceProvider {
         List<String> entityKeys = exchange.keySet().stream().toList();
         List<EntityPO> entityPOList = entityRepository.findAll(filter -> filter.in(EntityPO.Fields.key, entityKeys.toArray()));
         if (entityPOList == null || entityPOList.isEmpty()) {
-            return;
+            log.info("entity not found: {}", entityKeys);
+            throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
         }
         entityPOList.forEach(entityPO -> {
             boolean isService = entityPO.getType().equals(EntityType.SERVICE);
@@ -679,6 +684,10 @@ public class EntityService implements EntityServiceProvider {
                 exchange.remove(entityPO.getKey());
             }
         });
+        if (exchange.isEmpty()) {
+            log.info("no service found");
+            throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
+        }
         ExchangePayload payload = new ExchangePayload(exchange);
         exchangeFlowExecutor.syncExchangeDown(payload);
     }
