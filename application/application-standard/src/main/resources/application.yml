@@ -16,7 +16,7 @@ spring:
 #    username: "${SPRING_DATASOURCE_USERNAME:postgres}"
 #    password: "${SPRING_DATASOURCE_PASSWORD:postgres}"
 #    driverClassName: "${SPRING_DRIVER_CLASS_NAME:org.postgresql.Driver}"
-    url: "${SPRING_DATASOURCE_URL:jdbc:h2:file:~/beaver;AUTO_SERVER=TRUE}"
+    url: "${SPRING_DATASOURCE_URL:jdbc:h2:file:~/beaver-iot/h2/beaver;AUTO_SERVER=TRUE}"
     username: "${SPRING_DATASOURCE_USERNAME:sa}"
     password: "${SPRING_DATASOURCE_PASSWORD:}"
     driverClassName: "${SPRING_DRIVER_CLASS_NAME:org.h2.Driver}"
@@ -24,11 +24,10 @@ spring:
     enabled: true
     contexts: init,dev,prod,test
     change-log: 'classpath*:db/${DB_TYPE:h2}/changelog.yaml'
-
-#  h2:
-#    console:
-#      enabled: true
-#      path: /public/h2-console
+  h2:
+    console:
+      enabled: ${ENABLED_H2_CONSOLE:false}
+      path: /public/h2-console
 
 #eventbus:
 #  disruptor:
