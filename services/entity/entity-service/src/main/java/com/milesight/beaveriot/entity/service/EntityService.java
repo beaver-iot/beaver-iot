@@ -30,7 +30,7 @@ import com.milesight.beaveriot.entity.repository.EntityHistoryRepository;
 import com.milesight.beaveriot.entity.repository.EntityLatestRepository;
 import com.milesight.beaveriot.entity.repository.EntityRepository;
 import com.milesight.beaveriot.eventbus.EventBus;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.slf4j.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
@@ -648,14 +648,19 @@ public class EntityService implements EntityServiceProvider {
         if (entityPOList == null || entityPOList.isEmpty()) {
             return;
         }
-        if (entityPOList.stream().anyMatch(entityPO -> !entityPO.getType().equals(EntityType.PROPERTY))) {
-            log.info("update property entity only support property entity");
-            return;
-        }
-        if (entityPOList.stream().anyMatch(entityPO -> entityPO.getAccessMod() != AccessMod.RW && entityPO.getAccessMod() != AccessMod.W)) {
-            log.info("update property entity only support write access");
-            return;
-        }
+        entityPOList.forEach(entityPO -> {
+            boolean isProperty = entityPO.getType().equals(EntityType.PROPERTY);
+            if (!isProperty) {
+                log.info("not property: {}", entityPO.getKey());
+                exchange.remove(entityPO.getKey());
+            }
+            boolean isWritable = entityPO.getAccessMod() != AccessMod.RW && entityPO.getAccessMod() != AccessMod.W;
+            if (!isWritable) {
+                log.info("not writable: {}", entityPO.getKey());
+                exchange.remove(entityPO.getKey());
+            }
+        });
+
         ExchangePayload payload = new ExchangePayload(exchange);
         exchangeFlowExecutor.syncExchangeDown(payload);
     }
