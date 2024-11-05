@@ -248,9 +248,8 @@ public class MscTslUtils {
     }
 
     private static void standardizeChildEntityIdentifier(Entity child) {
-        child.setIdentifier(child.getIdentifier()
-                .replace('.', '@')
-                .replaceFirst("@", "."));
+        val fullIdentifier = child.getIdentifier().replace('.', '@');
+        child.setIdentifier(fullIdentifier.substring(fullIdentifier.indexOf('@') + 1));
     }
 
     private static Map<String, Object> convertTslDataSpecToEntityAttributes(TslDataSpec dataSpec) {
