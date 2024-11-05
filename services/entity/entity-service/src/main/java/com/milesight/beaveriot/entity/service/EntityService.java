@@ -30,7 +30,7 @@ import com.milesight.beaveriot.entity.repository.EntityHistoryRepository;
 import com.milesight.beaveriot.entity.repository.EntityLatestRepository;
 import com.milesight.beaveriot.entity.repository.EntityRepository;
 import com.milesight.beaveriot.eventbus.EventBus;
-import lombok.extern.slf4j.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
@@ -654,7 +654,7 @@ public class EntityService implements EntityServiceProvider {
                 log.info("not property: {}", entityPO.getKey());
                 exchange.remove(entityPO.getKey());
             }
-            boolean isWritable = entityPO.getAccessMod() != AccessMod.RW && entityPO.getAccessMod() != AccessMod.W;
+            boolean isWritable = entityPO.getAccessMod() == AccessMod.RW || entityPO.getAccessMod() == AccessMod.W;
             if (!isWritable) {
                 log.info("not writable: {}", entityPO.getKey());
                 exchange.remove(entityPO.getKey());
@@ -672,10 +672,13 @@ public class EntityService implements EntityServiceProvider {
         if (entityPOList == null || entityPOList.isEmpty()) {
             return;
         }
-        if (entityPOList.stream().anyMatch(entityPO -> !entityPO.getType().equals(EntityType.SERVICE))) {
-            log.info("service call only support service entity");
-            return;
-        }
+        entityPOList.forEach(entityPO -> {
+            boolean isService = entityPO.getType().equals(EntityType.SERVICE);
+            if (!isService) {
+                log.info("not service: {}", entityPO.getKey());
+                exchange.remove(entityPO.getKey());
+            }
+        });
         ExchangePayload payload = new ExchangePayload(exchange);
         exchangeFlowExecutor.syncExchangeDown(payload);
     }
