@@ -7,25 +7,26 @@ import java.util.List;
 
 /**
  * EntityBuilder is a builder class for Entity, eg:
- *         Entity entityConfig = new EntityBuilder()
- *                 .property("humidity", AccessMod.RW)
- *                 .identifier("humidity")
- *                     .children()
- *                         .property("value", AccessMod.RW)
- *                         .end()
- *                     .children()
- *                         .property("unit", AccessMod.RW)
- *                         .end()
- *                     .children()
- *                         .property("timestamp", AccessMod.RW)
- *                         .end()
- *                 .build();
+ * Entity entityConfig = new EntityBuilder()
+ * .property("humidity", AccessMod.RW)
+ * .identifier("humidity")
+ * .children()
+ * .property("value", AccessMod.RW)
+ * .end()
+ * .children()
+ * .property("unit", AccessMod.RW)
+ * .end()
+ * .children()
+ * .property("timestamp", AccessMod.RW)
+ * .end()
+ * .build();
+ * <p>
+ * <p>
+ * []
  *
- *
- *           []
  * @author leon
  */
-public class EntityBuilder extends BaseEntityBuilder<EntityBuilder>{
+public class EntityBuilder extends BaseEntityBuilder<EntityBuilder> {
 
     private String integrationId;
 
@@ -33,7 +34,7 @@ public class EntityBuilder extends BaseEntityBuilder<EntityBuilder>{
 
     protected List<Entity> children = new ArrayList<>();
 
-    public EntityBuilder(){
+    public EntityBuilder() {
     }
 
     public EntityBuilder(String integrationId) {
@@ -63,10 +64,10 @@ public class EntityBuilder extends BaseEntityBuilder<EntityBuilder>{
 
         Entity entity = newInstance();
         entity.setChildren(children);
-        if(StringUtils.hasText(integrationId)){
-            if(StringUtils.hasText(deviceKey)) {
+        if (StringUtils.hasText(integrationId)) {
+            if (StringUtils.hasText(deviceKey)) {
                 entity.initializeProperties(integrationId, deviceKey);
-            }else{
+            } else {
                 entity.initializeProperties(integrationId);
             }
         }
@@ -74,7 +75,7 @@ public class EntityBuilder extends BaseEntityBuilder<EntityBuilder>{
         return entity;
     }
 
-    public class ChildEntityBuilder extends BaseEntityBuilder<ChildEntityBuilder>{
+    public class ChildEntityBuilder extends BaseEntityBuilder<ChildEntityBuilder> {
 
         private EntityBuilder entityBuilder;
 

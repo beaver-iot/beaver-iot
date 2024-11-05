@@ -12,19 +12,18 @@ import java.util.Map;
  */
 public interface EntityValueServiceProvider {
 
-    void saveValues(Map<String,Object> values, long timestamp);
+    void saveValues(Map<String, Object> values, long timestamp);
 
-    void saveValues(Map<String,Object> values);
+    void saveValues(Map<String, Object> values);
 
-    void saveHistoryRecord(Map<String,Object> recordValues, long timestamp);
+    void saveHistoryRecord(Map<String, Object> recordValues, long timestamp);
 
-    void saveHistoryRecord(Map<String,Object> recordValues);
+    void saveHistoryRecord(Map<String, Object> recordValues);
 
     JsonNode findValueByKey(String key);
 
     Map<String, JsonNode> findValuesByKeys(List<String> keys);
 
-    @NonNull
-    <T extends ExchangePayload> T findValuesByKey(String key, Class<T> entitiesClazz);
+    @NonNull <T extends ExchangePayload> T findValuesByKey(String key, Class<T> entitiesClazz);
 
 }

@@ -11,14 +11,14 @@ public interface IntegrationBootstrap extends RuleEngineRouteConfigurer {
 
     void onPrepared(Integration integrationConfig);
 
-     void onStarted(Integration integrationConfig);
+    void onStarted(Integration integrationConfig);
 
     void onDestroy(Integration integrationConfig);
 
     default void onEnabled(Integration integrationConfig) {
     }
 
-    default void onDisabled(Integration integrationConfig){
+    default void onDisabled(Integration integrationConfig) {
     }
 
     @Override

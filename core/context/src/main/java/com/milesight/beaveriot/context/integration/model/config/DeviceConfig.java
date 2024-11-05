@@ -14,7 +14,7 @@ import java.util.Map;
 public class DeviceConfig {
 
     private String name;
-    private Map<String,Object> additional;
+    private Map<String, Object> additional;
     private String identifier;
     private List<Entity> entities = new ArrayList<>();
 

@@ -1,8 +1,8 @@
 package com.milesight.beaveriot.context.integration.model.event;
 
 
-import com.milesight.beaveriot.eventbus.api.Event;
 import com.milesight.beaveriot.context.integration.model.Device;
+import com.milesight.beaveriot.eventbus.api.Event;
 import com.milesight.beaveriot.eventbus.api.IdentityKey;
 
 /**
@@ -13,8 +13,9 @@ public class DeviceEvent implements Event<Device> {
     private Device device;
     private String eventType;
 
-    public DeviceEvent(){
+    public DeviceEvent() {
     }
+
     public DeviceEvent(String eventType, Device device) {
         this.eventType = eventType;
         this.device = device;
@@ -43,10 +44,12 @@ public class DeviceEvent implements Event<Device> {
     public static DeviceEvent of(String eventType, Device device) {
         return new DeviceEvent(eventType, device);
     }
-    public static class EventType{
+
+    public static class EventType {
 
         private EventType() {
         }
+
         public static final String CREATED = "Created";
         public static final String UPDATED = "Updated";
         public static final String DELETED = "Deleted";

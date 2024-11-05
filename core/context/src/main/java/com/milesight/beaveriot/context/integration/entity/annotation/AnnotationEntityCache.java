@@ -23,14 +23,14 @@ public enum AnnotationEntityCache {
 
     private Map<String, List<Entity>> deviceTemplateEntitiesCache = new ConcurrentHashMap<>();
 
-    public void cacheDeviceTemplateEntities(String integrationId, String deviceName, List<Entity> entities){
-        if(ObjectUtils.isEmpty(entities)){
+    public void cacheDeviceTemplateEntities(String integrationId, String deviceName, List<Entity> entities) {
+        if (ObjectUtils.isEmpty(entities)) {
             return;
         }
         String key = generateTemplateCacheKey(integrationId, deviceName);
-        if(deviceTemplateEntitiesCache.containsKey(key)){
+        if (deviceTemplateEntitiesCache.containsKey(key)) {
             deviceTemplateEntitiesCache.get(key).addAll(entities);
-        }else{
+        } else {
             deviceTemplateEntitiesCache.put(key, entities);
         }
     }
@@ -39,18 +39,18 @@ public enum AnnotationEntityCache {
         return integrationId + StringConstant.AT + deviceName;
     }
 
-    public List<Entity> getDeviceTemplateEntities(String integrationId, String deviceName){
+    public List<Entity> getDeviceTemplateEntities(String integrationId, String deviceName) {
         return deviceTemplateEntitiesCache.get(generateTemplateCacheKey(integrationId, deviceName));
     }
 
-    public void cacheEntityMethod(Field filed, String key){
+    public void cacheEntityMethod(Field filed, String key) {
         Method getterMethod = getGetterMethod(filed.getDeclaringClass(), filed);
-        if(getterMethod != null){
+        if (getterMethod != null) {
             entitiesMethodCache.put(getterMethod, key);
         }
     }
 
-    public String getEntityKeyByMethod(Method method){
+    public String getEntityKeyByMethod(Method method) {
         return entitiesMethodCache.get(method);
     }
 
@@ -61,7 +61,7 @@ public enum AnnotationEntityCache {
         try {
             return clazz.getMethod(getterName);
         } catch (NoSuchMethodException e) {
-            if (field.getType().equals(boolean.class) || field.getType().equals(Boolean.class)){
+            if (field.getType().equals(boolean.class) || field.getType().equals(Boolean.class)) {
                 try {
                     String booleanGetterName = "is" + capitalizedFieldName;
                     return clazz.getMethod(booleanGetterName);

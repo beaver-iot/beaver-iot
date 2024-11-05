@@ -20,7 +20,7 @@ public class IntegrationContext {
     private Map<String, Integration> integrationCache = new ConcurrentHashMap<>();
 
     public void cacheIntegration(IntegrationBootstrap integrationBootstrap, Integration integrationConfig, StandardEnvironment integrationEnvironment) {
-        if(integrationBootstrapCache.containsKey(integrationConfig.getId())){
+        if (integrationBootstrapCache.containsKey(integrationConfig.getId())) {
             throw new ConfigurationException("Integration id already exists ：" + integrationConfig.getId());
         }
         integrationBootstrapCache.put(integrationConfig.getId(), integrationBootstrap);
@@ -32,9 +32,9 @@ public class IntegrationContext {
         return integrationCache.get(id);
     }
 
-    public Integration getIntegration(IntegrationBootstrap integrationBootstrap){
+    public Integration getIntegration(IntegrationBootstrap integrationBootstrap) {
         Map.Entry<String, IntegrationBootstrap> integrationBootstrapEntry = integrationBootstrapCache.entrySet().stream().filter(entry -> entry.getValue().equals(integrationBootstrap)).findFirst().orElse(null);
-        if(integrationBootstrapEntry == null){
+        if (integrationBootstrapEntry == null) {
             return null;
         }
         return integrationCache.get(integrationBootstrapEntry.getKey());
@@ -44,11 +44,11 @@ public class IntegrationContext {
         return integrationBootstrapCache.get(id);
     }
 
-    public Map<String, Integration> getAllIntegrations(){
+    public Map<String, Integration> getAllIntegrations() {
         return integrationCache;
     }
 
-    public Map<String,IntegrationBootstrap> getAllIntegrationBootstraps(){
+    public Map<String, IntegrationBootstrap> getAllIntegrationBootstraps() {
         return integrationBootstrapCache;
     }
 
@@ -56,7 +56,7 @@ public class IntegrationContext {
         return integrationEnvironmentCache.get(id);
     }
 
-    public Map<String, StandardEnvironment> getAllIntegrationEnvironment(){
+    public Map<String, StandardEnvironment> getAllIntegrationEnvironment() {
         return integrationEnvironmentCache;
     }
 

@@ -34,10 +34,10 @@ public class IntegrationConfig {
 
         List<Device> devices = initialDevices.stream()
                 .map(deviceConfig -> new DeviceBuilder(integrationId)
-                    .name(deviceConfig.getName())
-                    .identifier(deviceConfig.getIdentifier())
-                    .entities(deviceConfig.getEntities())
-                    .build()
+                        .name(deviceConfig.getName())
+                        .identifier(deviceConfig.getIdentifier())
+                        .entities(deviceConfig.getEntities())
+                        .build()
                 )
                 .toList();
 

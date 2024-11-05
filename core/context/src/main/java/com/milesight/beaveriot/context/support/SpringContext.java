@@ -12,7 +12,6 @@ import java.lang.reflect.Field;
 import java.util.Map;
 
 /**
- *
  * @author leon
  */
 @Slf4j
@@ -21,10 +20,11 @@ public class SpringContext implements BeanFactoryPostProcessor {
     private static ConfigurableListableBeanFactory beanFactory;
 
     @Override
-    public  void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
         SpringContext.beanFactory = beanFactory;
     }
-    public static ConfigurableListableBeanFactory getFactory()  {
+
+    public static ConfigurableListableBeanFactory getFactory() {
         return beanFactory;
     }
 
@@ -34,20 +34,20 @@ public class SpringContext implements BeanFactoryPostProcessor {
             Field singletonObjects = DefaultSingletonBeanRegistry.class.getDeclaredField("singletonObjects");
             singletonObjects.setAccessible(true);  //NOSONAR
             Map<String, Object> map = (Map<String, Object>) singletonObjects.get(beanFactory);
-            if(!map.containsKey(beanName)){
-                throw new NoSuchBeanDefinitionException(beanName) ;
+            if (!map.containsKey(beanName)) {
+                throw new NoSuchBeanDefinitionException(beanName);
             }
             map.put(beanName, beanObject);
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            log.error("bean replace exception:" , e);
+            log.error("bean replace exception:", e);
             throw new BeanCreationException(e.getMessage());
         }
         return true;
     }
+
     /**
      * @param name
      * @throws org.springframework.beans.BeansException
-     *
      */
     public static <T> T getBean(String name) throws BeansException {
         return (T) beanFactory.getBean(name);
@@ -58,7 +58,7 @@ public class SpringContext implements BeanFactoryPostProcessor {
      * @param <T>
      * @return
      */
-    public static <T> Map<String, T> getBeansOfType(Class<T> clazz){
+    public static <T> Map<String, T> getBeansOfType(Class<T> clazz) {
         return beanFactory.getBeansOfType(clazz);
     }
 
@@ -66,7 +66,6 @@ public class SpringContext implements BeanFactoryPostProcessor {
      * @param clz
      * @return
      * @throws org.springframework.beans.BeansException
-     *
      */
     public static <T> T getBean(Class<T> clz) throws BeansException {
         return beanFactory.getBean(clz);
@@ -88,7 +87,6 @@ public class SpringContext implements BeanFactoryPostProcessor {
      * @param name
      * @return boolean
      * @throws org.springframework.beans.factory.NoSuchBeanDefinitionException
-     *
      */
     public static boolean isSingleton(String name) throws NoSuchBeanDefinitionException {
         return beanFactory.isSingleton(name);
@@ -98,7 +96,6 @@ public class SpringContext implements BeanFactoryPostProcessor {
      * @param name
      * @return Class
      * @throws org.springframework.beans.factory.NoSuchBeanDefinitionException
-     *
      */
     public static Class<?> getType(String name) throws NoSuchBeanDefinitionException {
         return beanFactory.getType(name);
@@ -106,10 +103,10 @@ public class SpringContext implements BeanFactoryPostProcessor {
 
     /**
      * If the given bean name has aliases in the bean definition, return those aliases
+     *
      * @param name
      * @return
      * @throws org.springframework.beans.factory.NoSuchBeanDefinitionException
-     *
      */
     public static String[] getAliases(String name) throws NoSuchBeanDefinitionException {
         return beanFactory.getAliases(name);

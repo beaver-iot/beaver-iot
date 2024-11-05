@@ -31,6 +31,7 @@ import static org.apache.camel.model.rest.RestParamType.path;
 public class YamlPropertySourceFactory extends DefaultPropertySourceFactory {
 
     private static final String PATH_BOOT_INF = "BOOT-INF";
+
     @Override
     public PropertySource<?> createPropertySource(String name, EncodedResource resource) throws IOException {
         if (resource == null) {
@@ -44,14 +45,14 @@ public class YamlPropertySourceFactory extends DefaultPropertySourceFactory {
 
         log.debug("ready load integration.yaml, integration location: {}", codeSourceLocationPath);
 
-        if(codeSourceLocationPath.contains(".jar")){
+        if (codeSourceLocationPath.contains(".jar")) {
             return createNestedJarPropertySource(name, codeSourceLocationPath);
-        }else{
-            FileUrlResource fileUrlResource = new FileUrlResource(getFullLocationPath(codeSourceLocationPath , IntegrationConstants.INTEGRATION_YAML));
+        } else {
+            FileUrlResource fileUrlResource = new FileUrlResource(getFullLocationPath(codeSourceLocationPath, IntegrationConstants.INTEGRATION_YAML));
             if (!fileUrlResource.exists()) {
-                fileUrlResource = new FileUrlResource(getFullLocationPath(codeSourceLocationPath , IntegrationConstants.INTEGRATION_YML));
-                if(!fileUrlResource.exists()){
-                    log.error("Integration yaml not found, please check integration.yaml ：" + getFullLocationPath(codeSourceLocationPath , IntegrationConstants.INTEGRATION_YAML));
+                fileUrlResource = new FileUrlResource(getFullLocationPath(codeSourceLocationPath, IntegrationConstants.INTEGRATION_YML));
+                if (!fileUrlResource.exists()) {
+                    log.error("Integration yaml not found, please check integration.yaml ：" + getFullLocationPath(codeSourceLocationPath, IntegrationConstants.INTEGRATION_YAML));
                     throw new BootstrapException("Integration yaml not found, please check integration.yaml");
                 }
             }
@@ -64,24 +65,24 @@ public class YamlPropertySourceFactory extends DefaultPropertySourceFactory {
     }
 
     private PropertySource<?> createNestedJarPropertySource(String name, String codeSourceLocationPath) throws IOException {
-        codeSourceLocationPath = codeSourceLocationPath.replace("!","");
+        codeSourceLocationPath = codeSourceLocationPath.replace("!", "");
         codeSourceLocationPath = replaceJarSchema(codeSourceLocationPath);
         String[] nestedJarPaths = codeSourceLocationPath.split(PATH_BOOT_INF);
-        try(FileSystem rootJarFileSystem = FileSystems.newFileSystem(URI.create(nestedJarPaths[0]), Collections.emptyMap())){
+        try (FileSystem rootJarFileSystem = FileSystems.newFileSystem(URI.create(nestedJarPaths[0]), Collections.emptyMap())) {
             FileSystem integrationJarFileSystem = null;
             InputStream inputStream = null;
 
-            if(nestedJarPaths.length == 2){
-                if(nestedJarPaths[1].contains(".jar")){
+            if (nestedJarPaths.length == 2) {
+                if (nestedJarPaths[1].contains(".jar")) {
                     String realJarPath = PATH_BOOT_INF + nestedJarPaths[1];
                     Path jarFileSystemPath = rootJarFileSystem.getPath(realJarPath);
                     integrationJarFileSystem = FileSystems.newFileSystem(jarFileSystemPath, Collections.emptyMap());
                     inputStream = openInputStreamCanTry(integrationJarFileSystem, IntegrationConstants.INTEGRATION_YAML, IntegrationConstants.INTEGRATION_YML);
-                }else{
+                } else {
                     String integrationPathPrefix = PATH_BOOT_INF + nestedJarPaths[1];
                     inputStream = openInputStreamCanTry(rootJarFileSystem, integrationPathPrefix + IntegrationConstants.INTEGRATION_YAML, integrationPathPrefix + IntegrationConstants.INTEGRATION_YML);
                 }
-            }else{
+            } else {
                 inputStream = openInputStreamCanTry(rootJarFileSystem, IntegrationConstants.INTEGRATION_YAML, IntegrationConstants.INTEGRATION_YML);
             }
 
@@ -95,26 +96,26 @@ public class YamlPropertySourceFactory extends DefaultPropertySourceFactory {
 
     private String replaceJarSchema(String codeSourceLocationPath) {
         return codeSourceLocationPath.startsWith("nested:") ?
-                codeSourceLocationPath.replace("nested:", "jar:file:"):
+                codeSourceLocationPath.replace("nested:", "jar:file:") :
                 "jar:file:" + codeSourceLocationPath;
     }
 
     private void closeFileSystem(FileSystem fileSystem) throws IOException {
-        if(fileSystem != null && fileSystem.isOpen()){
+        if (fileSystem != null && fileSystem.isOpen()) {
             fileSystem.close();
         }
     }
 
     private InputStream openInputStreamCanTry(FileSystem jarFileSystem, String integrationYaml, String integrationYml) throws IOException {
-        InputStream inputStream ;
-        try{
+        InputStream inputStream;
+        try {
             Path integrationPath = jarFileSystem.getPath(integrationYaml);
             inputStream = Files.newInputStream(integrationPath);
-        }catch (Exception ex){
-            try{
+        } catch (Exception ex) {
+            try {
                 Path integrationPath = jarFileSystem.getPath(integrationYml);
                 inputStream = Files.newInputStream(integrationPath);
-            }catch (Exception e){
+            } catch (Exception e) {
                 log.error("Integration yaml not found, please check integration.yaml ：" + path + IntegrationConstants.INTEGRATION_YAML);
                 throw new BootstrapException("Integration yaml not found, please check integration.yaml");
             }

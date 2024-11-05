@@ -8,46 +8,47 @@ import java.util.Map;
 
 /**
  * IntegrationBuilder is a builder class for Integration， eg:
- *
+ * <p>
  * Entity entityConfig = new EntityBuilder()
- *                 .property("humidity", AccessMod.RW)
- *                 .identifier("humidity")
- *                     .children()
- *                         .property("value", AccessMod.RW)
- *                         .end()
- *                     .children()
- *                         .property("unit", AccessMod.RW)
- *                         .end()
- *                     .children()
- *                         .property("timestamp", AccessMod.RW)
- *                         .end()
- *                 .build();
- *  Device device = new DeviceBuilder("myIntegration")
- *                             .name("myDevice")
- *                             .identifier("mySN")
- *                             .entity(entityConfig)
- *                             .build();
- *
+ * .property("humidity", AccessMod.RW)
+ * .identifier("humidity")
+ * .children()
+ * .property("value", AccessMod.RW)
+ * .end()
+ * .children()
+ * .property("unit", AccessMod.RW)
+ * .end()
+ * .children()
+ * .property("timestamp", AccessMod.RW)
+ * .end()
+ * .build();
+ * Device device = new DeviceBuilder("myIntegration")
+ * .name("myDevice")
+ * .identifier("mySN")
+ * .entity(entityConfig)
+ * .build();
+ * <p>
  * Integration integration = new IntegrationBuilder()
- *                 .integration()
- *                     .name("myIntegration")
- *                     .description("myIntegration description")
- *                     .end()
- *                 .initialEntity(entityConfig)
- *                 .initialEntity(entityConfig)
- *                 .initialDevice(device)
- *                 .initialDevice("myDevice1","myDevice description")
- *                     .entity(entityConfig)
- *                     .entity(entityConfig)
- *                     .end()
- *                 .initialDevice()
- *                     .name("myDevice2")
- *                     .identifier("myDevice2")
- *                     .entity(entityConfig)
- *                     .entity(entityConfig)
- *                     .end()
- *                 .build()
- *                 ;
+ * .integration()
+ * .name("myIntegration")
+ * .description("myIntegration description")
+ * .end()
+ * .initialEntity(entityConfig)
+ * .initialEntity(entityConfig)
+ * .initialDevice(device)
+ * .initialDevice("myDevice1","myDevice description")
+ * .entity(entityConfig)
+ * .entity(entityConfig)
+ * .end()
+ * .initialDevice()
+ * .name("myDevice2")
+ * .identifier("myDevice2")
+ * .entity(entityConfig)
+ * .entity(entityConfig)
+ * .end()
+ * .build()
+ * ;
+ *
  * @author leon
  */
 public class IntegrationBuilder {

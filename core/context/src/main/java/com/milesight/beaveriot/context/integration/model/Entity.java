@@ -33,45 +33,45 @@ public class Entity implements IdentityKey {
     private AccessMod accessMod;
     private EntityValueType valueType;
     private EntityType type;
-    private Map<String,Object> attributes;
+    private Map<String, Object> attributes;
     private String parentIdentifier;
     private List<Entity> children;
 
     protected Entity() {
     }
 
-    public String getFullIdentifier(){
+    public String getFullIdentifier() {
         return StringUtils.hasLength(parentIdentifier) ? parentIdentifier + "." + identifier : identifier;
     }
 
     @Override
     public String getKey() {
         String fullIdentifier = getFullIdentifier();
-        if(StringUtils.hasText(deviceKey)){
+        if (StringUtils.hasText(deviceKey)) {
             return IntegrationConstants.formatIntegrationDeviceEntityKey(deviceKey, fullIdentifier);
-        }else{
+        } else {
             return IntegrationConstants.formatIntegrationEntityKey(integrationId, fullIdentifier);
         }
     }
 
     public String getParentKey() {
-        if(!StringUtils.hasLength(parentIdentifier)){
+        if (!StringUtils.hasLength(parentIdentifier)) {
             return null;
         }
-        if(StringUtils.hasText(deviceKey)){
+        if (StringUtils.hasText(deviceKey)) {
             return IntegrationConstants.formatIntegrationDeviceEntityKey(deviceKey, parentIdentifier);
-        }else{
+        } else {
             return IntegrationConstants.formatIntegrationEntityKey(integrationId, parentIdentifier);
         }
     }
 
-    public void initializeProperties(String integrationId, String deviceKey){
+    public void initializeProperties(String integrationId, String deviceKey) {
         validate();
         Assert.notNull(integrationId, "Integration must not be null");
         Assert.notNull(deviceKey, "Device must not be null");
         this.setIntegrationId(integrationId);
         this.setDeviceKey(deviceKey);
-        if(!CollectionUtils.isEmpty(children)){
+        if (!CollectionUtils.isEmpty(children)) {
             children.forEach(entity -> {
                 entity.setDeviceKey(deviceKey);
                 entity.setIntegrationId(integrationId);
@@ -80,11 +80,11 @@ public class Entity implements IdentityKey {
         }
     }
 
-    protected void initializeProperties(String integrationId){
+    protected void initializeProperties(String integrationId) {
         validate();
         Assert.notNull(integrationId, "Integration must not be null");
         this.setIntegrationId(integrationId);
-        if(!CollectionUtils.isEmpty(children)){
+        if (!CollectionUtils.isEmpty(children)) {
             children.forEach(entity -> {
                 entity.setIntegrationId(integrationId);
                 entity.setParentIdentifier(identifier);
@@ -92,12 +92,12 @@ public class Entity implements IdentityKey {
         }
     }
 
-    public Optional<Device> loadDevice(){
+    public Optional<Device> loadDevice() {
         DeviceServiceProvider deviceServiceProvider = SpringContext.getBean(DeviceServiceProvider.class);
         return StringUtils.hasText(deviceKey) ? Optional.of(deviceServiceProvider.findByKey(deviceKey)) : Optional.empty();
     }
 
-    public Optional<Integration> loadActiveIntegration(){
+    public Optional<Integration> loadActiveIntegration() {
         IntegrationServiceProvider integrationServiceProvider = SpringContext.getBean(IntegrationServiceProvider.class);
         return Optional.ofNullable(integrationServiceProvider.getActiveIntegration(integrationId));
     }

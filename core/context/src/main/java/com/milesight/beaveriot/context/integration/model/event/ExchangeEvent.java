@@ -1,8 +1,8 @@
 package com.milesight.beaveriot.context.integration.model.event;
 
 
-import com.milesight.beaveriot.eventbus.api.Event;
 import com.milesight.beaveriot.context.integration.model.ExchangePayload;
+import com.milesight.beaveriot.eventbus.api.Event;
 import com.milesight.beaveriot.eventbus.api.IdentityKey;
 
 /**
@@ -13,8 +13,9 @@ public class ExchangeEvent implements Event<ExchangePayload> {
     private ExchangePayload exchangePayload;
     private String eventType;
 
-    public ExchangeEvent(){
+    public ExchangeEvent() {
     }
+
     public ExchangeEvent(String eventType, ExchangePayload exchangePayload) {
         this.eventType = eventType;
         this.exchangePayload = exchangePayload;
@@ -52,9 +53,10 @@ public class ExchangeEvent implements Event<ExchangePayload> {
         return new ExchangeEvent(eventType, exchangePayload);
     }
 
-    public static class EventType{
+    public static class EventType {
         private EventType() {
         }
+
         public static final String DOWN = "Down";
         public static final String UP = "Up";
     }
