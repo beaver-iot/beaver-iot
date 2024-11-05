@@ -52,6 +52,11 @@ public class AnnotationEntityLoader implements EntityLoader {
                 // parse IntegrationEntities annotation
                 List<com.milesight.beaveriot.context.integration.model.Entity> entities = parserEntities(integration, null, null, clazz, propertyResolver);
                 integration.addInitialEntities(entities);
+
+            } else if (clazz.isAnnotationPresent(DeviceTemplateEntities.class)){
+                DeviceTemplateEntities deviceTemplateEntities = clazz.getAnnotation(DeviceTemplateEntities.class);
+                List<com.milesight.beaveriot.context.integration.model.Entity> entities = parserEntities(integration, null, null, clazz, propertyResolver);
+                AnnotationEntityCache.INSTANCE.cacheDeviceTemplateEntities(integration.getId(), deviceTemplateEntities.name(), entities);
             }
         });
     }

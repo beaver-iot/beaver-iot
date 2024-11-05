@@ -1,9 +1,13 @@
 package com.milesight.beaveriot.context.integration.entity.annotation;
 
+import com.milesight.beaveriot.base.constants.StringConstant;
+import com.milesight.beaveriot.context.integration.model.Entity;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.ObjectUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -16,6 +20,28 @@ public enum AnnotationEntityCache {
     INSTANCE;
 
     private Map<Method, String> entitiesMethodCache = new ConcurrentHashMap<>();
+
+    private Map<String, List<Entity>> deviceTemplateEntitiesCache = new ConcurrentHashMap<>();
+
+    public void cacheDeviceTemplateEntities(String integrationId, String deviceName, List<Entity> entities){
+        if(ObjectUtils.isEmpty(entities)){
+            return;
+        }
+        String key = generateTemplateCacheKey(integrationId, deviceName);
+        if(deviceTemplateEntitiesCache.containsKey(key)){
+            deviceTemplateEntitiesCache.get(key).addAll(entities);
+        }else{
+            deviceTemplateEntitiesCache.put(key, entities);
+        }
+    }
+
+    private String generateTemplateCacheKey(String integrationId, String deviceName) {
+        return integrationId + StringConstant.AT + deviceName;
+    }
+
+    public List<Entity> getDeviceTemplateEntities(String integrationId, String deviceName){
+        return deviceTemplateEntitiesCache.get(generateTemplateCacheKey(integrationId, deviceName));
+    }
 
     public void cacheEntityMethod(Field filed, String key){
         Method getterMethod = getGetterMethod(filed.getDeclaringClass(), filed);
