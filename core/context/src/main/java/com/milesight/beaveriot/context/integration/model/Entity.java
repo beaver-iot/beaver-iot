@@ -108,4 +108,13 @@ public class Entity implements IdentityKey {
         Assert.notNull(valueType, "Entity ValueType must not be null");
         Assert.notNull(name, "Entity name must not be null");
     }
+
+    public void setChildren(List<Entity> children) {
+        this.children = children;
+        if (children != null) {
+            Assert.notNull(identifier, "Entity identifier must not be null");
+            children.forEach(entity -> entity.setParentIdentifier(identifier));
+        }
+    }
+
 }
