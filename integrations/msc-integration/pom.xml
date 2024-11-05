@@ -23,6 +23,7 @@
             <groupId>com.milesight.beaveriot</groupId>
             <artifactId>context</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.milesight</groupId>
@@ -63,6 +64,18 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <!--      unit test       -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
