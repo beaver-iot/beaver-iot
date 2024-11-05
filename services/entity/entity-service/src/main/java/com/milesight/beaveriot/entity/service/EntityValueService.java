@@ -28,6 +28,8 @@ import jakarta.persistence.EntityManager;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.convert.ApplicationConversionService;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -35,6 +37,7 @@ import org.springframework.util.StringUtils;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -52,6 +55,8 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class EntityValueService implements EntityValueServiceProvider {
+
+    private static final ConversionService conversionService = ApplicationConversionService.getSharedInstance();
 
     @Autowired
     private EntityRepository entityRepository;
@@ -122,15 +127,19 @@ public class EntityValueService implements EntityValueServiceProvider {
                 // do nothing
             }
             if (entityValueType == EntityValueType.BOOLEAN) {
-                entityLatestPO.setValueBoolean((Boolean) payload);
+                entityLatestPO.setValueBoolean(conversionService.convert(payload, Boolean.class));
             } else if (entityValueType == EntityValueType.LONG) {
-                entityLatestPO.setValueLong(Long.valueOf(String.valueOf(payload)));
+                entityLatestPO.setValueLong(conversionService.convert(payload, Long.class));
             } else if (entityValueType == EntityValueType.STRING) {
-                entityLatestPO.setValueString((String) payload);
+                entityLatestPO.setValueString(conversionService.convert(payload, String.class));
             } else if (entityValueType == EntityValueType.DOUBLE) {
-                entityLatestPO.setValueDouble(new BigDecimal(String.valueOf(payload)));
+                entityLatestPO.setValueDouble(conversionService.convert(payload, BigDecimal.class));
             } else if (entityValueType == EntityValueType.BINARY) {
-                entityLatestPO.setValueBinary((byte[]) payload);
+                if (payload instanceof byte[] bytes) {
+                    entityLatestPO.setValueBinary(bytes);
+                } else if (payload != null) {
+                    entityLatestPO.setValueBinary(Base64.getDecoder().decode(String.valueOf(payload)));
+                }
             } else {
                 throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
             }
@@ -198,15 +207,19 @@ public class EntityValueService implements EntityValueServiceProvider {
             if (entityValueType == EntityValueType.OBJECT) {
                 // do nothing
             } else if (entityValueType == EntityValueType.BOOLEAN) {
-                entityHistoryPO.setValueBoolean((Boolean) payload);
+                entityHistoryPO.setValueBoolean(conversionService.convert(payload, Boolean.class));
             } else if (entityValueType == EntityValueType.LONG) {
-                entityHistoryPO.setValueLong(Long.valueOf(String.valueOf(payload)));
+                entityHistoryPO.setValueLong(conversionService.convert(payload, Long.class));
             } else if (entityValueType == EntityValueType.STRING) {
-                entityHistoryPO.setValueString((String) payload);
+                entityHistoryPO.setValueString(conversionService.convert(payload, String.class));
             } else if (entityValueType == EntityValueType.DOUBLE) {
-                entityHistoryPO.setValueDouble(new BigDecimal(String.valueOf(payload)));
+                entityHistoryPO.setValueDouble(conversionService.convert(payload, BigDecimal.class));
             } else if (entityValueType == EntityValueType.BINARY) {
-                entityHistoryPO.setValueBinary((byte[]) payload);
+                if (payload instanceof byte[] bytes) {
+                    entityHistoryPO.setValueBinary(bytes);
+                } else if (payload != null) {
+                    entityHistoryPO.setValueBinary(Base64.getDecoder().decode(String.valueOf(payload)));
+                }
             } else {
                 throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
             }
