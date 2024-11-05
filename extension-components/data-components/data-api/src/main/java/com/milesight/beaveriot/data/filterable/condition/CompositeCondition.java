@@ -14,7 +14,7 @@ public abstract class CompositeCondition implements Condition {
     /** Query conditions */
     protected List<Condition> searchConditions = new ArrayList<>();
 
-    public CompositeCondition(BooleanOperator operator, List<Condition> searchConditions) {
+    protected CompositeCondition(BooleanOperator operator, List<Condition> searchConditions) {
         this.operator = operator;
         this.searchConditions = searchConditions;
     }

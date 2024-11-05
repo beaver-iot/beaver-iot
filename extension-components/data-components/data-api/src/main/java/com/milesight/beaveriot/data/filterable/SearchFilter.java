@@ -83,9 +83,7 @@ public class SearchFilter extends CompositeCondition implements Filterable{
     @Override
     public Filterable allEq(Map<String, Object> params) {
         if(!ObjectUtils.isEmpty(params)){
-            params.entrySet().stream().forEach(entry->{
-                eq(entry.getKey(), entry.getValue());
-            });
+            params.entrySet().stream().forEach(entry->eq(entry.getKey(), entry.getValue()));
         }
         return this;
     }
@@ -93,9 +91,7 @@ public class SearchFilter extends CompositeCondition implements Filterable{
     @Override
     public Filterable allEq(boolean condition, Map<String, Object> params) {
         if(!ObjectUtils.isEmpty(params)){
-            params.entrySet().stream().forEach(entry->{
-                eq(condition,entry.getKey(), entry.getValue());
-            });
+            params.entrySet().stream().forEach(entry->eq(condition,entry.getKey(), entry.getValue()));
         }
         return this;
     }
