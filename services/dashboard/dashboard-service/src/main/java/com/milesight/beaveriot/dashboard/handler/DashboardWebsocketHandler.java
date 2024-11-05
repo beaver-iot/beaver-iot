@@ -14,6 +14,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -31,6 +32,7 @@ public class DashboardWebsocketHandler extends AbstractWebSocketHandler {
 
     private final IAuthenticationFacade authenticationFacade;
 
+    @Autowired(required = false)
     public DashboardWebsocketHandler(WebSocketProperties webSocketProperties, IAuthenticationFacade authenticationFacade) {
         super(webSocketProperties);
         this.authenticationFacade = authenticationFacade;
@@ -40,6 +42,10 @@ public class DashboardWebsocketHandler extends AbstractWebSocketHandler {
     public void connect(ChannelHandlerContext ctx, FullHttpRequest request, Map<String, List<String>> urlParams) throws Exception {
         String token = getToken(request, urlParams);
         if (token == null) {
+            sendHttpResponse(ctx, request, HttpResponseStatus.FORBIDDEN);
+            return;
+        }
+        if (authenticationFacade == null) {
             sendHttpResponse(ctx, request, HttpResponseStatus.FORBIDDEN);
             return;
         }
