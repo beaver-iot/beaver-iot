@@ -14,21 +14,25 @@ import java.util.Objects;
 
 /**
  * json util
- * @author  leon
+ *
+ * @author leon
  */
 public class JsonUtils {
 
-    private JsonUtils(){
+    private JsonUtils() {
     }
+
     private static final ObjectMapper JSON = JsonMapper.builder()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true)
-            .configure( JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS, true)
+            .configure(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS, true)
             .serializationInclusion(JsonInclude.Include.NON_NULL)
             .build();
+
     static {
         JSON.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
     }
+
     public static ObjectMapper getObjectMapper() {
         return JSON;
     }
@@ -151,7 +155,6 @@ public class JsonUtils {
     public static boolean equals(Object source, Object target) {
         return Objects.equals(toJsonNode(source), toJsonNode(target));
     }
-
 
 
 }

@@ -7,9 +7,10 @@ public class SnowflakeUtil {
 
     private SnowflakeUtil() {
     }
+
     private static final Sequence snowflake = new Sequence();
 
-    public static Sequence getSnowflake(){
+    public static Sequence getSnowflake() {
         return snowflake;
     }
 

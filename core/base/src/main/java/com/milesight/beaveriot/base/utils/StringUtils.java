@@ -7,12 +7,13 @@ import com.milesight.beaveriot.base.constants.StringConstant;
  */
 public class StringUtils {
 
-    private StringUtils(){
+    private StringUtils() {
     }
+
     /**
      * Convert camelCase-named strings to underscores, also known as SnakeCase and underScoreCase. <br>
      * If the camelCase named string before conversion is empty, an empty string is returned. <br>
-     *The rules are:
+     * The rules are:
      * <ul>
      * <li>Words are separated by underscores</li>
      * <li>Also use lowercase letters for the first letter of each word</li>
@@ -20,8 +21,8 @@ public class StringUtils {
      * For example:
      *
      * <pre>
-     *HelloWorld=》hello_world
-     *Hello_World=》hello_world
+     * HelloWorld=》hello_world
+     * Hello_World=》hello_world
      * HelloWorld_test=》hello_world_test
      * </pre>
      *
@@ -36,7 +37,7 @@ public class StringUtils {
     /**
      * Peak-style named strings are converted to symbolic links. If the camelCase named string before conversion is empty, an empty string is returned.
      *
-     * @param str The camel case named string before conversion, which can also be in the form of a symbolic connection
+     * @param str    The camel case named string before conversion, which can also be in the form of a symbolic connection
      * @param symbol connector
      * @return the converted symbolic link named string
      */
@@ -83,7 +84,7 @@ public class StringUtils {
 
     /**
      * Converts underscore-named strings to camelCase. If the underscore-capitalized string before conversion is empty, an empty string is returned. <br>
-     *The rules are:
+     * The rules are:
      * <ul>
      * <li>Do not separate words with spaces or any connectors</li>
      * <li>The first letter of the first word is lowercase letters</li>
@@ -99,9 +100,9 @@ public class StringUtils {
     }
 
     /**
-     *Convert a concatenated string to camelCase. If the underscore-capitalized string before conversion is empty, an empty string is returned.
+     * Convert a concatenated string to camelCase. If the underscore-capitalized string before conversion is empty, an empty string is returned.
      *
-     * @param name A string named in a custom way before conversion
+     * @param name   A string named in a custom way before conversion
      * @param symbol connector in the original string
      * @return the converted camel case named string
      */

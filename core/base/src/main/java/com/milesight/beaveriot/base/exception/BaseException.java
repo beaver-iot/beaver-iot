@@ -3,10 +3,11 @@ package com.milesight.beaveriot.base.exception;
 /**
  * @author leon
  */
-public class BaseException extends RuntimeException{
+public class BaseException extends RuntimeException {
 
     public BaseException() {
     }
+
     public BaseException(String message) {
         super(message);
     }

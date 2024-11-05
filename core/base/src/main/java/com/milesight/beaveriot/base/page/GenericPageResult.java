@@ -11,7 +11,7 @@ import java.util.List;
  * @author leon
  */
 @Getter
-public class GenericPageResult<T> implements PageResultSpec<T>{
+public class GenericPageResult<T> implements PageResultSpec<T> {
 
     private Integer pageSize;
 
@@ -28,7 +28,7 @@ public class GenericPageResult<T> implements PageResultSpec<T>{
         this.content = list;
     }
 
-    public GenericPageResult(){
+    public GenericPageResult() {
     }
 
     public GenericPageResult<T> pageSize(Integer pageSize) {
@@ -62,11 +62,11 @@ public class GenericPageResult<T> implements PageResultSpec<T>{
         return PageResultSpec.super.getTotalPages();
     }
 
-    public static PageResultSpec<Object> empty(){
-        return new GenericPageResult(10,1,0L, Collections.emptyList());
+    public static PageResultSpec<Object> empty() {
+        return new GenericPageResult(10, 1, 0L, Collections.emptyList());
     }
 
-    public static <T> PageResultSpec<T> of(Integer pageSize, Integer pageNumber, Long total, List<T> contents){
+    public static <T> PageResultSpec<T> of(Integer pageSize, Integer pageNumber, Long total, List<T> contents) {
         GenericPageResult<T> pageResultSpec = new GenericPageResult<>();
         pageResultSpec.pageSize(pageSize)
                 .pageNumber(pageNumber)
@@ -75,7 +75,7 @@ public class GenericPageResult<T> implements PageResultSpec<T>{
         return pageResultSpec;
     }
 
-    public static <T> PageResultSpec<T> of(PageImpl page){
-        return of(page.getSize(), page.getNumber() + 1,page.getTotalElements(), page.getContent());
+    public static <T> PageResultSpec<T> of(PageImpl page) {
+        return of(page.getSize(), page.getNumber() + 1, page.getTotalElements(), page.getContent());
     }
 }

@@ -14,8 +14,9 @@ import org.springframework.util.StringUtils;
  */
 public class ResponseBuilder {
 
-    private ResponseBuilder(){
+    private ResponseBuilder() {
     }
+
     /**
      * default ResponseBody successful response status
      */
@@ -38,29 +39,29 @@ public class ResponseBuilder {
                 .onSuccess();
     }
 
-    public static ResponseBody<Object> fail(ErrorCodeSpec errorCodeSpec, Object data){
+    public static ResponseBody<Object> fail(ErrorCodeSpec errorCodeSpec, Object data) {
         return fail(errorCodeSpec.getErrorCode(), errorCodeSpec.getErrorMessage(), errorCodeSpec.getDetailMessage(), data);
     }
 
-    public static ResponseBody<Object> fail(ErrorCodeSpec errorCodeSpec, String detailMessage, Object data){
+    public static ResponseBody<Object> fail(ErrorCodeSpec errorCodeSpec, String detailMessage, Object data) {
         return fail(errorCodeSpec.getErrorCode(), errorCodeSpec.getErrorMessage(), detailMessage, data);
     }
 
-    public static ResponseBody<Object> fail(ErrorCodeSpec errorCodeSpec){
+    public static ResponseBody<Object> fail(ErrorCodeSpec errorCodeSpec) {
         return fail(errorCodeSpec.getErrorCode(), errorCodeSpec.getErrorMessage(), errorCodeSpec.getDetailMessage(), null);
     }
 
-    public static ResponseBody<Object> fail(ErrorCodeSpec errorCodeSpec, String detailMessage){
+    public static ResponseBody<Object> fail(ErrorCodeSpec errorCodeSpec, String detailMessage) {
         return fail(errorCodeSpec.getErrorCode(), errorCodeSpec.getErrorMessage(), detailMessage, null);
     }
 
-    public static ResponseBody<Object> fail(String errorCode, String errorMsg){
+    public static ResponseBody<Object> fail(String errorCode, String errorMsg) {
         return fail(errorCode, errorMsg, null, null);
     }
 
-    public static ResponseBody<Object> fail(String errCode, String errorMessage, String detailMessage, Object data){
+    public static ResponseBody<Object> fail(String errCode, String errorMessage, String detailMessage, Object data) {
         //If errorMessage is empty, use detailMessage
-        if(ObjectUtils.isEmpty(errorMessage) && StringUtils.hasText(detailMessage)){
+        if (ObjectUtils.isEmpty(errorMessage) && StringUtils.hasText(detailMessage)) {
             errorMessage = detailMessage;
             detailMessage = null;
         }
