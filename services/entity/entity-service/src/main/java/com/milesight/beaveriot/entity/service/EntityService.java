@@ -646,15 +646,24 @@ public class EntityService implements EntityServiceProvider {
         List<String> entityKeys = exchange.keySet().stream().toList();
         List<EntityPO> entityPOList = entityRepository.findAll(filter -> filter.in(EntityPO.Fields.key, entityKeys.toArray()));
         if (entityPOList == null || entityPOList.isEmpty()) {
-            return;
+            log.info("entity not found: {}", entityKeys);
+            throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
         }
-        if (entityPOList.stream().anyMatch(entityPO -> !entityPO.getType().equals(EntityType.PROPERTY))) {
-            log.info("update property entity only support property entity");
-            return;
-        }
-        if (entityPOList.stream().anyMatch(entityPO -> entityPO.getAccessMod() != AccessMod.RW && entityPO.getAccessMod() != AccessMod.W)) {
-            log.info("update property entity only support write access");
-            return;
+        entityPOList.forEach(entityPO -> {
+            boolean isProperty = entityPO.getType().equals(EntityType.PROPERTY);
+            if (!isProperty) {
+                log.info("not property: {}", entityPO.getKey());
+                exchange.remove(entityPO.getKey());
+            }
+            boolean isWritable = entityPO.getAccessMod() == AccessMod.RW || entityPO.getAccessMod() == AccessMod.W;
+            if (!isWritable) {
+                log.info("not writable: {}", entityPO.getKey());
+                exchange.remove(entityPO.getKey());
+            }
+        });
+        if (exchange.isEmpty()) {
+            log.info("no property or writable entity found");
+            throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
         }
         ExchangePayload payload = new ExchangePayload(exchange);
         exchangeFlowExecutor.syncExchangeDown(payload);
@@ -665,11 +674,19 @@ public class EntityService implements EntityServiceProvider {
         List<String> entityKeys = exchange.keySet().stream().toList();
         List<EntityPO> entityPOList = entityRepository.findAll(filter -> filter.in(EntityPO.Fields.key, entityKeys.toArray()));
         if (entityPOList == null || entityPOList.isEmpty()) {
-            return;
+            log.info("entity not found: {}", entityKeys);
+            throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
         }
-        if (entityPOList.stream().anyMatch(entityPO -> !entityPO.getType().equals(EntityType.SERVICE))) {
-            log.info("service call only support service entity");
-            return;
+        entityPOList.forEach(entityPO -> {
+            boolean isService = entityPO.getType().equals(EntityType.SERVICE);
+            if (!isService) {
+                log.info("not service: {}", entityPO.getKey());
+                exchange.remove(entityPO.getKey());
+            }
+        });
+        if (exchange.isEmpty()) {
+            log.info("no service found");
+            throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
         }
         ExchangePayload payload = new ExchangePayload(exchange);
         exchangeFlowExecutor.syncExchangeDown(payload);
