@@ -26,10 +26,7 @@ public class IdentifierValidator {
     }
 
     public static boolean isValidNullable(String identifier) {
-        if(!StringUtils.hasText(identifier)){
-            return true;
-        }
-        return isValid(identifier);
+        return (StringUtils.hasText(identifier)) ? isValid(identifier) : true;
     }
 
 }
