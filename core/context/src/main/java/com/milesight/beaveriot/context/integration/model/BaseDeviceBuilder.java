@@ -1,5 +1,6 @@
 package com.milesight.beaveriot.context.integration.model;
 
+import com.milesight.beaveriot.context.support.IdentifierValidator;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -52,6 +53,7 @@ public class BaseDeviceBuilder<T extends BaseDeviceBuilder> {
     }
 
     public T identifier(String identifier) {
+        IdentifierValidator.isValid(identifier);
         this.identifier = identifier;
         return (T) this;
     }

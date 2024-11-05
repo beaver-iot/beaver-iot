@@ -3,6 +3,7 @@ package com.milesight.beaveriot.context.integration.model;
 import com.milesight.beaveriot.context.integration.enums.AccessMod;
 import com.milesight.beaveriot.context.integration.enums.EntityType;
 import com.milesight.beaveriot.context.integration.enums.EntityValueType;
+import com.milesight.beaveriot.context.support.IdentifierValidator;
 import org.springframework.util.StringUtils;
 
 import java.util.Map;
@@ -23,11 +24,13 @@ public class BaseEntityBuilder<T extends BaseEntityBuilder> {
     protected String parentIdentifier;
 
     public T identifier(String identifier) {
+        IdentifierValidator.isValid(identifier);
         this.identifier = identifier;
         return (T) this;
     }
 
     public T parentIdentifier(String parentIdentifier) {
+        IdentifierValidator.isValidNullable(parentIdentifier);
         this.parentIdentifier = parentIdentifier;
         return (T) this;
     }
