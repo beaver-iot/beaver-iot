@@ -117,7 +117,7 @@
         </dependency>
 
         <!-- sample test -->
-        <dependency>
+        <!--<dependency>
             <groupId>com.milesight.beaveriot</groupId>
             <artifactId>sample-yaml</artifactId>
             <version>${project.version}</version>
@@ -127,20 +127,17 @@
             <groupId>com.milesight.beaveriot</groupId>
             <artifactId>sample-annotation</artifactId>
             <version>${project.version}</version>
-            <!--<scope>test</scope>-->
         </dependency>
         <dependency>
             <groupId>com.milesight.beaveriot</groupId>
             <artifactId>sample-complex</artifactId>
             <version>${project.version}</version>
-            <!--<scope>test</scope>-->
         </dependency>
         <dependency>
             <groupId>com.milesight.beaveriot</groupId>
             <artifactId>msc-integration</artifactId>
             <version>${project.version}</version>
-            <!--<scope>test</scope>-->
-        </dependency>
+        </dependency>-->
 
         <!-- unit test -->
         <dependency>

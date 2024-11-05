@@ -1,5 +1,7 @@
 package com.milesight.beaveriot.sample.complex.controller;
 
+import com.milesight.beaveriot.base.response.ResponseBody;
+import com.milesight.beaveriot.base.response.ResponseBuilder;
 import com.milesight.beaveriot.context.api.ExchangeFlowExecutor;
 import com.milesight.beaveriot.context.integration.model.ExchangePayload;
 import com.milesight.beaveriot.context.integration.model.event.ExchangeEvent;
@@ -20,14 +22,14 @@ public class DemoCommonController {
     private EventBus eventBus;
 
     @PostMapping("/public/test-eventbus/{sync}")
-    public EventResponse eventBusTest2(@RequestBody ExchangePayload payload, @PathVariable("sync") boolean sync) throws Exception {
+    public ResponseBody<EventResponse> eventBusTest2(@RequestBody ExchangePayload payload, @PathVariable("sync") boolean sync) throws Exception {
         EventResponse response = null;
         if(sync){
             response = eventBus.handle(ExchangeEvent.of(ExchangeEvent.EventType.DOWN, payload));
         }else{
             eventBus.publish(ExchangeEvent.of(ExchangeEvent.EventType.DOWN, payload));
         }
-        return response;
+        return ResponseBuilder.success(response);
     }
 
 

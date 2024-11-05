@@ -1,19 +1,26 @@
 package com.milesight.beaveriot.base.tracer;
 
-import com.milesight.beaveriot.base.constants.StringConstant;
-
-import java.util.UUID;
+import java.util.Optional;
+import java.util.ServiceLoader;
 
 /**
- * todo
  * @author leon
  */
 public interface TraceIdProvider {
 
+    String TRACE_ID = "traceId";
+
     String getTraceId();
 
-    static String traceId() {
-        return UUID.randomUUID().toString().replace(StringConstant.DASHED, "");
+    String generateTraceId();
+
+    void clearTraceId();
+
+    ServiceLoader<TraceIdProvider> traceIdProviders = ServiceLoader.load(TraceIdProvider.class);
+
+    static TraceIdProvider traceIdProvider() {
+        Optional<TraceIdProvider> traceIdProviderOptional = traceIdProviders.findFirst();
+        return traceIdProviderOptional.orElse(new DefaultTraceIdProvider());
     }
 
 }

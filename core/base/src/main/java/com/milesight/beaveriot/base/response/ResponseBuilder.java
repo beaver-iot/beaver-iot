@@ -34,7 +34,7 @@ public class ResponseBuilder {
         Object result = (data instanceof PageImpl<?> pageImpl) ? GenericPageResult.of(pageImpl) : data;
         return new ResponseBody()
                 .data(result)
-                .requestId(TraceIdProvider.traceId())
+                .requestId(TraceIdProvider.traceIdProvider().getTraceId())
                 .onSuccess();
     }
 
@@ -66,7 +66,7 @@ public class ResponseBuilder {
         }
         return new ResponseBody<>()
                 .data(data)
-                .requestId(TraceIdProvider.traceId())
+                .requestId(TraceIdProvider.traceIdProvider().getTraceId())
                 .onFailed()
                 .errorCode(errCode)
                 .errorMessage(errorMessage)
