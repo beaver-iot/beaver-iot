@@ -283,6 +283,7 @@ public class MscDataSyncService {
                     lastSyncTime = getAndUpdateLastSyncTime(device);
                 }
                 syncPropertiesHistory(device, lastSyncTime);
+                // events and services are not supported yet
             } catch (Exception e) {
                 log.error("Error occurs while syncing device history data from MSC, device key: {}", device.getKey(), e);
             }
@@ -358,7 +359,7 @@ public class MscDataSyncService {
             page.getData().getList().forEach(item -> {
                 val objectMapper = mscClientProvider.getMscClient().getObjectMapper();
                 val properties = objectMapper.convertValue(item.getProperties(), JsonNode.class);
-                saveHistoryData(device.getKey(), properties, item.getTs() == null ? TimeUtils.currentTimeMillis() : item.getTs(), isLatestData.get());
+                saveHistoryData(device.getKey(), null, properties, item.getTs() == null ? TimeUtils.currentTimeMillis() : item.getTs(), isLatestData.get());
                 if (isLatestData.get()) {
                     isLatestData.set(false);
                 }
@@ -366,9 +367,10 @@ public class MscDataSyncService {
         }
     }
 
-    public void saveHistoryData(String deviceKey, JsonNode properties, long timestampMs, boolean isLatestData) {
-        // todo support event and service
-        val payload = MscTslUtils.convertJsonNodeToExchangePayload(deviceKey, properties);
+    public void saveHistoryData(String deviceKey, String eventId, JsonNode data, long timestampMs, boolean isLatestData) {
+        val payload = eventId == null
+                ? MscTslUtils.convertJsonNodeToExchangePayload(deviceKey, data)
+                : MscTslUtils.convertJsonNodeToExchangePayload(String.format("%s.%s", deviceKey, eventId), data, false);
         if (payload == null || payload.isEmpty()) {
             return;
         }
