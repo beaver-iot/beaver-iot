@@ -3,6 +3,7 @@ package com.milesight.beaveriot.websocket;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -49,7 +50,9 @@ public class WebSocketContext {
         if (channelMap.containsKey(key)) {
             channelMap.get(key).add(ctx);
         } else {
-            channelMap.put(key, List.of(ctx));
+            List<ChannelHandlerContext> channelHandlerContexts = new ArrayList<>();
+            channelHandlerContexts.add(ctx);
+            channelMap.put(key, channelHandlerContexts);
         }
     }
 
