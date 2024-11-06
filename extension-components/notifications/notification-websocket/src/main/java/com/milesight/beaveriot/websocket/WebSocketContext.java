@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author loong
@@ -47,13 +48,7 @@ public class WebSocketContext {
     }
 
     public static void addChannel(String key, ChannelHandlerContext ctx) {
-        if (channelMap.containsKey(key)) {
-            channelMap.get(key).add(ctx);
-        } else {
-            List<ChannelHandlerContext> channelHandlerContexts = new ArrayList<>();
-            channelHandlerContexts.add(ctx);
-            channelMap.put(key, channelHandlerContexts);
-        }
+        channelMap.computeIfAbsent(key, k -> new CopyOnWriteArrayList<>()).add(ctx);
     }
 
     public static void sendMessage(String key, String message) {
