@@ -28,6 +28,8 @@ spring:
     console:
       enabled: ${SPRING_H2_CONSOLE_ENABLED:false}
       path: /public/h2-console
+      settings:
+        webAllowOthers: true
 
 #eventbus:
 #  disruptor:
