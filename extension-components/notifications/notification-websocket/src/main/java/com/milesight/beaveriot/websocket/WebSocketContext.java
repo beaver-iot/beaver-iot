@@ -13,44 +13,54 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class WebSocketContext {
 
-    private static final Map<String, ChannelHandlerContext> channelMap = new ConcurrentHashMap<>();
+    private static final Map<String, List<ChannelHandlerContext>> channelMap = new ConcurrentHashMap<>();
 
-    public static ChannelHandlerContext getChannel(String key) {
+    public static List<ChannelHandlerContext> getChannel(String key) {
         return channelMap.get(key);
     }
 
     public static List<ChannelHandlerContext> getChannelsByKeys(List<String> keys) {
-        return channelMap.entrySet().stream().filter(entry -> keys.contains(entry.getKey())).map(Map.Entry::getValue).toList();
+        return channelMap.entrySet().stream().filter(entry -> keys.contains(entry.getKey())).map(Map.Entry::getValue).flatMap(List::stream).toList();
     }
 
     public static List<ChannelHandlerContext> getAllChannel() {
-        return channelMap.values().stream().toList();
+        return channelMap.values().stream().flatMap(List::stream).toList();
     }
 
-    public static void removeChannel(String key) {
+    public static void removeAllChannel(String key) {
         channelMap.remove(key);
     }
 
     public static String getChannelByValue(ChannelHandlerContext ctx) {
-        return channelMap.entrySet().stream().filter(entry -> entry.getValue().channel().id().asLongText().equals(ctx.channel().id().asLongText())).map(Map.Entry::getKey).findFirst().orElse(null);
+        return channelMap.entrySet().stream().filter(entry -> entry.getValue().stream().anyMatch(ctx1 -> ctx1.channel().id().asLongText().equals(ctx.channel().id().asLongText()))).map(Map.Entry::getKey).findFirst().orElse(null);
     }
 
     public static void removeChannelByValue(ChannelHandlerContext ctx) {
-        channelMap.forEach((key, channelHandlerContext) -> {
-            if (channelHandlerContext.channel().id().asLongText().equals(ctx.channel().id().asLongText())) {
+        for (String key : channelMap.keySet()) {
+            List<ChannelHandlerContext> channelHandlerContexts = channelMap.get(key);
+            channelHandlerContexts.removeIf(context -> context.channel().id().asLongText().equals(ctx.channel().id().asLongText()));
+            if (channelHandlerContexts.isEmpty()) {
                 channelMap.remove(key);
             }
-        });
+        }
     }
 
     public static void addChannel(String key, ChannelHandlerContext ctx) {
-        channelMap.put(key, ctx);
+        if (channelMap.containsKey(key)) {
+            channelMap.get(key).add(ctx);
+        } else {
+            channelMap.put(key, List.of(ctx));
+        }
     }
 
     public static void sendMessage(String key, String message) {
-        ChannelHandlerContext ctx = channelMap.get(key);
-        if (ctx != null && ctx.channel().isActive()) {
-            ctx.channel().writeAndFlush(new TextWebSocketFrame(message));
+        List<ChannelHandlerContext> channelHandlerContexts = channelMap.get(key);
+        if (channelHandlerContexts != null && !channelHandlerContexts.isEmpty()) {
+            channelHandlerContexts.forEach(ctx -> {
+                if (ctx.channel().isActive()) {
+                    ctx.channel().writeAndFlush(new TextWebSocketFrame(message));
+                }
+            });
         }
     }
 
@@ -63,7 +73,10 @@ public class WebSocketContext {
     }
 
     public static void sendAllMessage(String message) {
-        channelMap.values().forEach(ctx -> {
+        if (channelMap.isEmpty()) {
+            return;
+        }
+        channelMap.values().stream().flatMap(List::stream).forEach(ctx -> {
             if (ctx.channel().isActive()) {
                 ctx.channel().writeAndFlush(new TextWebSocketFrame(message));
             }
