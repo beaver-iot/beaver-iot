@@ -117,6 +117,8 @@ public class IntegrationService {
                             .valueType(entity.getValueType())
                             .valueAttribute(entity.getAttributes())
                             .value(entityValues.get(entity.getKey()))
+                            .parent(entity.getParentKey())
+                            .accessMod(entity.getAccessMod())
                             .build());
                 }).toList());
         return data;
