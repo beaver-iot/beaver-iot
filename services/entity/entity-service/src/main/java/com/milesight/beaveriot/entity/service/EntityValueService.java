@@ -25,11 +25,9 @@ import com.milesight.beaveriot.entity.repository.EntityHistoryRepository;
 import com.milesight.beaveriot.entity.repository.EntityLatestRepository;
 import com.milesight.beaveriot.entity.repository.EntityRepository;
 import jakarta.persistence.EntityManager;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
+import lombok.*;
+import lombok.extern.slf4j.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.convert.ApplicationConversionService;
-import org.springframework.core.convert.ConversionService;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -55,8 +53,6 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class EntityValueService implements EntityValueServiceProvider {
-
-    private static final ConversionService conversionService = ApplicationConversionService.getSharedInstance();
 
     @Autowired
     private EntityRepository entityRepository;
@@ -123,25 +119,33 @@ public class EntityValueService implements EntityValueServiceProvider {
             EntityLatestPO entityLatestPO = new EntityLatestPO();
             entityLatestPO.setId(entityLatestId);
             entityLatestPO.setEntityId(entityId);
-            if (entityValueType == EntityValueType.OBJECT) {
-                // do nothing
-            }
-            if (entityValueType == EntityValueType.BOOLEAN) {
-                entityLatestPO.setValueBoolean(conversionService.convert(payload, Boolean.class));
-            } else if (entityValueType == EntityValueType.LONG) {
-                entityLatestPO.setValueLong(conversionService.convert(payload, Long.class));
-            } else if (entityValueType == EntityValueType.STRING) {
-                entityLatestPO.setValueString(conversionService.convert(payload, String.class));
-            } else if (entityValueType == EntityValueType.DOUBLE) {
-                entityLatestPO.setValueDouble(conversionService.convert(payload, BigDecimal.class));
-            } else if (entityValueType == EntityValueType.BINARY) {
-                if (payload instanceof byte[] bytes) {
-                    entityLatestPO.setValueBinary(bytes);
-                } else if (payload != null) {
-                    entityLatestPO.setValueBinary(Base64.getDecoder().decode(String.valueOf(payload)));
+            if (payload != null) {
+                switch (entityValueType) {
+                    case OBJECT:
+                        // do nothing
+                        break;
+                    case BOOLEAN:
+                        entityLatestPO.setValueBoolean(JsonUtils.cast(payload, Boolean.class));
+                        break;
+                    case LONG:
+                        entityLatestPO.setValueLong(JsonUtils.cast(payload, Long.class));
+                        break;
+                    case STRING:
+                        entityLatestPO.setValueString(JsonUtils.cast(payload, String.class));
+                        break;
+                    case DOUBLE:
+                        entityLatestPO.setValueDouble(JsonUtils.cast(payload, BigDecimal.class));
+                        break;
+                    case BINARY:
+                        if (payload instanceof byte[] bytes) {
+                            entityLatestPO.setValueBinary(bytes);
+                        } else {
+                            entityLatestPO.setValueBinary(Base64.getDecoder().decode(String.valueOf(payload)));
+                        }
+                        break;
+                    default:
+                        throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
                 }
-            } else {
-                throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
             }
             entityLatestPO.setTimestamp(timestamp);
             entityLatestPOList.add(entityLatestPO);
@@ -204,24 +208,33 @@ public class EntityValueService implements EntityValueServiceProvider {
             }
             entityHistoryPO.setId(historyId);
             entityHistoryPO.setEntityId(entityId);
-            if (entityValueType == EntityValueType.OBJECT) {
-                // do nothing
-            } else if (entityValueType == EntityValueType.BOOLEAN) {
-                entityHistoryPO.setValueBoolean(conversionService.convert(payload, Boolean.class));
-            } else if (entityValueType == EntityValueType.LONG) {
-                entityHistoryPO.setValueLong(conversionService.convert(payload, Long.class));
-            } else if (entityValueType == EntityValueType.STRING) {
-                entityHistoryPO.setValueString(conversionService.convert(payload, String.class));
-            } else if (entityValueType == EntityValueType.DOUBLE) {
-                entityHistoryPO.setValueDouble(conversionService.convert(payload, BigDecimal.class));
-            } else if (entityValueType == EntityValueType.BINARY) {
-                if (payload instanceof byte[] bytes) {
-                    entityHistoryPO.setValueBinary(bytes);
-                } else if (payload != null) {
-                    entityHistoryPO.setValueBinary(Base64.getDecoder().decode(String.valueOf(payload)));
+            if (payload != null) {
+                switch (entityValueType) {
+                    case OBJECT:
+                        // do nothing
+                        break;
+                    case BOOLEAN:
+                        entityHistoryPO.setValueBoolean(JsonUtils.cast(payload, Boolean.class));
+                        break;
+                    case LONG:
+                        entityHistoryPO.setValueLong(JsonUtils.cast(payload, Long.class));
+                        break;
+                    case STRING:
+                        entityHistoryPO.setValueString(JsonUtils.cast(payload, String.class));
+                        break;
+                    case DOUBLE:
+                        entityHistoryPO.setValueDouble(JsonUtils.cast(payload, BigDecimal.class));
+                        break;
+                    case BINARY:
+                        if (payload instanceof byte[] bytes) {
+                            entityHistoryPO.setValueBinary(bytes);
+                        } else {
+                            entityHistoryPO.setValueBinary(Base64.getDecoder().decode(String.valueOf(payload)));
+                        }
+                        break;
+                    default:
+                        throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
                 }
-            } else {
-                throw ServiceException.with(ErrorCode.PARAMETER_VALIDATION_FAILED).build();
             }
             entityHistoryPO.setTimestamp(timestamp);
             entityHistoryPO.setUpdatedBy(operatorId);

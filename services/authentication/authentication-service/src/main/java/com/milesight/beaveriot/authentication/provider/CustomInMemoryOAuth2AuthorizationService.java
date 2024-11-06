@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.server.authorization.OAuth2Authorizat
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.util.Assert;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -225,7 +226,7 @@ public class CustomInMemoryOAuth2AuthorizationService implements CustomOAuth2Aut
     @Override
     public void removeByPrincipalName(String principalName) {
         //FIXME Temporarily allow the same user to generate multiple valid tokens
-//        Assert.notNull(principalName, "principalName cannot be null");
+        Assert.notNull(principalName, "principalName cannot be null");
 //        Map<String, OAuth2Authorization> removedAuthorizations = new ConcurrentHashMap<>();
 //        for (OAuth2Authorization authorization : this.authorizations.values()) {
 //            if (authorization.getPrincipalName().equals(principalName)) {
@@ -233,6 +234,18 @@ public class CustomInMemoryOAuth2AuthorizationService implements CustomOAuth2Aut
 //            }
 //        }
 //        removedAuthorizations.forEach(this.authorizations::remove);
+
+        Map<String, OAuth2Authorization> removedAuthorizations = new ConcurrentHashMap<>();
+        for (OAuth2Authorization authorization : this.authorizations.values()) {
+            if (authorization.getPrincipalName().equals(principalName)
+                    && authorization.getAccessToken() != null
+                    && authorization.getAccessToken().getToken() != null
+                    && authorization.getAccessToken().getToken().getExpiresAt() != null
+                    && authorization.getAccessToken().getToken().getExpiresAt().isBefore(Instant.now())) {
+                removedAuthorizations.put(authorization.getId(), authorization);
+            }
+        }
+        removedAuthorizations.forEach(this.authorizations::remove);
     }
 
 }

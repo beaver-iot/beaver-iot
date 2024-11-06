@@ -95,16 +95,18 @@ public class MscTslUtils {
                         if (valueType == null) {
                             return null;
                         }
+                        if (!existsIdSet.contains(id)) {
+                            return null;
+                        }
                         val accessMod = AccessMod.valueOf(child.getAccessMode().name());
                         return new EntityBuilder(integrationId, deviceKey)
-                                .identifier(id)
+                                .identifier(standardizeChildEntityIdentifier(id))
                                 .property(name, accessMod)
                                 .valueType(valueType)
                                 .attributes(convertTslDataSpecToEntityAttributes(dataSpec))
                                 .build();
                     })
-                    .filter(entity -> entity != null && existsIdSet.contains(entity.getIdentifier()))
-                    .peek(MscTslUtils::standardizeChildEntityIdentifier)
+                    .filter(Objects::nonNull)
                     .toList());
         });
         return entities;
@@ -153,15 +155,17 @@ public class MscTslUtils {
                         if (valueType == null) {
                             return null;
                         }
+                        if (!existsIdSet.contains(id)) {
+                            return null;
+                        }
                         return new EntityBuilder(integrationId, deviceKey)
-                                .identifier(id)
+                                .identifier(standardizeChildEntityIdentifier(id))
                                 .event(name)
                                 .valueType(valueType)
                                 .attributes(convertTslDataSpecToEntityAttributes(dataSpec))
                                 .build();
                     })
-                    .filter(entity -> entity != null && existsIdSet.contains(entity.getIdentifier()))
-                    .peek(MscTslUtils::standardizeChildEntityIdentifier)
+                    .filter(Objects::nonNull)
                     .toList());
         });
         return entities;
@@ -210,15 +214,17 @@ public class MscTslUtils {
                         if (valueType == null) {
                             return null;
                         }
+                        if (!existsIdSet.contains(id)) {
+                            return null;
+                        }
                         return new EntityBuilder(integrationId, deviceKey)
-                                .identifier(id)
+                                .identifier(standardizeChildEntityIdentifier(id))
                                 .service(name)
                                 .valueType(valueType)
                                 .attributes(convertTslDataSpecToEntityAttributes(dataSpec))
                                 .build();
                     })
-                    .filter(entity -> entity != null && existsIdSet.contains(entity.getIdentifier()))
-                    .peek(MscTslUtils::standardizeChildEntityIdentifier)
+                    .filter(Objects::nonNull)
                     .toList());
         });
         return entities;
@@ -247,9 +253,9 @@ public class MscTslUtils {
         return id;
     }
 
-    private static void standardizeChildEntityIdentifier(Entity child) {
-        val fullIdentifier = child.getIdentifier().replace('.', '@');
-        child.setIdentifier(fullIdentifier.substring(fullIdentifier.indexOf('@') + 1));
+    private static String standardizeChildEntityIdentifier(String rawIdentifier) {
+        val fullIdentifier = rawIdentifier.replace('.', '@');
+        return fullIdentifier.substring(fullIdentifier.indexOf('@') + 1);
     }
 
     private static Map<String, Object> convertTslDataSpecToEntityAttributes(TslDataSpec dataSpec) {
