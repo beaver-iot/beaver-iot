@@ -79,7 +79,7 @@ public class Device implements IdentityKey {
 
     public void setEntities(List<Entity> entities) {
         Assert.notNull(integrationId, "Integration must not be null");
-        initializeProperties(integrationId);
         this.entities = entities;
+        initializeProperties(integrationId);
     }
 }
