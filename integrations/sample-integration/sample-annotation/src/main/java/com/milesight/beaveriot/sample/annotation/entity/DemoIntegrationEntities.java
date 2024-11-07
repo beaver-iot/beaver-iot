@@ -10,12 +10,14 @@ import com.milesight.beaveriot.context.integration.enums.EntityType;
 import com.milesight.beaveriot.context.integration.model.ExchangePayload;
 import com.milesight.beaveriot.sample.annotation.enums.DeviceStatus;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * 注解方式定义集成实体及子实体
  * @author leon
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 @IntegrationEntities
 public class DemoIntegrationEntities extends ExchangePayload {
 
@@ -31,12 +33,15 @@ public class DemoIntegrationEntities extends ExchangePayload {
     private DemoGroupSettingEntities connect;
 
     @Data
+    @EqualsAndHashCode(callSuper = true)
     @Entities
     public static class DemoGroupSettingEntities extends ExchangePayload {
         @Entity
         private String accessKey;
         @Entity
         private String secretKey;
+        @Entity
+        private Long length;
     }
 
     // Property Samples
@@ -55,8 +60,14 @@ public class DemoIntegrationEntities extends ExchangePayload {
     @Entity(type = EntityType.PROPERTY, name="Boolean Read Write", accessMod = AccessMod.RW)
     private Boolean propertyBooleanReadWrite;
 
-    @Entity(type = EntityType.PROPERTY, name="Boolean Read Only", accessMod = AccessMod.RW)
+    @Entity(type = EntityType.PROPERTY, name="Boolean Read Only", accessMod = AccessMod.R)
     private Boolean propertyBooleanReadOnly;
+
+    @Entity(type = EntityType.PROPERTY, name="Long Read Write", accessMod = AccessMod.RW)
+    private Long propertyLongReadWrite;
+
+    @Entity(type = EntityType.PROPERTY, name="Double Read Write", accessMod = AccessMod.RW)
+    private Double propertyDoubleReadWrite;
 
     @Entity(type = EntityType.PROPERTY, name="Property Group", accessMod = AccessMod.RW)
     private SamplePropertyEntities propertyGroup;
@@ -69,6 +80,7 @@ public class DemoIntegrationEntities extends ExchangePayload {
     private String eventStringSample;
 
     @Data
+    @EqualsAndHashCode(callSuper = true)
     @Entities
     public static class SamplePropertyEntities extends ExchangePayload {
         @Entity
