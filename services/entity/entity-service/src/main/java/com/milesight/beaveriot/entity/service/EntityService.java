@@ -156,7 +156,6 @@ public class EntityService implements EntityServiceProvider {
                             .id(childEntityPO.getId())
                             .identifier(childEntityPO.getKey().substring(childEntityPO.getKey().lastIndexOf(".") + 1))
                             .valueType(childEntityPO.getValueType())
-                            .type(childEntityPO.getType())
                             .attributes(childEntityPO.getValueAttribute())
                             .parentIdentifier(parentKey);
 
@@ -436,7 +435,6 @@ public class EntityService implements EntityServiceProvider {
                             .id(childEntityPO.getId())
                             .identifier(childEntityPO.getKey().substring(childEntityPO.getKey().lastIndexOf(".") + 1))
                             .valueType(childEntityPO.getValueType())
-                            .type(childEntityPO.getType())
                             .attributes(childEntityPO.getValueAttribute())
                             .parentIdentifier(parentKey);
 
