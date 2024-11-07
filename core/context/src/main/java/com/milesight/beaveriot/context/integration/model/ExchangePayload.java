@@ -11,6 +11,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -116,11 +117,13 @@ public class ExchangePayload extends HashMap<String, Object> implements Exchange
             return ExchangePayload.create(payload.getAllPayloads(), payload.getContext());
         }
 
-        Map<String, Object> filteredMap = payload.getAllPayloads().entrySet()
-                .stream()
-                .filter(entry -> CollectionUtils.contains(assignKeys.iterator(), entry.getKey()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        return ExchangePayload.create(filteredMap, payload.getContext());
+        Map<String, Object> filteredPayload = new LinkedHashMap<>();
+        payload.getAllPayloads().forEach((key, value) -> {
+            if(CollectionUtils.contains(assignKeys.iterator(), key)){
+                filteredPayload.put(key, value);
+            }
+        });
+        return ExchangePayload.create(filteredPayload, payload.getContext());
     }
 
     public Map<String, Entity> getExchangeEntities() {
@@ -143,11 +146,15 @@ public class ExchangePayload extends HashMap<String, Object> implements Exchange
             return Map.of();
         }
 
+        Map<String,Object> payloads = new HashMap<>();
         Map<String, Entity> exchangeEntities = getExchangeEntities();
-        return entrySet().stream().filter(entry -> {
-            Entity entity = exchangeEntities.get(entry.getKey());
-            return entity != null && entity.getType() == entityType;
-        }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        this.forEach((key, value) -> {
+            Entity entity = exchangeEntities.get(key);
+            if(entity != null && entity.getType() == entityType){
+                payloads.put(key, value);
+            }
+        });
+        return payloads;
     }
 
 }
