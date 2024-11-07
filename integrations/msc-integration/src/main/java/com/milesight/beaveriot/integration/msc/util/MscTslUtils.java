@@ -333,7 +333,7 @@ public class MscTslUtils {
         while (!entries.isEmpty()) {
             val parent = entries.pop();
             val currentLevel = level;
-            jsonNode.fields().forEachRemaining(entry -> {
+            parent.value.fields().forEachRemaining(entry -> {
                 val fieldName = entry.getKey();
                 val value = entry.getValue();
                 val parentEntityKey = parent.parentEntityKey;

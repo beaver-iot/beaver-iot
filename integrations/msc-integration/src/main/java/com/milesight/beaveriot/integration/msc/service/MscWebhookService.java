@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.Mac;
 import java.util.List;
-import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Slf4j
@@ -29,6 +29,10 @@ import java.util.Objects;
 public class MscWebhookService {
 
     private static final String WEBHOOK_STATUS_KEY = MscConnectionPropertiesEntities.getKey(MscConnectionPropertiesEntities.Fields.webhookStatus);
+
+    private static final int MAX_FAILURES = 10;
+
+    private final AtomicInteger failureCount = new AtomicInteger(0);
 
     @Getter
     private boolean enabled = false;
@@ -96,11 +100,13 @@ public class MscWebhookService {
         val currentSeconds = TimeUtils.currentTimeSeconds();
         if (Long.parseLong(requestTimestamp) + 60 < currentSeconds) {
             log.warn("Webhook request outdated: {}", requestTimestamp);
+            markWebhookStatusAsError();
             return;
         }
 
         if (!isSignatureValid(signature, requestTimestamp, requestNonce)) {
             log.warn("Signature invalid: {}", signature);
+            markWebhookStatusAsError();
             return;
         }
 
@@ -127,7 +133,21 @@ public class MscWebhookService {
         });
     }
 
+    /**
+     * mark as error when continuously failed to validate signature or timestamp
+     */
+    private void markWebhookStatusAsError() {
+        val failures = failureCount.incrementAndGet();
+        if (failures > MAX_FAILURES) {
+            updateWebhookStatus(IntegrationStatus.ERROR);
+        }
+    }
+
     private void updateWebhookStatus(@NonNull IntegrationStatus status) {
+        if (!IntegrationStatus.ERROR.equals(status)) {
+            // recover from error
+            failureCount.set(0);
+        }
         exchangeFlowExecutor.asyncExchangeUp(ExchangePayload.create(WEBHOOK_STATUS_KEY, status.name()));
     }
 
@@ -138,13 +158,15 @@ public class MscWebhookService {
         }
         val client = mscClientProvider.getMscClient();
         val deviceData = client.getObjectMapper().convertValue(webhookPayload.getData(), WebhookPayload.DeviceData.class);
-        if (!"PROPERTY".equalsIgnoreCase(deviceData.getType())) {
-            log.debug("Not properties event: {}", deviceData.getType());
+        if (!"PROPERTY".equalsIgnoreCase(deviceData.getType())
+                && !"EVENT".equalsIgnoreCase(deviceData.getType())) {
+            log.debug("Not tsl property or event: {}", deviceData.getType());
             return;
         }
-        val properties = deviceData.getPayload();
+        val eventId = deviceData.getTslId();
+        val data = deviceData.getPayload();
         val profile = deviceData.getDeviceProfile();
-        if (properties == null || profile == null) {
+        if (data == null || profile == null) {
             log.warn("Invalid data: {}", deviceData);
             return;
         }
@@ -158,7 +180,7 @@ public class MscWebhookService {
         }
 
         // save data
-        dataSyncService.saveHistoryData(device.getKey(), properties, webhookPayload.getEventCreatedTime() * 1000, true);
+        dataSyncService.saveHistoryData(device.getKey(), eventId, data, webhookPayload.getEventCreatedTime() * 1000, true);
     }
 
     public boolean isSignatureValid(String signature, String requestTimestamp, String requestNonce) {

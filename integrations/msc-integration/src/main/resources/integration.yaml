@@ -1,8 +1,9 @@
 
 integration:
    msc-integration:
-      name: msc-integration
-      description: "MSC Integration"
+      name: "Milesight Development Platform"
+      description: "Milesight Development Platform"
+      icon-url: "public/icon.svg"
       enabled: true
       #添加设备
       entity-identifier-add-device: add_device

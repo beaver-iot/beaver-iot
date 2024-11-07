@@ -7,7 +7,7 @@ import com.milesight.beaveriot.base.enums.EnumCode;
  * @author leon
  */
 public enum DeviceStatus implements EnumCode {
-    ONLINE("a","online"), OFFLINE("a","online");
+    ONLINE("a","online"), OFFLINE("b","offline");
 
     private String code;
     private String value;
