@@ -1,7 +1,7 @@
 
 integration:
    msc-integration:
-      name: msc-integration
+      name: "Milesight Development Platform"
       description: "Milesight Development Platform"
       icon-url: "public/icon.svg"
       enabled: true
