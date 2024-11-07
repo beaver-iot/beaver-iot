@@ -151,7 +151,8 @@ public class DisruptorEventBus<T extends Event<? extends IdentityKey>> implement
                         eventResponses.putAll(eventResponse);
                     }
                 } catch (Exception e) {
-                    causes.add(e);
+                    Throwable throwable = e.getCause() != null ? e.getCause() : e;
+                    causes.add(throwable);
                     log.error("EventSubscribe method invoke error, method: {}" ,invoker, e);
                 }
             });

@@ -2,6 +2,7 @@ package com.milesight.beaveriot.base.error;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.milesight.beaveriot.base.exception.BaseException;
+import com.milesight.beaveriot.base.exception.EventBusExecutionException;
 import com.milesight.beaveriot.base.exception.ServiceException;
 import com.milesight.beaveriot.base.response.ResponseBuilder;
 import com.milesight.beaveriot.base.enums.ErrorCode;
@@ -108,6 +109,8 @@ public class DefaultExceptionHandler {
         if (cause != null) {
             if (cause instanceof ServiceException serviceException) {
                 return ResponseEntity.status(serviceException.getStatus()).body(ResponseBuilder.fail(serviceException));
+            } else if (cause instanceof EventBusExecutionException eventBusExecutionException) {
+                return ResponseEntity.status(ErrorCode.SERVER_ERROR.getStatus()).body(ResponseBuilder.fail(ErrorCode.SERVER_ERROR.getErrorCode(), cause.getMessage(), null, ErrorHolder.of(eventBusExecutionException.getCauses())));
             } else if (cause instanceof BaseException) {
                 return ResponseEntity.status(ErrorCode.SERVER_ERROR.getStatus()).body(ResponseBuilder.fail(ErrorCode.SERVER_ERROR.getErrorCode(), cause.getMessage()));
             }
