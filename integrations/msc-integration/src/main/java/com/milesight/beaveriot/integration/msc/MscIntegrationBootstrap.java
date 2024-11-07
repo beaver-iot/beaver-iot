@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-@PropertySource("classpath:integration.yaml")
 public class MscIntegrationBootstrap implements IntegrationBootstrap {
 
     @Autowired
