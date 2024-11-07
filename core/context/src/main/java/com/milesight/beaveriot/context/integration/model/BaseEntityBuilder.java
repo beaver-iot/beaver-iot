@@ -40,11 +40,6 @@ public class BaseEntityBuilder<T extends BaseEntityBuilder> {
         return (T) this;
     }
 
-    public T type(EntityType type) {
-        this.type = type;
-        return (T) this;
-    }
-
     public T valueType(EntityValueType valueType) {
         this.valueType = valueType;
         return (T) this;
