@@ -10,5 +10,6 @@ import java.util.List;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 public class IntegrationDetailData extends SearchIntegrationResponseData {
+    private String deleteDeviceServiceKey;
     List<IntegrationEntityData> integrationEntities;
 }

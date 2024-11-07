@@ -95,6 +95,7 @@ public class IntegrationService {
         BeanUtils.copyProperties(integrationToSearchResponseData(integration), data);
         data.setDeviceCount(deviceServiceProvider.countByIntegrationId(integrationId));
         data.setEntityCount(entityServiceProvider.countAllEntitiesByIntegrationId(integrationId));
+        data.setDeleteDeviceServiceKey(integration.getEntityKeyDeleteDevice());
         List<Entity> entities = entityServiceProvider.findByTargetId(AttachTargetType.INTEGRATION, integrationId);
         final Map<String, JsonNode> entityValues = entityValueServiceProvider.findValuesByKeys(entities.stream().map(Entity::getKey).toList());
 
