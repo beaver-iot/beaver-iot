@@ -11,12 +11,12 @@ import org.springframework.scheduling.annotation.EnableAsync;
  * @author leon
  */
 @EnableAsync
-@EnableJpaAuditing
-@EnableJpaRepositories(repositoryBaseClass = BaseJpaRepositoryImpl.class )
+//@EnableJpaAuditing
+//@EnableJpaRepositories(repositoryBaseClass = BaseJpaRepositoryImpl.class )
 @SpringBootApplication
-public class DevelopApplication {
+public class DemoDevelopApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(DevelopApplication.class, args);
+        SpringApplication.run(com.milesight.beaveriot.DevelopApplication.class, args);
     }
 }

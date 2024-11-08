@@ -1,0 +1,37 @@
+
+integration:
+   demo-anno-integration:
+      iconUrl: public/msc-integration.png
+      name: "anno-integration"
+      description: "This is a sample integration"
+      #全局可通过integration.{integrationName}.enabled 来控制是否启停用集成
+      enabled: true
+
+      #添加设备
+      entity-identifier-add-device: addDevice
+      #删除设备
+      entity-identifier-delete-device: deleteDevice
+      initial-devices:
+         - name: device1
+           identifier: demoSN
+           entities:
+              - identifier: 'switch'
+                name: switch
+                access_mod: rw
+                value_type: boolean
+                type: property
+      initial-entities:
+         - identifier: 'address'
+           name: mscAddress
+           access_mod: rw
+           value_type: string
+           type: property
+         - identifier: 'connect'
+           name: connect
+           value_type: string
+           type: service
+           children:
+              - identifier: 'url'
+                name: connectUrl
+                value_type: string
+                type: service
