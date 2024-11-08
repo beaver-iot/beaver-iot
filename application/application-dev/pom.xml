@@ -65,35 +65,42 @@
         </dependency>
         <dependency>
             <groupId>com.milesight.beaveriot</groupId>
+            <artifactId>dashboard-service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.milesight.beaveriot</groupId>
+            <artifactId>authentication-service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.milesight.beaveriot</groupId>
+            <artifactId>user-service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.milesight.beaveriot</groupId>
             <artifactId>entity-service</artifactId>
             <version>${project.version}</version>
         </dependency>
 
-        <!-- sample test -->
-        <dependency>
-            <groupId>com.milesight.beaveriot</groupId>
-            <artifactId>sample-yaml</artifactId>
-            <version>${project.version}</version>
-            <!--<scope>test</scope>-->
-        </dependency>
-        <dependency>
-            <groupId>com.milesight.beaveriot</groupId>
-            <artifactId>sample-annotation</artifactId>
-            <version>${project.version}</version>
-            <!--<scope>test</scope>-->
-        </dependency>
-        <dependency>
-            <groupId>com.milesight.beaveriot</groupId>
-            <artifactId>sample-complex</artifactId>
-            <version>${project.version}</version>
-            <!--<scope>test</scope>-->
-        </dependency>
-        <dependency>
+        <!-- integration test -->
+        <!--<dependency>
             <groupId>com.milesight.beaveriot</groupId>
             <artifactId>msc-integration</artifactId>
             <version>${project.version}</version>
-            <!--<scope>test</scope>-->
+            <scope>system</scope>
+            <systemPath>C:/Users/Zhangl/.m2/repository/com/milesight/beaveriot/msc-integration/1.0-SNAPSHOT/msc-integration-1.0-SNAPSHOT.jar</systemPath>
         </dependency>
+
+        <dependency>
+            <groupId>com.milesight.beaveriot</groupId>
+            <artifactId>ping</artifactId>
+            <version>${project.version}</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/Zhangl/.m2/repository/com/milesight/beaveriot/ping/1.0-SNAPSHOT/ping-1.0-SNAPSHOT.jar</systemPath>
+        </dependency>-->
+
     </dependencies>
 
     <build>
