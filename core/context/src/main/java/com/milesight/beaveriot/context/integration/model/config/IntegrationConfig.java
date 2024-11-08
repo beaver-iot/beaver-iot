@@ -28,7 +28,7 @@ public class IntegrationConfig {
 
     private List<DeviceConfig> initialDevices = new ArrayList<>();
 
-    private List<Entity> initialEntities = new ArrayList<>();
+    private List<EntityConfig> initialEntities = new ArrayList<>();
 
     public Integration toIntegration(String integrationId) {
 
@@ -36,7 +36,7 @@ public class IntegrationConfig {
                 .map(deviceConfig -> new DeviceBuilder(integrationId)
                         .name(deviceConfig.getName())
                         .identifier(deviceConfig.getIdentifier())
-                        .entities(deviceConfig.getEntities())
+                        .entities(()-> deviceConfig.getEntities().stream().map(entityConfig -> entityConfig.toEntity()).toList())
                         .build()
                 )
                 .toList();
@@ -52,7 +52,7 @@ public class IntegrationConfig {
                 .entityIdentifierDeleteDevice(entityIdentifierDeleteDevice)
                 .flowExchangeDownHandler(flowExchangeDownHandler)
                 .end()
-                .initialEntities(initialEntities)
+                .initialEntities(()-> initialEntities.stream().map(entityConfig -> entityConfig.toEntity()).toList())
                 .initialDevices(devices)
                 .build();
     }

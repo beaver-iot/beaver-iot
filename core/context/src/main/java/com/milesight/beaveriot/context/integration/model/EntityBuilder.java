@@ -1,5 +1,6 @@
 package com.milesight.beaveriot.context.integration.model;
 
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -48,12 +49,16 @@ public class EntityBuilder extends BaseEntityBuilder<EntityBuilder> {
     }
 
     public EntityBuilder children(Entity childrenEntity) {
-        children.add(childrenEntity);
+        if(!ObjectUtils.isEmpty(childrenEntity)){
+            children.add(childrenEntity);
+        }
         return this;
     }
 
     public EntityBuilder children(List<Entity> childrenEntities) {
-        children.addAll(childrenEntities);
+        if(!ObjectUtils.isEmpty(childrenEntities)){
+            children.addAll(childrenEntities);
+        }
         return this;
     }
 

@@ -5,6 +5,7 @@ import org.springframework.util.Assert;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * IntegrationBuilder is a builder class for Integration， eg:
@@ -81,6 +82,10 @@ public class IntegrationBuilder {
         return this;
     }
 
+    public IntegrationBuilder initialDevices(Supplier<List<Device>> supplier) {
+        return initialDevices(supplier.get());
+    }
+
 
     public IntegrationBuilder initialEntity(Entity entity) {
         Assert.notNull(integration, "integration can't be null, please set integration first");
@@ -92,6 +97,10 @@ public class IntegrationBuilder {
         Assert.notNull(integration, "integration can't be null, please set integration first");
         integration.addInitialEntities(entities);
         return this;
+    }
+
+    public IntegrationBuilder initialEntities(Supplier<List<Entity>> supplier) {
+        return initialEntities(supplier.get());
     }
 
     public IntegrationConfigBuilder integration() {

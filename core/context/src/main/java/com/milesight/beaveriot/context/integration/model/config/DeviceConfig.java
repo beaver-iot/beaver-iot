@@ -16,6 +16,6 @@ public class DeviceConfig {
     private String name;
     private Map<String, Object> additional;
     private String identifier;
-    private List<Entity> entities = new ArrayList<>();
+    private List<EntityConfig> entities = new ArrayList<>();
 
 }
