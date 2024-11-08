@@ -7,6 +7,7 @@ import com.milesight.beaveriot.context.support.IdentifierValidator;
 import org.springframework.util.StringUtils;
 
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * @author leon
@@ -48,6 +49,10 @@ public class BaseEntityBuilder<T extends BaseEntityBuilder> {
     public T attributes(Map<String, Object> attributes) {
         this.attributes = attributes;
         return (T) this;
+    }
+
+    public T attributes(Supplier<Map<String,Object>> attributeSupplier) {
+        return this.attributes(attributeSupplier.get());
     }
 
     public T property(String name, AccessMod accessMod) {

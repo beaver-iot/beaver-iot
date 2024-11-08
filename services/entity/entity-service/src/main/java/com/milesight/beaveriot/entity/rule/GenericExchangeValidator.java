@@ -16,7 +16,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.Map;
 
-import static com.milesight.beaveriot.context.constants.ExchangeContextKeys.EXCHANGE_KEY_ENTITIES;
+import static com.milesight.beaveriot.context.constants.ExchangeContextKeys.ENTITIES;
 
 /**
  * @author leon
@@ -48,7 +48,7 @@ public class GenericExchangeValidator implements PredicateNode<ExchangePayload> 
             return false;
         }
 
-        exchange.putContext(EXCHANGE_KEY_ENTITIES, entityMap);
+        exchange.putContext(ENTITIES, entityMap);
 
         return true;
     }

@@ -4,6 +4,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * EntityBuilder is a builder class for Entity, eg:
@@ -54,6 +55,10 @@ public class EntityBuilder extends BaseEntityBuilder<EntityBuilder> {
     public EntityBuilder children(List<Entity> childrenEntities) {
         children.addAll(childrenEntities);
         return this;
+    }
+
+    public EntityBuilder children(Supplier<List<Entity>> entitySupplier) {
+        return children(entitySupplier.get());
     }
 
     public ChildEntityBuilder children() {

@@ -8,8 +8,8 @@ import com.milesight.beaveriot.rule.RuleEngineExecutor;
 import com.milesight.beaveriot.rule.constants.RuleNodeNames;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.milesight.beaveriot.context.constants.ExchangeContextKeys.EXCHANGE_KEY_EVENT_TYPE;
-import static com.milesight.beaveriot.context.constants.ExchangeContextKeys.EXCHANGE_KEY_SYNC_CALL;
+import static com.milesight.beaveriot.context.constants.ExchangeContextKeys.EVENT_TYPE;
+import static com.milesight.beaveriot.context.constants.ExchangeContextKeys.SYNC_CALL;
 
 /**
  * @author leon
@@ -58,7 +58,7 @@ public class GenericExchangeFlowExecutor implements ExchangeFlowExecutor {
     }
 
     private void initializeEventContext(String eventType, ExchangePayload payload, boolean syncCall) {
-        payload.putContext(EXCHANGE_KEY_SYNC_CALL, syncCall);
-        payload.putContext(EXCHANGE_KEY_EVENT_TYPE, eventType);
+        payload.putContext(SYNC_CALL, syncCall);
+        payload.putContext(EVENT_TYPE, eventType);
     }
 }

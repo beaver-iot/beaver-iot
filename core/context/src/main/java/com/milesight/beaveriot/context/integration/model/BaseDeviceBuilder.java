@@ -6,6 +6,7 @@ import org.springframework.util.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * @author leon
@@ -24,6 +25,14 @@ public class BaseDeviceBuilder<T extends BaseDeviceBuilder> {
     }
 
     public BaseDeviceBuilder() {
+    }
+
+    public T entity(Supplier<Entity> entitySupplier) {
+        return this.entity(entitySupplier.get());
+    }
+
+    public T entities(Supplier<List<Entity>> entitySupplier) {
+        return this.entities(entitySupplier.get());
     }
 
     public T entity(Entity entity) {

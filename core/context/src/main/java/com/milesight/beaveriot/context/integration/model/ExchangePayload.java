@@ -131,7 +131,7 @@ public class ExchangePayload extends HashMap<String, Object> implements Exchange
             return Map.of();
         }
 
-        Map<String, Entity> entityMap = (Map<String, Entity>) getContext(ExchangeContextKeys.EXCHANGE_KEY_ENTITIES);
+        Map<String, Entity> entityMap = (Map<String, Entity>) getContext(ExchangeContextKeys.ENTITIES);
         if (ObjectUtils.isEmpty(entityMap)) {
             EntityServiceProvider entityServiceProvider = SpringContext.getBean(EntityServiceProvider.class);
             entityMap = entityServiceProvider.findByKeys(keySet().toArray(String[]::new));
