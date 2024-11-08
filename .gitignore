@@ -48,13 +48,13 @@ gradle-app.setting
 ##############################
 out/
 .idea/*
-!.idea/codeStyles/
-!.idea/fileTemplates/
-!.idea/inspectionProfiles/
-!.idea/codeStyleSettings.xml
-!.idea/sonarSettings.xml
-!.idea/vcs.xml
-!.idea/externalDependencies.xml
+#!.idea/codeStyles/
+#!.idea/fileTemplates/
+#!.idea/inspectionProfiles/
+#!.idea/codeStyleSettings.xml
+#!.idea/sonarSettings.xml
+#!.idea/vcs.xml
+#!.idea/externalDependencies.xml
 #!.idea/encodings.xml
 #!.idea/checkstyle-idea.xml
 
