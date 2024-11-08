@@ -1,6 +1,0 @@
-
-- from:
-    uri: "direct:mscExchangeDownHandler1"
-    steps:
-     - bean: "demoMscExchangeTransformer"
-     - bean: "demoMscHttpSink"

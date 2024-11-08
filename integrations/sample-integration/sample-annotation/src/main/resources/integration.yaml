@@ -1,7 +1,0 @@
-
-integration:
-   demo-anno-integration:
-      name: "anno-integration"
-      description: "This is a sample integration"
-      #全局可通过integration.{integrationName}.enabled 来控制是否启停用集成
-      enabled: true

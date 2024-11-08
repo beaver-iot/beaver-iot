@@ -1,5 +1,0 @@
-- from:
-    uri: "direct:myDemoExchangeDownHandler_up"
-    steps:
-     - bean: "demoMscExchangeTransformer"
-     - bean: "demoMscHttpSink"

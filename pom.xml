@@ -20,7 +20,6 @@
         <module>core</module>
         <module>services</module>
         <module>extension-components</module>
-        <module>integrations</module>
         <module>beaver-iot-parent</module>
     </modules>
 
