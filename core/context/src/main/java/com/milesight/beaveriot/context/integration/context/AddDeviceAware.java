@@ -8,7 +8,7 @@ import com.milesight.beaveriot.context.integration.model.ExchangePayload;
  */
 public interface AddDeviceAware {
 
-    default String getDeviceName() {
+    default String getAddDeviceName() {
         if(this instanceof ExchangePayload exchangePayload){
             return (String) exchangePayload.getContext(ExchangeContextKeys.DEVICE_NAME_ON_ADD);
         }else{

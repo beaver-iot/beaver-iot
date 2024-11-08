@@ -9,7 +9,7 @@ import com.milesight.beaveriot.context.integration.model.ExchangePayload;
  */
 public interface DeleteDeviceAware {
 
-    default Device getDevice(){
+    default Device getDeletedDevice(){
         if(this instanceof ExchangePayload exchangePayload){
             return (Device)exchangePayload.getContext(ExchangeContextKeys.DEVICE_ON_DELETE);
         }else{
