@@ -1,7 +1,6 @@
 package com.milesight.beaveriot.device.support;
 
 import com.milesight.beaveriot.context.api.EntityServiceProvider;
-import com.milesight.beaveriot.context.api.IntegrationServiceProvider;
 import com.milesight.beaveriot.context.integration.model.DeviceBuilder;
 import com.milesight.beaveriot.context.integration.enums.AttachTargetType;
 import com.milesight.beaveriot.context.integration.model.Device;
@@ -9,7 +8,6 @@ import com.milesight.beaveriot.context.integration.model.Entity;
 import com.milesight.beaveriot.device.po.DevicePO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -19,10 +17,6 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class DeviceConverter {
-    @Lazy
-    @Autowired
-    IntegrationServiceProvider integrationServiceProvider;
-
     @Autowired
     EntityServiceProvider entityServiceProvider;
 

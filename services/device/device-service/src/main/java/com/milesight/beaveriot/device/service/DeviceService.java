@@ -62,25 +62,24 @@ public class DeviceService implements IDeviceFacade {
     EventBus eventBus;
 
 
-    private Integration getIntegrationConfig(String integrationIdentifier) {
-        Integration integrationConfig = integrationServiceProvider.getIntegration(integrationIdentifier);
-        if (integrationConfig == null) {
+    private Optional<Integration> getIntegrationConfig(String integrationIdentifier) {
+        return Optional.ofNullable(integrationServiceProvider.getIntegration(integrationIdentifier));
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void createDevice(CreateDeviceRequest createDeviceRequest) {
+        String integrationIdentifier = createDeviceRequest.getIntegration();
+        Optional<Integration> integrationConfig = getIntegrationConfig(integrationIdentifier);
+
+        if (integrationConfig.isEmpty()) {
             throw ServiceException
                     .with(ErrorCode.DATA_NO_FOUND.getErrorCode(), "integration " + integrationIdentifier + " not found!")
                     .status(HttpStatus.BAD_REQUEST.value())
                     .build();
         }
 
-        return integrationConfig;
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    public void createDevice(CreateDeviceRequest createDeviceRequest) {
-        String integrationIdentifier = createDeviceRequest.getIntegration();
-        Integration integrationConfig = getIntegrationConfig(integrationIdentifier);
-
         // check ability to add device
-        String addDeviceEntityId = integrationConfig.getEntityIdentifierAddDevice();
+        String addDeviceEntityId = integrationConfig.get().getEntityIdentifierAddDevice();
         if (addDeviceEntityId == null) {
             throw ServiceException
                     .with(ErrorCode.PARAMETER_VALIDATION_FAILED.getErrorCode(), "integration " + integrationIdentifier + " cannot add device!")
@@ -112,9 +111,14 @@ public class DeviceService implements IDeviceFacade {
         deviceResponseData.setCreatedAt(devicePO.getCreatedAt());
         deviceResponseData.setUpdatedAt(devicePO.getUpdatedAt());
 
-        Integration integrationConfig = getIntegrationConfig(devicePO.getIntegration());
-        deviceResponseData.setDeletable(integrationConfig.getEntityIdentifierDeleteDevice() != null);
-        deviceResponseData.setIntegrationName(integrationConfig.getName());
+        Optional<Integration> integrationConfig = getIntegrationConfig(devicePO.getIntegration());
+        if (integrationConfig.isPresent()) {
+            deviceResponseData.setDeletable(integrationConfig.get().getEntityIdentifierDeleteDevice() != null);
+            deviceResponseData.setIntegrationName(integrationConfig.get().getName());
+        } else {
+            deviceResponseData.setDeletable(true);
+        }
+
         return deviceResponseData;
     }
 
@@ -169,9 +173,14 @@ public class DeviceService implements IDeviceFacade {
 
         devices.stream().map((Device device) -> {
             // check ability to delete device
-            Integration integrationConfig = getIntegrationConfig(device.getIntegrationId());
+            Optional<Integration> integrationConfig = getIntegrationConfig(device.getIntegrationId());
+            if (integrationConfig.isEmpty()) {
+                deleteDevice(device);
+                return null;
+            }
+
             ExchangePayload payload = new ExchangePayload();
-            String deleteDeviceServiceKey = integrationConfig.getEntityKeyDeleteDevice();
+            String deleteDeviceServiceKey = integrationConfig.get().getEntityKeyDeleteDevice();
             if (deleteDeviceServiceKey == null) {
                 throw ServiceException
                         .with(ErrorCode.METHOD_NOT_ALLOWED)
@@ -182,7 +191,7 @@ public class DeviceService implements IDeviceFacade {
             payload.put(deleteDeviceServiceKey, "");
             payload.putContext("device", device);
             return payload;
-        }).forEach((ExchangePayload payload) -> {
+        }).filter(Objects::nonNull).forEach((ExchangePayload payload) -> {
             // call service for deleting
             try {
                 exchangeFlowExecutor.syncExchangeDown(payload);
@@ -288,5 +297,13 @@ public class DeviceService implements IDeviceFacade {
         return deviceRepository.findOne(f -> f.eq(DevicePO.Fields.key, deviceKey))
                 .map(this::convertDevicePO)
                 .orElse(null);
+    }
+
+    public void deleteDevice(Device device) {
+        entityServiceProvider.deleteByTargetId(device.getId().toString());
+
+        deviceRepository.deleteById(device.getId());
+
+        eventBus.publish(DeviceEvent.of(DeviceEvent.EventType.DELETED, device));
     }
 }

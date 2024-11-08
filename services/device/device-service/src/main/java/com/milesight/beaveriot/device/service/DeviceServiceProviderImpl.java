@@ -31,6 +31,9 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
     @Autowired
     EventBus eventBus;
 
+    @Autowired
+    DeviceService deviceService;
+
     @Override
     public void save(Device device) {
         DevicePO devicePO;
@@ -95,12 +98,7 @@ public class DeviceServiceProviderImpl implements DeviceServiceProvider {
     public void deleteById(Long id) {
         Device device = findById(id);
         Assert.notNull(device, "Delete failed. Cannot find device " + id.toString());
-
-        entityServiceProvider.deleteByTargetId(id.toString());
-
-        deviceRepository.deleteById(id);
-
-        eventBus.publish(DeviceEvent.of(DeviceEvent.EventType.DELETED, device));
+        deviceService.deleteDevice(device);
     }
 
     @Override
