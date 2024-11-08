@@ -32,11 +32,11 @@
     <distributionManagement>
         <repository>
             <id>nexus</id>
-            <url>https://nexus.milesight.com/repository/maven-releases/</url>
+            <url>https://nexus.milesight.com/repository/maven-open-source/</url>
         </repository>
         <snapshotRepository>
             <id>snapshots</id>
-            <url>https://nexus.milesight.com/repository/maven-snapshots/</url>
+            <url>https://nexus.milesight.com/repository/maven-open-source/</url>
             <uniqueVersion>false</uniqueVersion>
         </snapshotRepository>
     </distributionManagement>
@@ -44,7 +44,7 @@
         <repository>
             <id>snapshots</id>
             <name>nexus-snapshots</name>
-            <url>https://nexus.milesight.com/repository/maven-public/</url>
+            <url>https://nexus.milesight.com/repository/maven-open-source/</url>
             <releases>
                 <enabled>true</enabled>
                 <updatePolicy>always</updatePolicy>
@@ -59,7 +59,7 @@
         <pluginRepository>
             <id>snapshots</id>
             <name>nexus-snapshots</name>
-            <url>https://nexus.milesight.com/repository/maven-public/</url>
+            <url>https://nexus.milesight.com/repository/maven-open-source/</url>
             <releases>
                 <enabled>true</enabled>
                 <updatePolicy>always</updatePolicy>
